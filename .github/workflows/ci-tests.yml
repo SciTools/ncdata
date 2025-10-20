@@ -90,9 +90,9 @@ jobs:
       - name: "Run doctests: Docs"
         if: matrix.session == 'doctests-docs'
         run: |
-          tools/run_doctests.py $(find ./docs -iname '*.rst') -va
+          tools/run_doctests.py -v $(find ./docs -iname '*.rst')
 
       - name: "Run doctests: API"
         if: matrix.session == 'doctests-api'
         run: |
-          tools/run_doctests.py ncdata -va
+          tools/run_doctests.py -v -mr ncdata

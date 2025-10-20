@@ -8,23 +8,25 @@ import sys
 
 
 def list_modules_recursive(
-    module_importname: str, include_private: bool = False
+    module_importname: str, include_private: bool = True
 ):
     module_names = [module_importname]
     # Identify module from its import path (no import -> fail back to caller)
     module = importlib.import_module(module_importname)
     # Get the filepath of the module base directory
-    module_filepath = str(Path(module.__file__).parent)
-    for _, name, ispkg in pkgutil.iter_modules([module_filepath]):
-        if not name.startswith("_") or include_private:
-            submodule_name = module_importname + "." + name
-            module_names.append(submodule_name)
-            if ispkg:
-                module_names.extend(
-                    list_modules_recursive(
-                        submodule_name, include_private=include_private
+    module_filepath = Path(module.__file__)
+    if module_filepath.name == "__init__.py":
+        search_filepath = str(module_filepath.parent)
+        for _, name, ispkg in pkgutil.iter_modules([search_filepath]):
+            if not name.startswith("_") or include_private:
+                submodule_name = module_importname + "." + name
+                module_names.append(submodule_name)
+                if ispkg:
+                    module_names.extend(
+                        list_modules_recursive(
+                            submodule_name, include_private=include_private
+                        )
                     )
-                )
     # I don't know why there are duplicates, but there can be.
     result = []
     for name in module_names:
@@ -36,22 +38,17 @@ def list_modules_recursive(
 
 
 def process_options(opt_str: str) -> dict[str, str]:
-    # First collapse spaces around equals signs."
-    while " =" in opt_str:
-        opt_str = opt_str.replace(" =", "=")
-    while "= " in opt_str:
-        opt_str = opt_str.replace("= ", "=")
-    # Collapse (remaining) duplicate spaces
-    while "  " in opt_str:
-        opt_str = opt_str.replace("  ", " ")
-    # Split on spaces, and split each one on "=" expecting a simple name=val form
+    """Convert the "-o/--options" arg into a **kwargs for the doctest function call."""
+    # Remove all spaces (think they are never needed).
+    opt_str = opt_str.replace(" ", "")
+    # Split on commas, and split each one on "=" expecting a simple name=val form
     opts_dict = {}
-    if opt_str:  # N.B. to avoid unexpected behaviour from "".split()
-        for setting_str in opt_str.split(" "):
+    if opt_str:  # N.B. to avoid unexpected behaviour: "".split() --> [""]
+        for setting_str in opt_str.split(","):
             try:
                 name, val = setting_str.split("=")
 
-                # Translate certain things (but do not exec!!)
+                # Detect + translate numberic and boolean values.
                 bool_vals = {"true": True, "false": False}
                 if val.isdigit():
                     val = int(val)
@@ -69,55 +66,86 @@ def process_options(opt_str: str) -> dict[str, str]:
 
 def run_doctest_paths(
     paths: list[str],
-    opts_str: str,
+    paths_are_modules:bool = False,
+    recurse_modules: bool = False,
+    include_private_modules: bool = False,
+    option_kwargs: dict = {},
     verbose: bool = False,
     dry_run: bool = False,
-    do_all: bool = False,
+    stop_on_failure: bool = False,
 ):
+    n_total_fails, n_total_tests, n_paths_tested = 0, 0, 0
     if verbose:
         print(
             "RUNNING run_doctest("
             f"paths={paths!r}"
-            f", opts_str={opts_str!r}"
+            f", paths_are_modules={paths_are_modules!r}"
+            f", option_kwargs={option_kwargs!r}"
             f", verbose={verbose!r}"
             f", dry_run={dry_run!r}"
-            f", do_all={do_all!r}"
+            f", stop_on_failure={stop_on_failure!r}"
+            f", include_private={include_private_modules!r}"
             ")"
         )
     if dry_run:
         verbose = True
-    opts_kwargs = process_options(opts_str)
-    finished = False
-    try:
-        module_paths = []
-        for path in paths:
-            module_paths += list_modules_recursive(
-                path, include_private=do_all
-            )
-        for path in module_paths:
-            if verbose:
-                print(f"\ndoctest.testmod: {path!r}")
-            if not dry_run:
-                module = importlib.import_module(path)
-                doctest.testmod(module, **opts_kwargs)
-        finished = True
-    except (ImportError, ModuleNotFoundError, TypeError):
-        # TODO: this list is "awkward" !
-        pass
 
-    if not finished:
-        # Module search failed : treat paths as (documentation) filepaths instead
+    if paths_are_modules:
+        doctest_function = doctest.testmod
+        if recurse_modules:
+            module_paths = []
+            for path in paths:
+                module_paths += list_modules_recursive(
+                    path, include_private=include_private_modules
+                )
+            paths = module_paths
+
+    else:  # paths are filepaths
+        doctest_function = doctest.testfile
         # Fix options : TODO this is not very clever, think of something better??
-        if not "module_relative" in opts_kwargs:
-            opts_kwargs["module_relative"] = False
-        if not "optionflags" in opts_kwargs:
+        if not "module_relative" in option_kwargs:
+            option_kwargs["module_relative"] = False
+        if not "optionflags" in option_kwargs:
             default_flags = doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE
-            opts_kwargs["optionflags"] = default_flags
-        for path in paths:
-            if verbose:
-                print(f"\ndoctest.testfile: {path!r}")
-            if not dry_run:
-                doctest.testfile(path, **opts_kwargs)
+            option_kwargs["optionflags"] = default_flags
+
+    for path in paths:
+        if verbose:
+            print(f"\n-----\ndoctest.{doctest_function.__name__}: {path!r}")
+        if not dry_run:
+            if paths_are_modules:
+                arg = importlib.import_module(path)
+            else:
+                arg = path
+            n_fails, n_tests = doctest_function(arg, **option_kwargs)
+            n_total_fails += n_fails
+            n_total_tests += n_tests
+            n_paths_tested += 1
+            if n_total_fails > 0 and stop_on_failure:
+                break
+
+    if verbose or n_total_fails > 0:
+        # Print a final report
+        msgs = ["", "=====", "run_doctest: FINAL REPORT"]
+        if dry_run:
+            msgs += ["(DRY RUN: no actual tests)"]
+        elif stop_on_failure and n_total_fails > 0:
+            msgs += ["(FAIL FAST: stopped at first target with errors)"]
+
+        msgs += [
+            f"    paths tested    = {n_paths_tested}",
+            f"    tests completed = {n_total_tests}",
+            f"    errors          = {n_total_fails}",
+            ""
+        ]
+        if n_total_fails > 0:
+            msgs += ["FAILED."]
+        else:
+            msgs += ["OK."]
+
+        print('\n'.join(msgs))
+
+    return n_total_fails
 
 
 _parser = argparse.ArgumentParser(
@@ -125,15 +153,34 @@ _parser = argparse.ArgumentParser(
     description="Runs doctests in docs files, or docstrings in packages.",
 )
 _parser.add_argument(
+    "-m", "--module", action="store_true",
+    help="Paths are module paths (xx.yy.zz), instead of filepaths."
+)
+_parser.add_argument(
+    "-r",
+    "--recursive",
+    action="store_true",
+    help="If set, include submodules (only applies with -m).",
+)
+_parser.add_argument(
+    "-p",
+    "--publiconly",
+    action="store_true",
+    help="If set, exclude private modules (only applies with -m and -r)",
+)
+_parser.add_argument(
     "-o",
     "--options",
     nargs="?",
-    help="doctest options settings (as a string).",
+    help=(
+        "doctest function kwargs (string)"
+        ", e.g. \"report=False, raise_on_error=True, optionflags=8\"."
+    ),
     type=str,
     default="",
 )
 _parser.add_argument(
-    "-v", "--verbose", action="store_true", help="Show actions."
+    "-v", "--verbose", action="store_true", help="Show details of each action."
 )
 _parser.add_argument(
     "-d",
@@ -142,10 +189,10 @@ _parser.add_argument(
     help="Only print the names of modules/files which *would* be tested.",
 )
 _parser.add_argument(
-    "-a",
-    "--all",
+    "-f",
+    "--stop-on-fail",
     action="store_true",
-    help="If set, include private files/modules ",
+    help="If set, stop at the first path with an error (else continue to test all).",
 )
 _parser.add_argument(
     "paths",
@@ -159,14 +206,18 @@ _parser.add_argument(
 def parserargs_as_kwargs(args):
     return dict(
         paths=args.paths,
-        opts_str=args.options,
+        paths_are_modules=args.module,
+        recurse_modules=args.recursive,
+        include_private_modules=not args.publiconly,
+        option_kwargs=process_options(args.options),
         verbose=args.verbose,
         dry_run=args.dryrun,
-        do_all=args.all,
+        stop_on_failure=args.stop_on_fail,
     )
 
 
 if __name__ == "__main__":
     args = _parser.parse_args(sys.argv[1:])
     kwargs = parserargs_as_kwargs(args)
-    run_doctest_paths(**kwargs)
+    n_errs = run_doctest_paths(**kwargs)
+    exit(1 if n_errs > 0 else 0)
