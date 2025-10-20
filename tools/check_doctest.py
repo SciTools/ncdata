@@ -3,7 +3,11 @@ from run_doctests import run_doctest_paths, _parser, parserargs_as_kwargs
 
 # tstargs = ['ncdata', '-da', '--options', 'verbose=1']
 
-tstargs = ['/home/users/patrick.peglar/git/ncdata/docs/userdocs/user_guide/howtos.rst', '--options', 'verbose=1']
+tstargs = [
+    "/home/users/patrick.peglar/git/ncdata/docs/userdocs/user_guide/howtos.rst",
+    "--options",
+    "verbose=1",
+]
 
 
 args = _parser.parse_args(tstargs)

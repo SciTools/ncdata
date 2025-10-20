@@ -6,7 +6,10 @@ from pathlib import Path
 import pkgutil
 import sys
 
-def list_modules_recursive(module_importname: str, include_private: bool = False):
+
+def list_modules_recursive(
+    module_importname: str, include_private: bool = False
+):
     module_names = [module_importname]
     # Identify module from its import path (no import -> fail back to caller)
     module = importlib.import_module(module_importname)
@@ -17,9 +20,11 @@ def list_modules_recursive(module_importname: str, include_private: bool = False
             submodule_name = module_importname + "." + name
             module_names.append(submodule_name)
             if ispkg:
-                module_names.extend(list_modules_recursive(
-                    submodule_name, include_private=include_private
-                ))
+                module_names.extend(
+                    list_modules_recursive(
+                        submodule_name, include_private=include_private
+                    )
+                )
     # I don't know why there are duplicates, but there can be.
     result = []
     for name in module_names:
@@ -30,7 +35,7 @@ def list_modules_recursive(module_importname: str, include_private: bool = False
     return result
 
 
-def process_options(opt_str:str) -> dict[str, str]:
+def process_options(opt_str: str) -> dict[str, str]:
     # First collapse spaces around equals signs."
     while " =" in opt_str:
         opt_str = opt_str.replace(" =", "=")
@@ -64,10 +69,10 @@ def process_options(opt_str:str) -> dict[str, str]:
 
 def run_doctest_paths(
     paths: list[str],
-    opts_str:str,
-    verbose:bool = False,
-    dry_run:bool=False,
-    do_all:bool=False
+    opts_str: str,
+    verbose: bool = False,
+    dry_run: bool = False,
+    do_all: bool = False,
 ):
     if verbose:
         print(
@@ -86,7 +91,9 @@ def run_doctest_paths(
     try:
         module_paths = []
         for path in paths:
-            module_paths += list_modules_recursive(path, include_private=do_all)
+            module_paths += list_modules_recursive(
+                path, include_private=do_all
+            )
         for path in module_paths:
             if verbose:
                 print(f"\ndoctest.testmod: {path!r}")
@@ -115,30 +122,39 @@ def run_doctest_paths(
 
 _parser = argparse.ArgumentParser(
     prog="run_doctests",
-    description="Runs doctests in docs files, or docstrings in packages."
+    description="Runs doctests in docs files, or docstrings in packages.",
 )
 _parser.add_argument(
-    "-o", "--options", nargs="?",
+    "-o",
+    "--options",
+    nargs="?",
     help="doctest options settings (as a string).",
-    type=str, default=""
+    type=str,
+    default="",
 )
 _parser.add_argument(
-    "-v", "--verbose", action="store_true",
-    help="Show actions."
+    "-v", "--verbose", action="store_true", help="Show actions."
 )
 _parser.add_argument(
-    "-d", "--dryrun", action="store_true",
-    help="Only print the names of modules/files which *would* be tested."
+    "-d",
+    "--dryrun",
+    action="store_true",
+    help="Only print the names of modules/files which *would* be tested.",
 )
 _parser.add_argument(
-    "-a", "--all", action="store_true",
-    help="If set, include private files/modules "
+    "-a",
+    "--all",
+    action="store_true",
+    help="If set, include private files/modules ",
 )
 _parser.add_argument(
-    "paths", nargs="*",
+    "paths",
+    nargs="*",
     help="docs filepaths, or module paths (not both).",
-    type=str, default=[]
+    type=str,
+    default=[],
 )
+
 
 def parserargs_as_kwargs(args):
     return dict(
@@ -146,11 +162,11 @@ def parserargs_as_kwargs(args):
         opts_str=args.options,
         verbose=args.verbose,
         dry_run=args.dryrun,
-        do_all=args.all
+        do_all=args.all,
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = _parser.parse_args(sys.argv[1:])
     kwargs = parserargs_as_kwargs(args)
     run_doctest_paths(**kwargs)
