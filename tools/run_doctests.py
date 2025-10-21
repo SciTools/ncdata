@@ -54,7 +54,7 @@ def list_modules_recursive(
     return result
 
 
-def process_options(opt_str: str) -> dict[str, str]:
+def process_options(opt_str: str, paths_are_modules: bool = True) -> dict[str, str]:
     """Convert the "-o/--options" arg into a **kwargs for the doctest function call."""
     # Remove all spaces (think they are never needed).
     opt_str = opt_str.replace(" ", "")
@@ -77,6 +77,17 @@ def process_options(opt_str: str) -> dict[str, str]:
                 raise ValueError(msg)
 
             opts_dict[name] = val
+
+    # Post-process to "fix" options, especially to correct defaults
+    # TODO this is not very clever, think of something better??
+    if not paths_are_modules:
+        if not "module_relative" in opts_dict:
+            opts_dict["module_relative"] = False
+    if not "verbose" in opts_dict:
+        opts_dict["verbose"] = False
+    if not "optionflags" in opts_dict:
+        default_flags = doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE
+        opts_dict["optionflags"] = default_flags
 
     return opts_dict
 
@@ -125,14 +136,6 @@ def run_doctest_paths(
 
     else:  # paths are filepaths
         doctest_function = doctest.testfile
-        # Fix options : TODO this is not very clever, think of something better??
-        if not "module_relative" in option_kwargs:
-            option_kwargs["module_relative"] = False
-        if not "verbose" in option_kwargs:
-            option_kwargs["verbose"] = False
-        if not "optionflags" in option_kwargs:
-            default_flags = doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE
-            option_kwargs["optionflags"] = default_flags
 
     for path in paths:
         if verbose:
@@ -262,7 +265,7 @@ def parserargs_as_kwargs(args):
         recurse_modules=args.recursive,
         include_private_modules=not args.publiconly,
         exclude_matches=args.exclude or [],
-        option_kwargs=process_options(args.options),
+        option_kwargs=process_options(args.options, args.module),
         verbose=args.verbose,
         dry_run=args.dryrun,
         stop_on_failure=args.stop_on_fail,
