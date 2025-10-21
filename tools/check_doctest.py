@@ -9,7 +9,11 @@ from run_doctests import run_doctest_paths, _parser, parserargs_as_kwargs
 #     "verbose=1",
 # ]
 
-tstargs = ["-mvr", "ncdata.iris"]
+# tstargs = ["-mvr", "iris.coords", "-o", "verbose=True"]
+
+# tstargs = ["-mvr", "iris.tests.unit.fileformats.netcdf", "-e", "attribute_handlers"]
+
+tstargs = ["-mvr", "iris._combine", "-o", "raise_on_error=True"]
 
 args = _parser.parse_args(tstargs)
 kwargs = parserargs_as_kwargs(args)

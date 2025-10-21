@@ -2,24 +2,40 @@
 import argparse
 import doctest
 import importlib
+import traceback
 from pathlib import Path
 import pkgutil
 import sys
+import warnings
 
 
 def list_modules_recursive(
-    module_importname: str, include_private: bool = True
+    module_importname: str, include_private: bool = True,
+    exclude_matches: list[str] = []
 ):
     module_names = [module_importname]
     # Identify module from its import path (no import -> fail back to caller)
-    module = importlib.import_module(module_importname)
-    # Get the filepath of the module base directory
-    module_filepath = Path(module.__file__)
-    if module_filepath.name == "__init__.py":
-        search_filepath = str(module_filepath.parent)
-        for _, name, ispkg in pkgutil.iter_modules([search_filepath]):
-            if not name.startswith("_") or include_private:
+    try:
+        error = None
+        module = importlib.import_module(module_importname)
+    except Exception as exc:
+        print(f"\n\nIMPORT FAILED: {module_importname}\n")
+        error = exc
+
+    if error is None:
+        # Add sub-modules to the list
+        # Get the filepath of the module base directory
+        module_filepath = Path(module.__file__)
+        if module_filepath.name == "__init__.py":
+            search_filepath = str(module_filepath.parent)
+            for _, name, ispkg in pkgutil.iter_modules([search_filepath]):
+                if name.startswith("_") and not include_private:
+                    continue
+
                 submodule_name = module_importname + "." + name
+                if any(match in submodule_name for match in exclude_matches):
+                    continue
+
                 module_names.append(submodule_name)
                 if ispkg:
                     module_names.extend(
@@ -27,6 +43,7 @@ def list_modules_recursive(
                             submodule_name, include_private=include_private
                         )
                     )
+
     # I don't know why there are duplicates, but there can be.
     result = []
     for name in module_names:
@@ -69,6 +86,7 @@ def run_doctest_paths(
     paths_are_modules:bool = False,
     recurse_modules: bool = False,
     include_private_modules: bool = False,
+    exclude_matches: list[str] = [],
     option_kwargs: dict = {},
     verbose: bool = False,
     dry_run: bool = False,
@@ -80,15 +98,19 @@ def run_doctest_paths(
             "RUNNING run_doctest("
             f"paths={paths!r}"
             f", paths_are_modules={paths_are_modules!r}"
+            f", recurse_modules={recurse_modules!r}"
+            f", include_private_modules={include_private_modules!r}"
+            f", exclude_matches={exclude_matches!r}"
             f", option_kwargs={option_kwargs!r}"
             f", verbose={verbose!r}"
             f", dry_run={dry_run!r}"
             f", stop_on_failure={stop_on_failure!r}"
-            f", include_private={include_private_modules!r}"
             ")"
         )
     if dry_run:
         verbose = True
+
+    warnings.simplefilter("ignore")
 
     if paths_are_modules:
         doctest_function = doctest.testmod
@@ -96,7 +118,8 @@ def run_doctest_paths(
             module_paths = []
             for path in paths:
                 module_paths += list_modules_recursive(
-                    path, include_private=include_private_modules
+                    path, include_private=include_private_modules,
+                    exclude_matches=exclude_matches
                 )
             paths = module_paths
 
@@ -113,14 +136,33 @@ def run_doctest_paths(
         if verbose:
             print(f"\n-----\ndoctest.{doctest_function.__name__}: {path!r}")
         if not dry_run:
+            op_fail = None
             if paths_are_modules:
-                arg = importlib.import_module(path)
+                try:
+                    arg = importlib.import_module(path)
+                except Exception as exc:
+                    op_fail = exc
             else:
                 arg = path
-            n_fails, n_tests = doctest_function(arg, **option_kwargs)
-            n_total_fails += n_fails
-            n_total_tests += n_tests
-            n_paths_tested += 1
+
+            if op_fail is None:
+                try:
+                    n_fails, n_tests = doctest_function(arg, **option_kwargs)
+                    n_total_fails += n_fails
+                    n_total_tests += n_tests
+                    n_paths_tested += 1
+                except Exception as exc:
+                    op_fail = exc
+
+            if op_fail is not None:
+                n_total_fails += 1
+                print(f"\n\nERROR occurred at {path!r}: {op_fail}\n")
+                if isinstance(op_fail, doctest.UnexpectedException):
+                    # This is what happens with "-o raise_on_error=True", which is the
+                    #  Python call equivalent of "-o FAIL_FAST" in the doctest CLI.
+                    print(f"Doctest caught exception: {op_fail}")
+                    traceback.print_exception(*op_fail.exc_info)
+
             if n_total_fails > 0 and stop_on_failure:
                 break
 
@@ -169,6 +211,12 @@ _parser.add_argument(
     help="If set, exclude private modules (only applies with -m and -r)",
 )
 _parser.add_argument(
+    "-e",
+    "--exclude",
+    action="append",
+    help="Match fragments of paths to exclude.",
+)
+_parser.add_argument(
     "-o",
     "--options",
     nargs="?",
@@ -209,6 +257,7 @@ def parserargs_as_kwargs(args):
         paths_are_modules=args.module,
         recurse_modules=args.recursive,
         include_private_modules=not args.publiconly,
+        exclude_matches=args.exclude or [],
         option_kwargs=process_options(args.options),
         verbose=args.verbose,
         dry_run=args.dryrun,
