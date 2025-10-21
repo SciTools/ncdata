@@ -128,6 +128,8 @@ def run_doctest_paths(
         # Fix options : TODO this is not very clever, think of something better??
         if not "module_relative" in option_kwargs:
             option_kwargs["module_relative"] = False
+        if not "verbose" in option_kwargs:
+            option_kwargs["verbose"] = False
         if not "optionflags" in option_kwargs:
             default_flags = doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE
             option_kwargs["optionflags"] = default_flags
@@ -151,6 +153,8 @@ def run_doctest_paths(
                     n_total_fails += n_fails
                     n_total_tests += n_tests
                     n_paths_tested += 1
+                    if n_fails:
+                        print(f"\nERRORS from doctests in path: {arg}\n")
                 except Exception as exc:
                     op_fail = exc
 
