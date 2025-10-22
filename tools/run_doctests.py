@@ -2,6 +2,7 @@
 import argparse
 import doctest
 import importlib
+import os
 import traceback
 from pathlib import Path
 import pkgutil
@@ -13,6 +14,10 @@ def list_modules_recursive(
     module_importname: str, include_private: bool = True,
     exclude_matches: list[str] = []
 ):
+    """Find all the submodules of a given module.
+
+    Also filter with private and exclude controls.
+    """
     module_names = [module_importname]
     # Identify module from its import path (no import -> fail back to caller)
     try:
@@ -40,7 +45,8 @@ def list_modules_recursive(
                 if ispkg:
                     module_names.extend(
                         list_modules_recursive(
-                            submodule_name, include_private=include_private
+                            submodule_name, include_private=include_private,
+                            exclude_matches=exclude_matches,
                         )
                     )
 
@@ -51,6 +57,38 @@ def list_modules_recursive(
             # For some reason, some things get listed twice.
             result.append(name)
 
+    return result
+
+
+def list_filepaths_recursive(
+    file_path: str,
+    exclude_matches: list[str] = []
+) -> list[Path]:
+    """Expand globs to a list of filepaths.
+
+    Also filter with exclude controls.
+    """
+    actual_paths: list[Path] = []
+    segments = file_path.split("/")
+    i_wilds = [
+        index for index, segment in enumerate(segments)
+        if any(char in segment for char in "*?[")
+    ]
+    if len(i_wilds) == 0:
+        actual_paths.append(Path(file_path))
+    else:
+        i_first_wild = i_wilds[0]
+        base_path = Path("/".join(segments[:i_first_wild]))
+        file_spec = "/".join(segments[i_first_wild:])
+        # This is the magic bit! expand with globs, '**' enabling recursive
+        actual_paths += list(base_path.glob(file_spec))
+
+    # Also apply exclude and private filters to results
+    result = [
+        path for path in actual_paths
+        if not any(match in str(path) for match in exclude_matches)
+        and not path.name.startswith("_")
+    ]
     return result
 
 
@@ -65,7 +103,7 @@ def process_options(opt_str: str, paths_are_modules: bool = True) -> dict[str, s
             try:
                 name, val = setting_str.split("=")
 
-                # Detect + translate numberic and boolean values.
+                # Detect + translate numeric and boolean values.
                 bool_vals = {"true": True, "false": False}
                 if val.isdigit():
                     val = int(val)
@@ -98,12 +136,13 @@ def run_doctest_paths(
     recurse_modules: bool = False,
     include_private_modules: bool = False,
     exclude_matches: list[str] = [],
-    option_kwargs: dict = {},
+    doctest_kwargs: dict = {},
     verbose: bool = False,
     dry_run: bool = False,
     stop_on_failure: bool = False,
 ):
     n_total_fails, n_total_tests, n_paths_tested = 0, 0, 0
+
     if verbose:
         print(
             "RUNNING run_doctest("
@@ -112,15 +151,17 @@ def run_doctest_paths(
             f", recurse_modules={recurse_modules!r}"
             f", include_private_modules={include_private_modules!r}"
             f", exclude_matches={exclude_matches!r}"
-            f", option_kwargs={option_kwargs!r}"
+            f", doctest_kwargs={doctest_kwargs!r}"
             f", verbose={verbose!r}"
             f", dry_run={dry_run!r}"
             f", stop_on_failure={stop_on_failure!r}"
             ")"
         )
+
     if dry_run:
         verbose = True
 
+    # For now at least, simply discard ALL warnings.
     warnings.simplefilter("ignore")
 
     if paths_are_modules:
@@ -133,45 +174,54 @@ def run_doctest_paths(
                     exclude_matches=exclude_matches
                 )
             paths = module_paths
-
-    else:  # paths are filepaths
+    else:
+        # paths are filepaths
         doctest_function = doctest.testfile
+        filepaths = []
+        for path in paths:
+            filepaths += list_filepaths_recursive(
+                path,
+                exclude_matches=exclude_matches
+            )
+        paths = filepaths
 
     for path in paths:
         if verbose:
             print(f"\n-----\ndoctest.{doctest_function.__name__}: {path!r}")
-        if not dry_run:
-            op_fail = None
-            if paths_are_modules:
-                try:
-                    arg = importlib.import_module(path)
-                except Exception as exc:
-                    op_fail = exc
-            else:
-                arg = path
+        if dry_run:
+            continue
 
-            if op_fail is None:
-                try:
-                    n_fails, n_tests = doctest_function(arg, **option_kwargs)
-                    n_total_fails += n_fails
-                    n_total_tests += n_tests
-                    n_paths_tested += 1
-                    if n_fails:
-                        print(f"\nERRORS from doctests in path: {arg}\n")
-                except Exception as exc:
-                    op_fail = exc
+        op_fail = None
+        if paths_are_modules:
+            try:
+                arg = importlib.import_module(path)
+            except Exception as exc:
+                op_fail = exc
+        else:
+            arg = path
 
-            if op_fail is not None:
-                n_total_fails += 1
-                print(f"\n\nERROR occurred at {path!r}: {op_fail}\n")
-                if isinstance(op_fail, doctest.UnexpectedException):
-                    # This is what happens with "-o raise_on_error=True", which is the
-                    #  Python call equivalent of "-o FAIL_FAST" in the doctest CLI.
-                    print(f"Doctest caught exception: {op_fail}")
-                    traceback.print_exception(*op_fail.exc_info)
+        if op_fail is None:
+            try:
+                n_fails, n_tests = doctest_function(arg, **doctest_kwargs)
+                n_total_fails += n_fails
+                n_total_tests += n_tests
+                n_paths_tested += 1
+                if n_fails:
+                    print(f"\nERRORS in path: {arg}\n")
+            except Exception as exc:
+                op_fail = exc
 
-            if n_total_fails > 0 and stop_on_failure:
-                break
+        if op_fail is not None:
+            n_total_fails += 1
+            print(f"\n\nERROR occurred at {path!r}: {op_fail}\n")
+            if isinstance(op_fail, doctest.UnexpectedException):
+                # E.G. this is what happens with "-o raise_on_error=True", which is
+                #  the Python call equivalent of "-o FAIL_FAST" in the doctest CLI.
+                print(f"Doctest caught exception: {op_fail}")
+                traceback.print_exception(*op_fail.exc_info)
+
+        if n_total_fails > 0 and stop_on_failure:
+            break
 
     if verbose or n_total_fails > 0:
         # Print a final report
@@ -179,7 +229,7 @@ def run_doctest_paths(
         if dry_run:
             msgs += ["(DRY RUN: no actual tests)"]
         elif stop_on_failure and n_total_fails > 0:
-            msgs += ["(FAIL FAST: stopped at first target with errors)"]
+            msgs += ["(FAIL FAST: stopped at first path with errors)"]
 
         msgs += [
             f"    paths tested    = {n_paths_tested}",
@@ -197,57 +247,77 @@ def run_doctest_paths(
     return n_total_fails
 
 
+_help_extra_lines = """\
+Notes:
+  * file paths support glob patterns '* ? [] **'  (** to include subdirectories)
+      * N.B. use ** to include subdirectories
+      * N.B. usually requires quotes, to avoid shell expansion
+  * module paths do *not* support globs
+      * but --recurse includes all submodules
+  * \"--exclude\" patterns are a simple substring to match (not a glob/regexp)
+
+Examples:
+  $ run_doctests \"docs/**/*.rst\"                      # test all document sources
+  $ run_doctests \"docs/user*/**/*.rst\" -e detail      # skip filepaths containing key string
+  $ run_doctests -mr mymod                            # test module + all submodules
+  $ run_doctests -mr mymod.util -e maths -e fun.err   # skip module paths with substrings
+  $ run_doctests -mr mymod -o verbose=true            # make doctest print each test
+"""
+
+
 _parser = argparse.ArgumentParser(
     prog="run_doctests",
-    description="Runs doctests in docs files, or docstrings in packages.",
+    description="Run doctests in docs files, or docstrings in packages.",
+    epilog=_help_extra_lines,
+    formatter_class=argparse.RawDescriptionHelpFormatter,
 )
 _parser.add_argument(
     "-m", "--module", action="store_true",
-    help="Paths are module paths (xx.yy.zz), instead of filepaths."
+    help="paths are module paths (xx.yy.zz), instead of filepaths."
 )
 _parser.add_argument(
     "-r",
-    "--recursive",
+    "--recurse",
     action="store_true",
-    help="If set, include submodules (only applies with -m).",
+    help="include submodules (only applies with -m).",
 )
 _parser.add_argument(
     "-p",
     "--publiconly",
     action="store_true",
-    help="If set, exclude private modules (only applies with -m and -r)",
+    help="exclude module names beginning '_' (only applies with -m and -r)",
 )
 _parser.add_argument(
     "-e",
     "--exclude",
     action="append",
-    help="Match fragments of paths to exclude.",
+    help="exclude paths containing substring (may appear multiple times).",
 )
 _parser.add_argument(
     "-o",
     "--options",
     nargs="?",
     help=(
-        "doctest function kwargs (string)"
-        ", e.g. \"report=False, raise_on_error=True, optionflags=8\"."
+        "kwargs (Python) for doctest call"
+        ", e.g. \"raise_on_error=True,optionflags=8\"."
     ),
     type=str,
     default="",
 )
 _parser.add_argument(
-    "-v", "--verbose", action="store_true", help="Show details of each action."
+    "-v", "--verbose", action="store_true", help="show details of each operation."
 )
 _parser.add_argument(
     "-d",
     "--dryrun",
     action="store_true",
-    help="Only print the names of modules/files which *would* be tested.",
+    help="only print names of modules/files which *would* be tested.",
 )
 _parser.add_argument(
     "-f",
     "--stop-on-fail",
     action="store_true",
-    help="If set, stop at the first path with an error (else continue to test all).",
+    help="stop at the first path with an error (else continue to test all).",
 )
 _parser.add_argument(
     "paths",
@@ -262,10 +332,10 @@ def parserargs_as_kwargs(args):
     return dict(
         paths=args.paths,
         paths_are_modules=args.module,
-        recurse_modules=args.recursive,
+        recurse_modules=args.recurse,
         include_private_modules=not args.publiconly,
         exclude_matches=args.exclude or [],
-        option_kwargs=process_options(args.options, args.module),
+        doctest_kwargs=process_options(args.options, args.module),
         verbose=args.verbose,
         dry_run=args.dryrun,
         stop_on_failure=args.stop_on_fail,
@@ -274,6 +344,10 @@ def parserargs_as_kwargs(args):
 
 if __name__ == "__main__":
     args = _parser.parse_args(sys.argv[1:])
-    kwargs = parserargs_as_kwargs(args)
-    n_errs = run_doctest_paths(**kwargs)
-    exit(1 if n_errs > 0 else 0)
+    if not args.paths:
+        _parser.print_help()
+    else:
+        kwargs = parserargs_as_kwargs(args)
+        n_errs = run_doctest_paths(**kwargs)
+        if n_errs > 0:
+            exit(1)

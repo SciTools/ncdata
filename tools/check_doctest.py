@@ -15,6 +15,8 @@ from run_doctests import run_doctest_paths, _parser, parserargs_as_kwargs
 
 tstargs = ["-mvr", "iris._combine", "-o", "raise_on_error=True"]
 
+tstargs = ["-r", "../docs/userdocs/**/*.rst", "-e", "started.rst"]
+
 args = _parser.parse_args(tstargs)
 kwargs = parserargs_as_kwargs(args)
 # if not "options" in kwargs:
