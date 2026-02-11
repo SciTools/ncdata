@@ -1,0 +1,1 @@
+Fixed xarray load tests for new behaviour of xarray.Dataset.identical.
