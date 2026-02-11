@@ -9,11 +9,11 @@ Testcases start as netcdf files.
 import numpy as np
 import pytest
 import xarray
-
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.threadlock_sharing import lockshare_context
 from ncdata.utils import dataset_differences
 from ncdata.xarray import from_xarray, to_xarray
+
 from tests.data_testcase_schemas import (
     BAD_LOADSAVE_TESTCASES,
     session_testdir,
