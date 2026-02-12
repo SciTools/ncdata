@@ -1,0 +1,1 @@
+Pinned python for now, since 3.14 causes problems with Iris (notably).

@@ -3,6 +3,7 @@ from typing import Any, Mapping
 
 import dask.array as da
 import numpy as np
+
 from ncdata import NcData
 
 
@@ -34,7 +35,7 @@ def index_by_dimensions(
         >>> data = NcData(dimensions=[NcDimension(nn, 10) for nn in ("time", "levels")])
 
     >>> data1 = index_by_dimensions(data, time=slice(0, 10))  # equivalent to [:10]
-    >>> data2 = index_by_dimensions(data, levels=[1,2,5])
+    >>> data2 = index_by_dimension(data, levels=[1,2,5])
     >>> data3 = index_by_dimensions(data, time=3, levels=slice(2, 10, 3))
 
     Notes

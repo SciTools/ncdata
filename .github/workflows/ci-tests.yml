@@ -90,11 +90,9 @@ jobs:
       - name: "Run doctests: Docs"
         if: matrix.session == 'doctests-docs'
         run: |
-          cd docs
-          pytest --doctest-glob="*.rst" --doctest-continue-on-failure
+          tools/run_doctests.py -v "./docs/**/*.rst"
 
       - name: "Run doctests: API"
         if: matrix.session == 'doctests-api'
         run: |
-          cd lib
-          pytest --doctest-modules --doctest-continue-on-failure
+          tools/run_doctests.py -v -mr ncdata
