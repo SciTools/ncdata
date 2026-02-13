@@ -12,7 +12,7 @@ To be fixed
 
    * use of an `unlimited_dims` key currently causes an exception
 
-   * `issue#43 <https://github.com/pp-mo/ncdata/issues/43>`_
+   * `issue#43 <https://github.com/SciTools/ncdata/issues/43>`_
 
 * in conversion to xarray
   with `to_xarray <https://ncdata.readthedocs.io/en/latest/details/api/ncdata.xarray.html#ncdata.xarray.to_xarray>`_
@@ -21,7 +21,7 @@ To be fixed
 
    * most notably, **the "unlimited_dims" control is missing**
 
-   * `issue#66 <https://github.com/pp-mo/ncdata/issues/66>`_
+   * `issue#66 <https://github.com/SciTools/ncdata/issues/66>`_
 
 * in conversion to/from netCDF4 files
 

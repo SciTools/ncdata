@@ -136,4 +136,4 @@ Release actions
        * check that the new version appears in the output of ``$ conda search ncdata``
 
 
-.. _ReadTheDocs: https://readthedocs.org/projects/ncdata
+.. _ReadTheDocs: https://app.readthedocs.org/projects/ncdata/
