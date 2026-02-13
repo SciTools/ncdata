@@ -50,8 +50,7 @@ repos:
     rev: 7.0.0
     hooks:
     -   id: isort
-        types: [file, python]
-        args: [--filter-files, --profile=black, --skip=./lib/ncdata/__init__.py]
+        name: isort (python)
 
 -   repo: https://github.com/asottile/blacken-docs
     rev: 1.20.0
