@@ -10,6 +10,7 @@ from subprocess import check_output
 
 import iris
 import pytest
+
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.utils import dataset_differences
 

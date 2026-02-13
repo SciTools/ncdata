@@ -6,6 +6,7 @@ Very simple for now, but we may add more behaviour in future.
 
 import numpy as np
 import pytest
+
 from ncdata import NcAttribute
 
 # Support for building testcases

@@ -8,6 +8,7 @@ import iris
 import pytest
 import xarray as xr
 import zarr
+
 from ncdata.iris_xarray import cubes_from_xarray as conversion_func
 
 zarr_major_version = int(zarr.__version__.split(".")[0])

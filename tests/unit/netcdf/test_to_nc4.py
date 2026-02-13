@@ -15,6 +15,7 @@ from typing import List
 import netCDF4 as nc
 import numpy as np
 import pytest
+
 from ncdata import NcData
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.utils import dataset_differences

@@ -7,6 +7,7 @@ All tests are run for both of those.
 
 import numpy as np
 import pytest
+
 from ncdata import NcData, NcVariable
 
 
