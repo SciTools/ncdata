@@ -19,8 +19,8 @@ from ncdata._version import version_tuple
 # -- Project information -----------------------------------------------------
 
 project = "ncdata"
-copyright = "2023, pp-mo"
-author = "pp-mo"
+copyright = "2023, SciTools"
+author = "SciTools"
 
 # The complete version, including alpha/beta/rc tags
 version_parts = [str(part) for part in version_tuple]
@@ -149,7 +149,7 @@ html_theme_options = {
 html_context = {
     # Possibly needed for pydata_theme?
     "github_repo": "ncdata",
-    "github_user": "pp-mo",
+    "github_user": "SciTools",
     "github_version": "main",
     "doc_path": "docs",
     # Default light/dark mode.

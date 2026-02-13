@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ncdata"
 authors = [
-    {name = "Patrick Peglar", email = "patrick.peglar@metoffice.gov.uk"},
+    {name = "Iris Contributors", email = "scitools.pub@gmail.com"}
 ]
 description = "Abstract NetCDF data objects, providing fast data transfer between analysis packages."
 requires-python = ">=3.10"
@@ -50,10 +50,10 @@ dependencies = ["numpy", "dask", "netCDF4"]
 
 
 [project.urls]
-Code = "https://github.com/pp-mo/ncdata"
-Discussions = "https://github.com/pp-mo/ncdata/discussions"
+Code = "https://github.com/SciTools/ncdata"
+Discussions = "https://github.com/SciTools/ncdata/discussions"
 Documentation = "https://ncdata.readthedocs.io"
-Issues = "https://github.com/pp-mo/ncdata/issues"
+Issues = "https://github.com/SciTools/ncdata/issues"
 
 [tool.setuptools]
 license-files = ["LICENSE"]
@@ -88,7 +88,7 @@ package = "ncdata"
 package_dir = "lib"
 directory = "docs/changelog_fragments"
 filename = "docs/change_log.rst"
-issue_format = "`ISSUE#{issue} <https://github.com/pp-mo/ncdata/pull/{issue}>`_"
+issue_format = "`ISSUE#{issue} <https://github.com/SciTools/ncdata/pull/{issue}>`_"
 underlines = ["~", "^", "*", "+"]
 
 [[tool.towncrier.type]]
