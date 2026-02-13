@@ -79,6 +79,9 @@ include = '\.pyi?$'
 [tool.isort]
 line_length = "79"
 profile = "black"
+known_local_folder = ["tests"]
+known_first_party = "ncdata"
+skip = ["lib/ncdata/__init__.py"]
 
 [tool.towncrier]
 package = "ncdata"
