@@ -6,6 +6,7 @@ Testcases start as netcdf files.
 (2) check equivalence of files : xarray -> file VS xarray->ncdata->file
 """
 
+import numpy as np
 import pytest
 import xarray
 
@@ -38,6 +39,45 @@ def use_xarraylock():
         yield
 
 
+def check_load_equivalence(ds1: xarray.Dataset, ds2: xarray.Dataset):
+    """
+    Check that datasets differ only in "expected" ways.
+
+    The key differences are due to coordinates remaining lazy in loading via ncdata, but
+    having real data in a "normal" load.  This also affects which coords have indexes,
+    but we are not checking that here anyway.
+    """
+
+    def check_attrs_equivalent(attrs1, attrs2):
+        # Because dict-eq does not work when values can be arrays (!)
+        okay = set(attrs1.keys()) == set(attrs2.keys())
+        if okay:
+            for attr in attrs1:
+                okay = np.all(attrs1[attr] == attrs2[attr])
+                if not okay:
+                    break
+        assert okay
+
+    def check_vars_equivalent(v1, v2):
+        check_attrs_equivalent(v1.attrs, v2.attrs)
+        assert v1.dims == v2.dims
+        assert v1.dtype == v2.dtype
+        # Numeric compare may need to allow for NaNs : floats *and datetimes*
+        equal_nan = (
+            v1.dtype.kind in "fM"
+        )  # cannot set kwarg when not applicable
+        result = np.array_equal(v1.data, v2.data, equal_nan=equal_nan)
+        if hasattr(result, "compute"):
+            result = result.compute()
+        assert result
+
+    check_attrs_equivalent(ds1.attrs, ds2.attrs)
+    assert ds1.dims == ds2.dims
+    assert list(ds1.variables) == list(ds2.variables)
+    for varname in ds1.variables:
+        check_vars_equivalent(ds1.variables[varname], ds2.variables[varname])
+
+
 def test_load_direct_vs_viancdata(standard_testcase, use_xarraylock, tmp_path):
     source_filepath = standard_testcase.filepath
     ncdata = from_nc4(source_filepath)
@@ -52,8 +92,7 @@ def test_load_direct_vs_viancdata(standard_testcase, use_xarraylock, tmp_path):
     # Load same, via ncdata
     xr_ncdata_ds = to_xarray(ncdata)
 
-    # Treat as OK if it passes xarray comparison
-    assert xr_ds.identical(xr_ncdata_ds)
+    check_load_equivalence(xr_ds, xr_ncdata_ds)
 
 
 def test_save_direct_vs_viancdata(standard_testcase, tmp_path):
