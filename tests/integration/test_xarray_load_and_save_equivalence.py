@@ -14,6 +14,7 @@ from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.threadlock_sharing import lockshare_context
 from ncdata.utils import dataset_differences
 from ncdata.xarray import from_xarray, to_xarray
+
 from tests.data_testcase_schemas import (
     BAD_LOADSAVE_TESTCASES,
     session_testdir,
@@ -61,25 +62,11 @@ def check_load_equivalence(ds1: xarray.Dataset, ds2: xarray.Dataset):
         check_attrs_equivalent(v1.attrs, v2.attrs)
         assert v1.dims == v2.dims
         assert v1.dtype == v2.dtype
-        if v1.dtype.kind not in ("iufM"):
-            # Nonnumeric cases are relatively simple
-            result = np.all(v1.data == v2.data)
-        else:
-            # Numeric cases must allow for NaNs, which don't compare
-            d1, d2 = v1.data, v2.data
-            if d1.ndim == 0:
-                # awkward special case where indexing operations otherwise fail
-                d1, d2 = [a.reshape((a.size,)) for a in (d1, d2)]
-            data_diff = d1 - d2
-            # Account for NaN -or "NaT" for time types
-            data_diff = data_diff[np.logical_not(np.isnan(data_diff))]
-            # Note: not entirely happy with exact equality, but the time types make this
-            if data_diff.dtype.kind == "f":
-                # Slight tolerance on floats
-                result = np.allclose(data_diff, 0)
-            else:
-                # Exact equality - including time types, which allclose can't handle.
-                result = np.all(data_diff == 0)
+        # Numeric compare may need to allow for NaNs : floats *and datetimes*
+        equal_nan = (
+            v1.dtype.kind in "fM"
+        )  # cannot set kwarg when not applicable
+        result = np.array_equal(v1.data, v2.data, equal_nan=equal_nan)
         if hasattr(result, "compute"):
             result = result.compute()
         assert result
