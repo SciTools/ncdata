@@ -16,8 +16,8 @@ from typing import Any, AnyStr, Dict, Iterable, List, Union
 # though we do specifically target the netcdf format interface.
 #
 import iris
-import iris.fileformats.netcdf as ifn
 from iris.cube import Cube, CubeList
+import iris.fileformats.netcdf as ifn
 
 from . import NcData
 from .dataset_like import Nc4DatasetLike

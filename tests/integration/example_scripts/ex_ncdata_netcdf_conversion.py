@@ -4,12 +4,13 @@ A proof-of-concept example workflow for :mod:`ncdata.netcdf4`.
 Showing loading and saving ncdata to/from netcdf files.
 """
 
-import tempfile
 from pathlib import Path
 from shutil import rmtree
+import tempfile
 
 import netCDF4 as nc
 import numpy as np
+
 from ncdata import NcData, NcDimension, NcVariable
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.utils import dataset_differences

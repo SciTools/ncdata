@@ -5,6 +5,7 @@ This is the "indirect" approach, with a Slicer object.
 
 import numpy as np
 import pytest
+
 from ncdata.utils import Slicer, dataset_differences
 
 from . import (  # noqa: F401

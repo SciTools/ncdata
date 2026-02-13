@@ -10,8 +10,8 @@ the relevant load/save routines.
 
 """
 
-import xarray
 from iris.cube import CubeList
+import xarray
 
 from .iris import from_iris, to_iris
 from .xarray import from_xarray, to_xarray

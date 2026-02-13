@@ -5,6 +5,7 @@ This is the more direct indexer approach.
 
 import numpy as np
 import pytest
+
 from ncdata.utils import dataset_differences, index_by_dimensions
 
 from . import (  # noqa: F401

@@ -7,8 +7,8 @@ The status and usage of this are yet to be determined.
 """
 
 import os
-import subprocess
 from pathlib import Path
+import subprocess
 from typing import AnyStr, List, Optional
 
 import pytest

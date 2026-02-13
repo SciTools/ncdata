@@ -5,6 +5,7 @@ Tests for class :class:`ncdata.NameMap`.
 from copy import deepcopy
 
 import pytest
+
 from ncdata import NameMap, NcAttribute
 
 

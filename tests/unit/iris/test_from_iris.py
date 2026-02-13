@@ -12,10 +12,11 @@ covered by the generic 'roundtrip' testcases.
 from unittest.mock import patch
 
 import dask.array as da
-import numpy as np
-import pytest
 from iris.coords import DimCoord
 from iris.cube import Cube
+import numpy as np
+import pytest
+
 from ncdata.iris import from_iris
 
 from tests import MonitoredArray

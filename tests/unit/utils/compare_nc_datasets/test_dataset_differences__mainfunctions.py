@@ -9,6 +9,7 @@ Split in two files ...
 
 import numpy as np
 import pytest
+
 from ncdata import NcAttribute, NcData, NcDimension, NcVariable
 from ncdata.utils import dataset_differences
 
