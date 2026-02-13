@@ -10,6 +10,7 @@ from shutil import rmtree
 
 import netCDF4 as nc
 import numpy as np
+
 from ncdata import NcData, NcDimension, NcVariable
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.utils import dataset_differences

@@ -4,6 +4,7 @@ There is almost no behaviour, but we can test some constructor usages.
 """
 
 import pytest
+
 from ncdata import NcData, NcDimension, NcVariable
 
 

@@ -16,6 +16,7 @@ import numpy as np
 import pytest
 from iris.coords import DimCoord
 from iris.cube import Cube
+
 from ncdata.iris import from_iris
 
 from tests import MonitoredArray

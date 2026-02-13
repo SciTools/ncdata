@@ -8,6 +8,7 @@ Testcases start as netcdf files.
 
 import pytest
 import xarray
+
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.threadlock_sharing import lockshare_context
 from ncdata.utils import dataset_differences
