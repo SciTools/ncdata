@@ -95,7 +95,7 @@ masked data to NaNs.
     dataset encodings are not reproduced, most notably
     **any "unlimited_dims" control is lost**.  But, this is effectively a bug,
     which may be fixed later.
-    See : `issue#66 <https://github.com/pp-mo/ncdata/issues/66>`_
+    See : `issue#66 <https://github.com/SciTools/ncdata/issues/66>`_
 
 
 Iris Compatibility
@@ -110,8 +110,8 @@ see : `support added in v3.7.0 <https://scitools-iris.readthedocs.io/en/stable/w
 
     In conversion from iris cubes with :func:`ncdata.iris.from_iris`
     use of an `unlimited_dims` key currently causes an exception
-    See : `issue#43 <https://github.com/pp-mo/ncdata/issues/43>`_
+    See : `issue#43 <https://github.com/SciTools/ncdata/issues/43>`_
 
 
-.. _Continuous Integration testing on GitHub: https://github.com/pp-mo/ncdata/blob/main/.github/workflows/ci-tests.yml
+.. _Continuous Integration testing on GitHub: https://github.com/SciTools/ncdata/blob/main/.github/workflows/ci-tests.yml
 .. _NetCDF Classic Data Model: https://docs.unidata.ucar.edu/netcdf-c/current/netcdf_data_model.html#classic_model
