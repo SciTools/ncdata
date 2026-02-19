@@ -14,6 +14,7 @@ from warnings import warn
 import netCDF4
 import netCDF4 as nc
 import numpy as np
+
 from ncdata import NcData, NcVariable
 
 
@@ -672,3 +673,8 @@ def _group_differences(
             show_n_diffs=show_n_diffs,
         )
     return errs
+
+
+def newfn():
+    """Do nothing."""
+    pass
