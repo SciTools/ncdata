@@ -281,21 +281,27 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
                 add_offset = np.array(0, dtype=self.dtype)
         return is_scaled, scale_factor, add_offset
 
-    def _get_fillvalue(self):
+    def _get_fillvalue(self) -> int | float | None:
         """
         Calculate any applicable fill-value from attributes and netCDF4 defaults.
 
         Notes
         -----
         * this must be checked dynamically, as the attributes could change.
-        * for byte data, there is no netCDF default fill, so the result can be None.
+        * a default fill-value is not defined for all numpy dtypes, so the
+        * result can be None.
         """
         fv = self._ncdata.avals.get("_FillValue", None)
-        if fv is None:
-            if self.dtype.itemsize != 1:
-                # NOTE: single-byte types have NO default fill-value
-                dtype_code = self.dtype.str[1:]
-                fv = netCDF4.default_fillvals[dtype_code]
+        if fv is None and self.dtype.itemsize != 1:
+            # NOTE: from https://docs.unidata.ucar.edu/netcdf-c/4.9.2/attribute_conventions.html
+            # It is not necessary to define your own _FillValue attribute for a
+            # variable if the default fill value for the type of the variable
+            # is adequate. However, use of the default fill value for data type
+            # byte is not recommended.
+            # NOTE: xarray does not use default fill-values:
+            # https://github.com/pydata/xarray/issues/2742
+            dtype_code = self.dtype.str[1:]
+            fv = netCDF4.default_fillvals.get(dtype_code)
         return fv
 
     def _maskandscale_inner_to_apparent(self, array):
