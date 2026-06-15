@@ -63,7 +63,7 @@ jobs:
 
       - name: "Install dependencies"
         run: |
-          conda install --yes numpy pytest pytest-mock iris xarray filelock requests zarr aiohttp fsspec
+          conda install --yes numpy pytest pytest-mock iris=3.13 xarray filelock requests zarr aiohttp fsspec
 
       - name: "Install repo-under-test"
         run: |
