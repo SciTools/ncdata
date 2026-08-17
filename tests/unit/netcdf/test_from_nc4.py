@@ -11,6 +11,8 @@ by the generic 'roundtrip' testcases.
 
 from pathlib import Path
 
+import dask.array as da
+import dask.config
 import netCDF4 as nc
 import numpy as np
 import pytest
@@ -111,3 +113,62 @@ def test_target_types(sourcetype, tmp_path):
 
     diffs = dataset_differences(ncdata, ncdata_expected)
     assert diffs == []
+
+
+class TestVarStrs:
+    def test_load_vlenstrs_basic(self, tmp_path):
+        varstr_test_spec = {
+            "dims": [dict(name="x", size=3)],
+            "vars": [
+                dict(
+                    name="var_0",
+                    dims=["x"],
+                    dtype=str,
+                    data=np.array(["one", "two", "three"], dtype="U10"),
+                ),
+            ],
+        }
+        filepath = tmp_path / "testinput_basic.nc"
+        ncds = file_and_ncdata_from_spec(filepath, varstr_test_spec)
+        var = ncds.variables["var_0"]
+        assert var.dtype == "O"
+        data = var.data
+        assert isinstance(data, da.Array)
+        assert data.shape == (3,)
+        assert data.dtype == "O"
+        values = data.compute()
+        assert values.shape == (3,)
+        assert values.dtype == "O"
+        expect = np.array(["one", "two", "three"], dtype="O")
+        assert np.all(values == expect)
+
+    def test_load_large_chunks(self, tmp_path, mocker):
+        # NB the input string array to create the file, via make_testcase_dataset, is
+        #  NOT an object-array, as that's not how netCDF4 creates a 'str' type variable.
+        nparray_onestr = np.array(["this"], dtype="U10").reshape((1, 1))
+        darr_onestr = da.from_array(nparray_onestr, chunks=1)
+        # expand to get a big array of (100 x 100) strings.
+        big_string_array, _ = da.broadcast_arrays(
+            darr_onestr, da.zeros((100, 100))
+        )
+        varstr_test_spec = {
+            "dims": [dict(name="x", size=100), dict(name="y", size=100)],
+            "vars": [
+                dict(
+                    name="var_1",
+                    dims=["y", "x"],
+                    dtype=str,
+                    data=big_string_array,
+                ),
+            ],
+        }
+        filepath = tmp_path / "testinput_largearr.nc"
+        with dask.config.set({"array.chunk-size": "4000b"}):
+            ncds = file_and_ncdata_from_spec(filepath, varstr_test_spec)
+
+        var = ncds.variables["var_1"]
+        assert var.dtype == "O"
+        data = var.data
+        assert isinstance(data, da.Array)
+        assert data.shape == (100, 100)
+        assert data.chunksize == (1, 8)

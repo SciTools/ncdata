@@ -81,6 +81,11 @@ class _Nc4DatalikeWithNcattrs:
         else:
             self.setncattr(attr, value)
 
+    def set_auto_chartostring(self, value):
+        if bool(value):
+            msg = "Cannot enable 'auto_chartostring' for Nc4Dataselike or Nc4VariableLike."
+            raise ValueError()
+
 
 class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
     """

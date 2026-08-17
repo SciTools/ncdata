@@ -16,7 +16,7 @@ import netCDF4 as nc
 import numpy as np
 import pytest
 
-from ncdata import NcData
+from ncdata import NcData, NcDimension, NcVariable
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.utils import dataset_differences
 
@@ -167,3 +167,43 @@ def test_var_kwargs__bad_kwarg(tmp_path):
     )
     with pytest.raises(ValueError, match=expected_msg_regex):
         to_nc4(ncdata, output_path, var_kwargs=var_kwargs)
+
+
+class TestVarStrs:
+    def test_basic_varstr(self, tmp_path):
+        string_data_array = np.array(["one", "two", "three"], dtype="O")
+        varstr_var = NcVariable("vx", ["x"], data=string_data_array)
+        ds = NcData(dimensions=[NcDimension("x", 3)], variables=[varstr_var])
+        test_filepath = tmp_path / "test_save_basic_varstr.nc"
+        to_nc4(ds, test_filepath)
+        with nc.Dataset(test_filepath) as ds:
+            var = ds.variables["vx"]
+            assert var.shape == (3,)
+            assert var.dtype is str
+            values_arr = var[:]
+
+        assert values_arr.dtype == "O"
+        expected = np.array(["one", "two", "three"], dtype="O")
+        assert np.all(values_arr == expected)
+
+    def test_odd_objectarray(self, tmp_path):
+        # Generally objects content is uniformly *treated* as strings on output
+        # - the array elements all have 'str()' applied
+        string_data_array = np.array(
+            ["one", {"this": "yes", "that": 0}, None, 7], dtype="O"
+        )
+        varstr_var = NcVariable("vx", ["x"], data=string_data_array)
+        ds = NcData(dimensions=[NcDimension("x", 4)], variables=[varstr_var])
+        test_filepath = tmp_path / "test_save_objarr.nc"
+        to_nc4(ds, test_filepath)
+        with nc.Dataset(test_filepath) as ds:
+            var = ds.variables["vx"]
+            assert var.shape == (4,)
+            assert var.dtype is str
+            values_arr = var[:]
+
+        assert values_arr.dtype == "O"
+        expected = np.array(
+            ["one", "{'this': 'yes', 'that': 0}", "None", "7"], dtype="O"
+        )
+        assert np.all(values_arr == expected)

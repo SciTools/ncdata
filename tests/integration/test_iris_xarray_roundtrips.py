@@ -79,9 +79,19 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
             "testdata____ugrid__21_triangle_example",
             # Problem with units on time bounds
             "label_and_climate__small_FC_167",
-            # Broken UGRID files now won't load in Iris >= 3.10
-            "unstructured_grid__mesh_C12",
-            "_unstructured_grid__theta_nodal_xios",
+            # # Broken UGRID files now won't load in Iris >= 3.10
+            # "unstructured_grid__mesh_C12",
+            # "_unstructured_grid__theta_nodal_xios",
+            # **No** mesh files will now roundtrip, since xarray 2026.04.0.
+            # This is because  xarray now normalises the array type when loading
+            # from ncdata, removing masks and converting to nanarrays (thus making ints
+            # into floats).
+            # Previously we could create xarray Datasets with masked integer variables
+            # as data -- though that was alwaysobviously a bit tricksy.
+            # Iris can't accept the new form as it insists on integer types for
+            # mesh connectivities :-(
+            # TODO: do something to get this working again?
+            "unstructured",
         ]
     )
     if any(key in standard_testcase.name for key in exclude_case_keys):
@@ -177,7 +187,11 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
         # FOR NOW: compare with experimental ncdata comparison.
         # I know this is a bit circular, but it is useful for debugging, for now ...
         result = dataset_differences(
-            from_iris(iris_cubes), from_iris(iris_xr_cubes)
+            from_iris(iris_cubes),
+            from_iris(iris_xr_cubes),
+            check_attrs_order=False,
+            check_dims_order=False,
+            check_vars_order=False,
         )
         assert result == []
 

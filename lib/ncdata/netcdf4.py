@@ -10,13 +10,17 @@ from threading import Lock
 from typing import Dict, Optional, Union
 
 import dask.array as da
+import dask.config
+import dask.utils
 import netCDF4 as nc
 import numpy as np
 
 from . import NcData, NcDimension, NcVariable
 
-__all__ = ["from_nc4", "to_nc4"]
+__all__ = ["from_nc4", "to_nc4", "ASSUMED_TYPICAL_STRINGLENGTH"]
 
+#: A generally safe 'guess' at the size of variable-length strings, for chunking decisions.
+ASSUMED_TYPICAL_STRINGLENGTH = 500
 
 # The variable arguments which are 'claimed' by the existing to_nc4 code, and
 # therefore not valid to appear in the 'var_kwargs' parameter.
@@ -60,9 +64,12 @@ def _to_nc4_group(
             )
             raise ValueError(msg)
 
+        nc4_dtype = var.dtype
+        data_is_strs = nc4_dtype.kind == "O"
+
         nc4var = nc4object.createVariable(
             varname=varname,
-            datatype=var.dtype,
+            datatype=str if data_is_strs else var.dtype,
             dimensions=var.dimensions,
             fill_value=fill_value,
             **kwargs,
@@ -78,6 +85,10 @@ def _to_nc4_group(
                 nc4var.setncattr(attrname, attrval)
 
         data = var.data
+        if data_is_strs:
+            # cast the data : this means using string-repr of everything
+            data = data.astype("U")  # convert to string-arrays, if not already
+
         if hasattr(data, "compute"):
             da.store(data, nc4var)
         else:
@@ -209,6 +220,37 @@ def to_nc4(
             nc4ds.close()
 
 
+def fix_varlen_string_chunks(chunks: list[int | str], shape: list[int]):
+    """Choose chunks for a variable containing variable-length strings.
+
+    Given the shape and requested chunks (a list of user-provided numbers and ['auto']),
+    replace all 'auto's in the input chunks list with fixed numbers.
+
+    Aim at the current (configured) dask default chunk-size.
+    Assume that variable strings may be of size ASSUMED_TYPICAL_STRINGLENGTH.
+    """
+    chunksize = dask.config.get("array.chunk-size")
+    chunk_bytes = dask.utils.parse_bytes(chunksize)
+    flex_dims = [
+        i_dim for i_dim, n_dim in enumerate(shape) if chunks[i_dim] == "auto"
+    ]
+    given_multiple = np.prod(
+        [1]
+        + [dim for i_dim, dim in enumerate(chunks) if i_dim not in flex_dims]
+    )
+    remaining_multiple = max(
+        1, chunk_bytes // ASSUMED_TYPICAL_STRINGLENGTH // given_multiple
+    )
+    for i_flexdim in flex_dims[::-1]:
+        # Replace all 'auto's with numbers: fill trailing dims first, leave 1s in remaining (leading) dims
+        this_multiple = remaining_multiple
+        this_dim = shape[i_flexdim]
+        if this_multiple > this_dim:
+            this_multiple = this_dim
+        remaining_multiple //= this_multiple
+        chunks[i_flexdim] = this_multiple
+
+
 def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
     """
     Inner routine for :func:`from_nc4`.
@@ -230,10 +272,15 @@ def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
         ncdata.dimensions[dimname] = NcDimension(dimname, size, unlimited)
 
     for varname, nc4var in nc4ds.variables.items():
+        ncdata_var_dtype = nc4var.dtype
+        data_is_str = ncdata_var_dtype is str
+        if data_is_str:
+            # For variable-length strings, actual exchanged data is an object array.
+            ncdata_var_dtype = "O"
         var = NcVariable(
             name=varname,
             dimensions=nc4var.dimensions,
-            dtype=nc4var.dtype,
+            dtype=ncdata_var_dtype,
             group=ncdata,
         )
         ncdata.variables[varname] = var
@@ -255,12 +302,17 @@ def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
 
         proxy = _NetCDFDataProxy(
             shape=shape,
-            dtype=var.dtype,
+            dtype=ncdata_var_dtype,
             filepath=parent_ds.filepath(),
             variable_name=varname,
             group_names_path=group_names_path,
         )
         chunks = [dim_chunks.get(name, "auto") for name in var.dimensions]
+        if data_is_str:
+            # payload is variable length strings
+            # so data sizes are unknown and standard "auto" chunking fails: make our own assumptions + calculate
+            fix_varlen_string_chunks(chunks, shape)
+
         var.data = da.from_array(
             proxy, chunks=chunks, asarray=True, meta=np.ndarray
         )
