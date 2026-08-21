@@ -63,7 +63,7 @@ jobs:
 
       - name: "Install dependencies"
         run: |
-          conda install --yes numpy pytest pytest-mock iris xarray filelock requests zarr aiohttp fsspec
+          conda install --yes numpy pytest pytest-mock iris "xarray<2026.03" cftime filelock requests zarr aiohttp fsspec
 
       - name: "Install repo-under-test"
         run: |
@@ -90,11 +90,9 @@ jobs:
       - name: "Run doctests: Docs"
         if: matrix.session == 'doctests-docs'
         run: |
-          cd docs
-          pytest --doctest-glob="*.rst" --doctest-continue-on-failure
+          tools/run_doctests.py -v "./docs/**/*.rst"
 
       - name: "Run doctests: API"
         if: matrix.session == 'doctests-api'
         run: |
-          cd lib
-          pytest --doctest-modules --doctest-continue-on-failure
+          tools/run_doctests.py -v -mr ncdata

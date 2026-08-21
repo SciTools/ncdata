@@ -40,7 +40,7 @@ and :attr:`~ncdata.NcData.attributes`:
     >>> data
     <ncdata._core.NcData object at ...>
     >>> print(data)
-    <NcData: myname
+    <NcData: urrgh
     >
 
     >>> dim = NcDimension("x", 3)
