@@ -25,6 +25,27 @@ Summary of key features by release number.
 
 .. towncrier release notes start
 
+ncdata 0.4.0 (2026-09-25)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+A release to support Iris >= v3.16 and xarray > v2026.02.
+Now also supporting, and tested against, Python 3.14.
+
+Bug Fixes
+^^^^^^^^^
+
+- Fixes to work with Iris >= v3.16 and xarray > v2026.02. (`ISSUE#255 <https://github.com/SciTools/ncdata/pull/255>`_)
+
+
+Developer and Internal changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Moved repo to SciTools organisation. (`ISSUE#192 <https://github.com/SciTools/ncdata/pull/192>`_)
+- Fixed xarray load tests for new behaviour of xarray.Dataset.identical. (`ISSUE#195 <https://github.com/SciTools/ncdata/pull/195>`_)
+- Fix links broken by move to SciTools. (`ISSUE#198 <https://github.com/SciTools/ncdata/pull/198>`_)
+- When a linkcheck fails, return that errorcode from the Linkcheck action. (`ISSUE#202 <https://github.com/SciTools/ncdata/pull/202>`_)
+- Support and test against Python 3.14. (`ISSUE#258 <https://github.com/SciTools/ncdata/pull/258>`_)
+
+
 ncdata 0.3.2 (2025-12-01)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 A bugfix release, just to allow working with Python 3.10.

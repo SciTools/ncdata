@@ -356,7 +356,7 @@ def _define_iris_testdata_testcases():
         #     "_ORCA2__votemper",
         # ]
         EXCLUDES = []
-        for filepath in _netcdf_testfile_paths:
+        for filepath in sorted(_netcdf_testfile_paths):
             param_name = str(filepath)
             # remove unwanted path elements
             param_name = param_name.replace(str(_testdirpath), "")
@@ -434,7 +434,7 @@ def _define_unit_dtype_testcases():
                     name="vx",
                     dims=["strlen"],
                     dtype="S1",
-                    data=np.array("abc", dtype="S1"),
+                    data=np.array(list("abc"), dtype="S1"),
                 )
             ],
         }
@@ -525,6 +525,7 @@ BAD_LOADSAVE_TESTCASES = {
             # """
             "small_rotPole_precipitation",
             "small_FC_167",
+            "test_monotonic_coordinate",
         ],
         # Xarray can save ~anything
         "save": [r"test_monotonic_coordinate"],

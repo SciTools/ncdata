@@ -14,6 +14,7 @@ import pytest
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.utils import dataset_differences
 
+from tests import version_tuple
 from tests.data_testcase_schemas import session_testdir, standard_testcase
 from tests.integration.equivalence_testing_utils import (
     adjust_chunks,
@@ -56,12 +57,15 @@ def test_load_direct_vs_viancdata(
         # yet account for this.
         # TODO: fix in Nc4VariableLike, when we are sure of the interpretation
         "label_and_climate__small_FC_167_mon_19601101",
-        # Some of the legacy UGRID unstructured files have incorrect encodings
-        # which are currently causing loading errors in Iris since UGRID loading
-        # became an always-on thing in v3.11
-        "unstructured_grid__theta_nodal_xios",
-        "ugrid__21_triangle_example",
     ]
+    if version_tuple(iris.__version__) < version_tuple("3.13"):
+        # TODO: remove backwards compatibility when we drop Python 3.10 support
+        specific_excludes.extend(
+            [
+                "ugrid__21_triangle_example",
+                "theta_nodal_xios",
+            ]
+        )
     if any(
         name_fragment in standard_testcase.name
         for name_fragment in specific_excludes
@@ -121,10 +125,12 @@ def test_save_direct_vs_viancdata(standard_testcase, tmp_path):
         # Some of the legacy UGRID unstructured files have incorrect encodings
         # which are currently causing loading errors in Iris since UGRID loading
         # became an always-on thing in v3.11
-        "unstructured_grid__theta_nodal_xios",
         "unstructured_grid__mesh_C12",
         "ugrid__21_triangle_example",
     ]
+    if version_tuple(iris.__version__) < version_tuple("3.13"):
+        # TODO: remove backwards compatibility when we drop Python 3.10 support
+        specific_excludes.append("theta_nodal_xios")
     if any(
         name_fragment in standard_testcase.name
         for name_fragment in specific_excludes
