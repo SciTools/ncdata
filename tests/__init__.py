@@ -25,3 +25,24 @@ class MonitoredArray:
         """Fetch indexed data section."""
         self._accesses.append(keys)
         return self._data[keys]
+
+
+def version_tuple(version_string):
+    """Make a comparable tuple from a package version string.
+
+    Allows only the final segment to have non-numeric parts.
+    Returns a tuple of the parts.
+    """
+    parts = version_string.split(".")
+    last_part = parts[-1]
+    while len(last_part) and not last_part[-1].isdigit():
+        last_part = last_part[:-1]
+    if len(last_part):
+        parts[-1] = last_part
+    else:
+        parts = parts[:-1]
+    if any(str(int(part)) != part for part in parts):
+        raise ValueError(
+            f"invalid numerics in version string: {version_string!r}"
+        )
+    return tuple(int(part) for part in parts)

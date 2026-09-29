@@ -22,6 +22,7 @@ from ncdata.threadlock_sharing import lockshare_context
 from ncdata.utils import dataset_differences
 from ncdata.xarray import from_xarray
 
+from tests import version_tuple
 from tests.data_testcase_schemas import (
     BAD_LOADSAVE_TESTCASES,
     session_testdir,
@@ -70,20 +71,34 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
         + BAD_LOADSAVE_TESTCASES["xarray"]["load"]
         # TODO: remaining unresolved problems ...
         + [
-            # string dimension problem
-            "ds__dtype__string",
             # outstanding dims-mismatch problems.
             "testing__small_theta_colpex",
+            # all-masked variables --> changing dtype, since xarray>v2026.02.0
+            "testing__cell_methods",
             # coordinate attributes on mesh coordinate variables
-            "testdata____unstructured_grid__data_C4",
             "testdata____ugrid__21_triangle_example",
-            # Problem with units on time bounds
-            "label_and_climate__small_FC_167",
             # Broken UGRID files now won't load in Iris >= 3.10
             "unstructured_grid__mesh_C12",
-            "_unstructured_grid__theta_nodal_xios",
+            # **No** mesh files will now roundtrip, since xarray 2026.04.0.
+            # This is because  xarray now normalises the array type when loading
+            # from ncdata, removing masks and converting to nanarrays (thus making ints
+            # into floats).
+            # Previously we could create xarray Datasets with masked integer variables
+            # as data -- though that was alwaysobviously a bit tricksy.
+            # Iris can't accept the new form as it insists on integer types for
+            # mesh connectivities :-(
+            # TODO: do something to get this working again?
+            "unstructured",
         ]
     )
+    if version_tuple(iris.__version__) < version_tuple("3.16"):
+        # TODO: remove backwards compatibility when we drop Python 3.11 support
+        exclude_case_keys.extend(
+            [
+                "ds__dtype__string",
+                "ds__stringvar",
+            ]
+        )
     if any(key in standard_testcase.name for key in exclude_case_keys):
         pytest.skip("excluded testcase")
 
@@ -209,14 +224,6 @@ def test_roundtrip_xix(
         #   float time(time) ;
         #       time:bounds = 'time_bnds'
         #   float time_bnds(time, time_bnds) ;
-        "label_and_climate__small_FC_167",
-        "rotated__xyt__small_rotPole_precipitation",
-        # This one fails to load in xarray, for somewhat unclear reasons
-        #     NotImplementedError: Can not use auto rechunking with object dtype.
-        #     We are unable to estimate the size in bytes of object data
-        "unstructured_grid__lfric_surface_mean",
-        # Iris loses the name of the unstructured dimension, causing multiple problems
-        "unstructured_grid__data_C4",
     ]
     if any(key in standard_testcase.name for key in excluded_casename_keys):
         pytest.skip("excluded testcase")

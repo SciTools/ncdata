@@ -73,8 +73,6 @@ Release actions
 
     #. ensure all major changes + PRs are referenced in the :ref:`change_notes` section.
 
-    #. update the "latest version" stated in the :ref:`development_status` section
-
 #. Cut a release on GitHub
 
     * this triggers a new docs version on ReadTheDocs_.

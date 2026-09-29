@@ -265,9 +265,9 @@ Example code snippets :
     Dimensions:  (dim0: 3)
     Dimensions without coordinates: dim0
     Data variables:
-        vx0      (dim0) int64 ... dask.array<chunksize=(3,), meta=numpy.ma.MaskedArray>
-        vx1      (dim0) int64 ... dask.array<chunksize=(3,), meta=numpy.ma.MaskedArray>
-        v_mag    (dim0) float64 ... dask.array<chunksize=(3,), meta=numpy.ma.MaskedArray>
+        vx0      (dim0) ... dask.array<chunksize=(3,), ...
+        vx1      (dim0) ... dask.array<chunksize=(3,), ...
+        v_mag    (dim0) ... dask.array<chunksize=(3,), ...
     Attributes:
         Conventions:  CF-1.7
 

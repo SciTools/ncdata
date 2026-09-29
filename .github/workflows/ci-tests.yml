@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         session: ["tests", "doctests-docs", "doctests-api"]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         exclude:
           - session: "doctests-docs"
             python-version: "3.10"
@@ -34,12 +34,16 @@ jobs:
             python-version: "3.11"
           - session: "doctests-docs"
             python-version: "3.12"
+          - session: "doctests-docs"
+            python-version: "3.13"
           - session: "doctests-api"
             python-version: "3.10"
           - session: "doctests-api"
             python-version: "3.11"
           - session: "doctests-api"
             python-version: "3.12"
+          - session: "doctests-api"
+            python-version: "3.13"
 
     defaults:
       run:

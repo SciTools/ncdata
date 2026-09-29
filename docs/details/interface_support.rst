@@ -5,7 +5,8 @@ Support for Interfaces and Dependencies
 
 Python Compatibility
 --------------------
-NcData currently supports Python >= 3.10, and is tested against 3.10, 3.11, 3.12 and 3.13.
+NcData currently supports Python >= 3.10, and is tested against
+3.10, 3.11, 3.12, 3.13 and 3.14.
 
 NetCDF4 Compatibility
 ---------------------

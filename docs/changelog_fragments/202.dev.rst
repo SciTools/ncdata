@@ -1,1 +1,0 @@
-When a linkcheck fails, return that errorcode from the Linkcheck action.
