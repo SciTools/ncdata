@@ -23,9 +23,7 @@ def _basic_testdata():
     ncdata = NcData(
         name="test_ds",
         dimensions=[
-            NcDimension(
-                "xxx", 2
-            ),  # unused first dim, so rename doesn't break variable
+            NcDimension("xxx", 2),  # unused first dim, so rename doesn't break variable
             NcDimension("x", 3),
         ],
         variables=[
@@ -78,9 +76,7 @@ class TestSaveErrors_Names:
             propname = component + "s"
         return propname
 
-    @pytest.mark.parametrize(
-        "badnametype", ["None", "empty", "number", "object"]
-    )
+    @pytest.mark.parametrize("badnametype", ["None", "empty", "number", "object"])
     def test_bad_name_type(self, badnametype, component):
         bad_name = {
             "None": None,
@@ -125,9 +121,7 @@ class TestSaveErrors_Names:
         debug_errors(errors)
 
         assert len(errors) == 1
-        msg = (
-            f"{component} element {key!r} has a different element.name : 'qqq'"
-        )
+        msg = f"{component} element {key!r} has a different element.name : 'qqq'"
         assert re.search(msg, errors[0])
 
 

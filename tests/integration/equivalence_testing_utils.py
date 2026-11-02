@@ -64,8 +64,7 @@ def cubes_equal__corrected(c1, c2):
                 """
                 if a1 is not None and a2 is not None:
                     allmasked_1, allmasked_2 = (
-                        da.all(da.ma.getmaskarray(arr).compute())
-                        for arr in (a1, a2)
+                        da.all(da.ma.getmaskarray(arr).compute()) for arr in (a1, a2)
                     )
                     if allmasked_1 and allmasked_2:
                         # IN this case == will return 'masked', but for our purposes
@@ -85,9 +84,7 @@ def cubes_equal__corrected(c1, c2):
                 return a1, a2
 
             # Fix matching of cube data arrays
-            c1.data, c2.data = fix_arrays(
-                *(cube.core_data() for cube in (c1, c2))
-            )
+            c1.data, c2.data = fix_arrays(*(cube.core_data() for cube in (c1, c2)))
             # Fix matching of all coords points + bounds
             for co1, co2 in zip(c1.coords(), c2.coords()):
                 if isinstance(co1, iris.mesh.MeshCoord):

@@ -67,9 +67,7 @@ def index_by_dimensions(
         # Dimension names must occur in the ncdata.
         dimension = ncdata.dimensions.get(dim_name)
         if dimension is None:
-            raise ValueError(
-                f"Dimension {dim_name!r} is not present in 'ncdata'."
-            )
+            raise ValueError(f"Dimension {dim_name!r} is not present in 'ncdata'.")
 
         # Specifically error forbidden key types.
         if np.array(key).ndim > 1:
@@ -96,9 +94,7 @@ def index_by_dimensions(
             if dim_name in var.dimensions:
                 # construct a list of slice objects
                 (i_slicedim,) = [
-                    i
-                    for i, name in enumerate(var.dimensions)
-                    if name == dim_name
+                    i for i, name in enumerate(var.dimensions) if name == dim_name
                 ]
                 slices = [slice(None) for dim in var.dimensions]
                 slices[i_slicedim] = key

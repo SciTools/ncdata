@@ -168,9 +168,7 @@ class Test_otherops(MixinEquivTest):
     def test_update(self):
         v = self.var
         # renaming : name of NcAttribute supplied as a value is lost
-        v.avals.update(
-            {"q": 49.3, "ZZ": NcAttribute("<lost>", [1, 2]), "a": 17}
-        )
+        v.avals.update({"q": 49.3, "ZZ": NcAttribute("<lost>", [1, 2]), "a": 17})
         # ordering : "q" and "ZZ" are added after, but "a" stays where it was
         assert list(v.attributes.keys()) == ["a", "b", "q", "ZZ"]
         assert v.attributes["a"] == NcAttribute("a", 17)

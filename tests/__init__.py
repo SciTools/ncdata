@@ -47,7 +47,5 @@ def version_tuple(version_string):
     else:
         parts = parts[:-1]
     if any(str(int(part)) != part for part in parts):
-        raise ValueError(
-            f"invalid numerics in version string: {version_string!r}"
-        )
+        raise ValueError(f"invalid numerics in version string: {version_string!r}")
     return tuple(int(part) for part in parts)

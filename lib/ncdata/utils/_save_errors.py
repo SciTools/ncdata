@@ -4,7 +4,6 @@
 # See LICENSE in the root of the repository for full licensing details.
 """User utility routines for ncdata."""
 
-
 import netCDF4 as nc
 import numpy as np
 
@@ -35,8 +34,7 @@ def _name_errors(element_container, id_string):
             )
         if not _name_is_valid(name):
             errors.append(
-                f"{id_string}s has an element with an invalid netCDF name : "
-                f"{name!r}"
+                f"{id_string}s has an element with an invalid netCDF name : {name!r}"
             )
     return errors
 
@@ -50,9 +48,7 @@ def _valid_attr_dtype(dtype):
     return dtype.kind in "SU" or dtype in _NETCDF_VALID_DTYPES
 
 
-def _invalid_attr_errors(
-    element: NcData | NcVariable, name_prefix: str
-) -> list[str]:
+def _invalid_attr_errors(element: NcData | NcVariable, name_prefix: str) -> list[str]:
     errors = []
     for attr in element.attributes.values():
         dtype = attr.value.dtype

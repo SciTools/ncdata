@@ -162,9 +162,7 @@ def dataset_differences(
     return errs
 
 
-def _namelist_differences(
-    l1, l2, elemname, order_strict=True, suppress_warnings=False
-):
+def _namelist_differences(l1, l2, elemname, order_strict=True, suppress_warnings=False):
     errs = []
     msg = f"{elemname} do not match: {list(l1)} != {list(l2)}"
     ok = l1 == l2
@@ -298,11 +296,7 @@ def _attribute_differences(
             continue
 
         attr, attr2 = [
-            (
-                obj.avals[attrname]
-                if _isncdata(obj)
-                else obj.getncattr(attrname)
-            )
+            (obj.avals[attrname] if _isncdata(obj) else obj.getncattr(attrname))
             for obj in (obj1, obj2)
         ]
 
@@ -314,10 +308,7 @@ def _attribute_differences(
             getattr(attr, "dtype", type(attr))
             for attr in (attr, attr2)
         ]
-        if all(
-            isinstance(dt, np.dtype) and dt.kind in "SUb"
-            for dt in (dtype, dtype2)
-        ):
+        if all(isinstance(dt, np.dtype) and dt.kind in "SUb" for dt in (dtype, dtype2)):
             dtype = dtype2 = "string"
         if dtype != dtype2:
             msg = (
@@ -458,12 +449,7 @@ def variable_differences(
 
     is_str, is_str2 = (_is_strtype(dt) for dt in (dtype, dtype2))
     # TODO: is this correct check to allow compare between different dtypes?
-    if (
-        check_var_data
-        and dims == dims2
-        and shape == shape2
-        and is_str == is_str2
-    ):
+    if check_var_data and dims == dims2 and shape == shape2 and is_str == is_str2:
         # NOTE: no attempt to use laziness here.  Could be improved.
         def getdata(var):
             if _isncdata(var):
@@ -487,14 +473,10 @@ def variable_differences(
             return data
 
         data, data2 = (getdata(v) for v in (v1, v2))
-        flatdata, flatdata2 = (
-            np.asanyarray(arr).flatten() for arr in (data, data2)
-        )
+        flatdata, flatdata2 = (np.asanyarray(arr).flatten() for arr in (data, data2))
 
         # For simpler checking, use flat versions
-        flat_diff_inds = (
-            []
-        )  # NB *don't* make this an array, it causes problems
+        flat_diff_inds = []  # NB *don't* make this an array, it causes problems
 
         # Work out whether string : N.B. array type does not ALWAYS match the
         # variable type, because apparently the scalar content of a *masked* scalar
@@ -507,9 +489,7 @@ def variable_differences(
 
         # Where data is masked, count mask mismatches and skip those points
         if any(np.ma.is_masked(arr) for arr in (data, data2)):
-            mask, mask2 = (
-                np.ma.getmaskarray(array) for array in (flatdata, flatdata2)
-            )
+            mask, mask2 = (np.ma.getmaskarray(array) for array in (flatdata, flatdata2))
             flat_diff_inds = list(np.where(mask != mask2)[0])
             # Replace all masked points to exclude them from unmasked-point checks.
             either_masked = mask | mask2
@@ -532,14 +512,10 @@ def variable_differences(
         flat_diff_inds = sorted(flat_diff_inds)
         n_diffs = len(flat_diff_inds)
         if n_diffs:
-            msg = (
-                f"{var_id_string} data contents differ, at {n_diffs} points: "
-            )
+            msg = f"{var_id_string} data contents differ, at {n_diffs} points: "
             ellps = ", ..." if n_diffs > show_n_first_different else ""
             diffinds = flat_diff_inds[:show_n_first_different]
-            diffinds = [
-                np.unravel_index(ind, shape=data.shape) for ind in diffinds
-            ]
+            diffinds = [np.unravel_index(ind, shape=data.shape) for ind in diffinds]
             diffinds_str = ", ".join(
                 str(tuple([int(ind) for ind in x])) for x in diffinds
             )
@@ -552,10 +528,7 @@ def variable_differences(
             )
             points_lhs_str = f"[{points_lhs_str}{ellps}]"
             points_rhs_str = f"[{points_rhs_str}{ellps}]"
-            msg += (
-                f"@INDICES{inds_str}"
-                f" : LHS={points_lhs_str}, RHS={points_rhs_str}"
-            )
+            msg += f"@INDICES{inds_str} : LHS={points_lhs_str}, RHS={points_rhs_str}"
             errs.append(msg)
     return errs
 
@@ -583,9 +556,7 @@ def _group_differences(
 
     if check_names:
         if g1.name != g2.name:
-            errs.append(
-                f"Datasets have different names: {g1.name!r} != {g2.name!r}."
-            )
+            errs.append(f"Datasets have different names: {g1.name!r} != {g2.name!r}.")
     # Compare lists of dimension names
     dimnames, dimnames2 = [list(grp.dimensions.keys()) for grp in (g1, g2)]
     errs += _namelist_differences(

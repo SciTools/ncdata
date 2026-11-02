@@ -53,9 +53,7 @@ NCGEN_PATHSTR = str(_env_bin_path("ncgen"))
 NCDUMP_PATHSTR = str(_env_bin_path("ncdump"))
 
 
-def ncgen_from_cdl(
-    cdl_str: str | None, cdl_path: str | None, nc_path: str
-):
+def ncgen_from_cdl(cdl_str: str | None, cdl_path: str | None, nc_path: str):
     """
     Generate a test netcdf file from cdl.
 

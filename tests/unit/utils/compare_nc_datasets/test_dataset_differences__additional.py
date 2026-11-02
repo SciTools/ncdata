@@ -58,14 +58,10 @@ class Test_namelist_differences:
 
     def test_difforder(self):
         errs = _namelist_differences(["a", "b"], ["b", "a"], "named-elements")
-        assert errs == [
-            "named-elements do not match: ['a', 'b'] != ['b', 'a']"
-        ]
+        assert errs == ["named-elements do not match: ['a', 'b'] != ['b', 'a']"]
 
     def test_difforder_tolerant_warns(self):
-        with pytest.warns(
-            UserWarning, match="Ignoring: named-elements do not match"
-        ):
+        with pytest.warns(UserWarning, match="Ignoring: named-elements do not match"):
             errs = _namelist_differences(
                 ["a", "b"],
                 ["b", "a"],
@@ -171,9 +167,7 @@ class Test_attribute_differences:
         obj1 = self.Nc4ObjectWithAttrsMimic(a=1, b=2, c=3)
         obj2 = self.Nc4ObjectWithAttrsMimic(a=1, b=-77, c=3)
         errs = _attribute_differences(obj1, obj2, "<object attributes>")
-        assert errs == [
-            '<object attributes> "b" attribute values differ : 2 != -77'
-        ]
+        assert errs == ['<object attributes> "b" attribute values differ : 2 != -77']
 
     def test_compare_attributes_values__dtype_mismatch__length(self):
         # Attributes of different dtypes, even though values ==
@@ -261,10 +255,7 @@ class Test_attribute_differences:
         obj2 = self.Nc4ObjectWithAttrsMimic(a=array[:-1])
         errs = _attribute_differences(obj1, obj2, "<object attributes>")
         assert errs == [
-            (
-                '<object attributes> "a" attribute values differ : '
-                "[0, 1, 2] != [0, 1]"
-            )
+            ('<object attributes> "a" attribute values differ : [0, 1, 2] != [0, 1]')
         ]
 
     def test_compare_attributes_values__data_arrays_value_mismatch(self):
@@ -412,9 +403,7 @@ class Test_compare_nc_files__api:
                 if ds:
                     ds.close()
 
-    def test_small_difference(
-        self, samefiles_bothtypes, temp_ncfiles_dir, sourcetype
-    ):
+    def test_small_difference(self, samefiles_bothtypes, temp_ncfiles_dir, sourcetype):
         source1, source2 = samefiles_bothtypes
 
         if sourcetype == "InputsFile":

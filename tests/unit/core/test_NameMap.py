@@ -225,9 +225,7 @@ class TestAttributesFromItems:
             vals = [val.value for val in vals]
             assert vals == list(arg.values())
 
-    @pytest.mark.parametrize(
-        "arg", [[], {}, None], ids=["list", "map", "none"]
-    )
+    @pytest.mark.parametrize("arg", [[], {}, None], ids=["list", "map", "none"])
     def test_attributes_empty(self, arg):
         # Just check correct construction from empty args.
         namemap = NameMap.from_items(arg, item_type=NcAttribute)
@@ -242,9 +240,7 @@ class Test_copy:
         assert result == source
         assert result.item_type == item_type
         # NOTE: not a *deep* copy : contains the same item objects
-        assert all(
-            e1 is e2 for e1, e2 in zip(result.values(), source.values())
-        )
+        assert all(e1 is e2 for e1, e2 in zip(result.values(), source.values()))
 
 
 class Test_add:

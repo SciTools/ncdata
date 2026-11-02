@@ -12,10 +12,7 @@ def _rename_dims_in_vars(ncdata: NcData, name_from: str, name_to: str) -> None:
     for var in ncdata.variables.values():
         if name_from in var.dimensions:
             var.dimensions = tuple(
-                [
-                    name_to if name == name_from else name
-                    for name in var.dimensions
-                ]
+                [name_to if name == name_from else name for name in var.dimensions]
             )
 
     # Also rename in all sub-groups, except where the dimension is redefined
@@ -39,9 +36,7 @@ def _check_name_collisions(ncdata, name_from, name_to, group_path=""):
             # Skip this group as its 'name_from' dim makes it a "scope hole".
             continue
         inner_path = group_path + "/" + group.name
-        _check_name_collisions(
-            group, name_from, name_to, group_path=inner_path
-        )
+        _check_name_collisions(group, name_from, name_to, group_path=inner_path)
 
 
 def rename_dimension(ncdata: NcData, name_from: str, name_to: str) -> None:

@@ -56,14 +56,10 @@ class Test:
 
     @pytest.fixture
     def sample(self):
-        attrs = NameMap.from_items(
-            [NcAttribute("q", 3)], item_type=NcAttribute
-        )
+        attrs = NameMap.from_items([NcAttribute("q", 3)], item_type=NcAttribute)
         dims = NameMap.from_items([NcDimension("x", 3)], item_type=NcDimension)
         data_array = np.array([1, 2, 3])
-        var = NcVariable(
-            name="a", dimensions=("x"), data=data_array, attributes=attrs
-        )
+        var = NcVariable(name="a", dimensions=("x"), data=data_array, attributes=attrs)
         sample = NcData(
             dimensions=dims,
             variables=[var],
@@ -102,15 +98,11 @@ class Test:
         rva = result.variables["a"]
 
         assert (
-            result.attributes["extra"].value
-            is not sample.attributes["extra"].value
+            result.attributes["extra"].value is not sample.attributes["extra"].value
         ) and np.all(
-            result.attributes["extra"].value
-            == sample.attributes["extra"].value
+            result.attributes["extra"].value == sample.attributes["extra"].value
         )
 
         assert (
             rva.attributes["xx2"].value is not sva.attributes["xx2"].value
-        ) and np.all(
-            rva.attributes["xx2"].value == sva.attributes["xx2"].value
-        )
+        ) and np.all(rva.attributes["xx2"].value == sva.attributes["xx2"].value)
