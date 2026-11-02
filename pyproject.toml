@@ -157,10 +157,16 @@ ignore = [
 ]
 
 [tool.ruff]
+extend-exclude = [
+    "docs/conf.py",  # based on Sphix template, is too different to be worth checking.
+]
 line-length = 88
 src = ["lib"]
 
 [tool.ruff.format]
+exclude = [
+    "*.md", "*.rst"  #don't reformat code in docs etc
+]
 preview = false
 
 [tool.ruff.lint]
@@ -186,6 +192,12 @@ ignore = [
     "SLF",  # flake8 private member accesses
     "T201",  # Print statement.
     "TD",  # flake8 TODO bans
+    "RET504",  # unnecessary assignment before return [[readabiility wins]]
+    "TRY003",  # Avoid...long messages outside the exception class [[over-applied. unhelpful]]
+    "EM",  # (string construstion in raised exceptions) [[unhelpful]]
+    "B028",  # warn without stacklevel=  [[probably not]]
+    "FLY002",  # use f-string instead of joins  [[TRUST: readability]]
+    "RUF015",  # prefer 'next' over [0]  [[readability]]
 
     # TODO: exceptions that still need investigating are below. Might be fixable, or might become permanent (above):
     "ERA001", # Found commented-out code
