@@ -80,7 +80,7 @@ class Test_NcData_eq:
     def test_self_equal(self, mocker):
         ds = NcData()
         called = mocker.patch("ncdata.utils.dataset_differences")
-        assert ds == ds
+        assert ds == ds  # noqa: PLR0124
         assert called.call_args_list == []
 
     def test_badtype_nonequal(self, mocker):

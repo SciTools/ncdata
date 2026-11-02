@@ -198,6 +198,8 @@ ignore = [
     "B028",  # warn without stacklevel=  [[probably not]]
     "FLY002",  # use f-string instead of joins  [[TRUST: readability]]
     "RUF015",  # prefer 'next' over [0]  [[readability]]
+    "N813",  # Camelcase imported as lowercase  [[ok for netCDF4]]
+    "E402",  # module level import not at top of file [[TRUST: usages intended]]
 
     # TODO: exceptions that still need investigating are below. Might be fixable, or might become permanent (above):
     "ERA001", # Found commented-out code
@@ -236,6 +238,12 @@ max-complexity = 22
     "D205",  # 1 blank line required between summary line and description
     "D401",  # 1 First line of docstring should be in imperative mood
     "N801",  # Class name should use CapWords convention
+    "PLR2004",  # Magic constants in comparison
+    "PLR09",  # Various complexity warns: too many args, statements, branches...
+    "N802",  # Function name should be lowercase
+    "N806", # Variable in function should be lowercase
+    "N813", # Argument name should be lowercase
+    "N999", # Argument name should be lowercase
 ]
 
 [tool.ruff.lint.pydocstyle]

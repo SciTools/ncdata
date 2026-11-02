@@ -23,7 +23,6 @@ from typing import (
     Union,
 )
 
-import numpy
 import numpy as np
 
 
@@ -284,7 +283,7 @@ class AttrvalsDict(MutableMapping):
     def rename(self, name: str, new_name: str):
         self._attrs.rename(name, new_name)
 
-    def copy(self, deepcopy=True):
+    def copy(self):
         """
         Make a copy.
 
@@ -504,6 +503,10 @@ class NcData(_AttributeAccessMixin):
             result = dataset_differences(self, other) == []
         return result
 
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None  # type: ignore
+
 
 class NcDimension:
     """
@@ -543,6 +546,10 @@ class NcDimension:
             and self.size == other.size
             and self.unlimited == other.unlimited
         )
+
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None  # type: ignore
 
 
 class NcVariable(_AttributeAccessMixin):
@@ -591,10 +598,10 @@ class NcVariable(_AttributeAccessMixin):
             if not hasattr(data, "dtype"):
                 data = np.asanyarray(data)
             dtype = data.dtype
-        #: variable datatype, as a numpy :class:`numpy.dtype`
+        #: variable datatype, as a numpy :class:`np.dtype`
         if dtype is not None and not isinstance(dtype, np.dtype):
             dtype = np.dtype(dtype)
-        self.dtype: numpy.dtype = dtype
+        self.dtype: np.dtype = dtype
         #: variable data (an array-like, typically a dask or numpy array)
         self.data = data  # Supports lazy, and normally provides a dtype
         #: variable attributes
@@ -666,6 +673,10 @@ class NcVariable(_AttributeAccessMixin):
             result = variable_differences(self, other) == []
         return result
 
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None  # type: ignore
+
 
 class NcAttribute:
     """
@@ -725,7 +736,7 @@ class NcAttribute:
         """
         result = self.value
         # Attributes are either scalar or 1-D
-        if result.ndim >= 2:
+        if result.ndim >= 2:  # noqa: PLR2004
             raise ValueError("Attribute value should only be 0- or 1-dimensional.")
 
         if result.shape == (1,):
@@ -782,3 +793,7 @@ class NcAttribute:
                     v1.shape == v2.shape and v1.dtype == v2.dtype and np.all(v1 == v2)
                 )
         return result
+
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None  # type: ignore
