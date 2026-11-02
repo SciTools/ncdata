@@ -18,7 +18,7 @@ import pytest
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.utils import dataset_differences
 
-from tests import version_tuple
+from tests import NCDUMP_PATHSTR, version_tuple
 from tests.data_testcase_schemas import session_testdir, standard_testcase
 from tests.integration.equivalence_testing_utils import (
     adjust_chunks,
@@ -85,7 +85,7 @@ def test_load_direct_vs_viancdata(standard_testcase, use_irislock, adjust_chunks
         print("\nncdata =")
         print(ncdata)
         print("\nncdump =")
-        txt = check_output([f"ncdump {source_filepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()
         print(txt)
 
     # Load the testcase with Iris.
@@ -160,13 +160,13 @@ def test_save_direct_vs_viancdata(standard_testcase, tmp_path):
         print("\nncdata =")
         print(ncdata)
         print("\nncdump ORIGINAL TESTCASE SOURCEFILE =")
-        txt = check_output([f"ncdump {source_filepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()
         print(txt)
         print("\nncdump DIRECT FROM IRIS =")
-        txt = check_output([f"ncdump {temp_iris_savepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(temp_iris_savepath)]).decode()
         print(txt)
         print("\nncdump VIA NCDATA =")
-        txt = check_output([f"ncdump {temp_ncdata_savepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(temp_ncdata_savepath)]).decode()
         print(txt)
 
     # Check equivalence

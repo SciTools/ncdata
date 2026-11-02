@@ -113,7 +113,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
         print("spec =")
         print(standard_testcase.spec)
         print("\nncdump =")
-        txt = check_output([f"ncdump {source_filepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()
         print(txt)
 
     # Load the testcase with Iris.
@@ -233,7 +233,7 @@ def test_roundtrip_xix(standard_testcase, use_irislock, adjust_chunks, tmp_path)
         print("spec =")
         print(standard_testcase.spec)
         print("\nncdump =")
-        txt = check_output([f"ncdump {source_filepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()
         print(txt)
 
     # Load the testcase with Xarray.
