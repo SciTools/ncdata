@@ -86,8 +86,11 @@ def cubes_equal__corrected(c1, c2):
             # Fix matching of cube data arrays
             c1.data, c2.data = fix_arrays(*(cube.core_data() for cube in (c1, c2)))
             # Fix matching of all coords points + bounds
-            for co1, co2 in zip(c1.coords(), c2.coords()):
-                if isinstance(co1, iris.mesh.MeshCoord):
+            for co1, co2 in zip(c1.coords(), c2.coords(), strict=False):
+                if (
+                    isinstance(co1, iris.mesh.MeshCoord)
+                    or isinstance(co2, iris.mesh.MeshCoord)
+                ):
                     # Can't write MeshCoords
                     continue
                 co1.points, co2.points = fix_arrays(
@@ -223,12 +226,12 @@ def prune_cube_varproperties(cube_or_cubes):
 
     names = set()
     for cube in cube_or_cubes:
-        components = (
-            [cube]
-            + list(cube.coords())
-            + list(cube.cell_measures())
-            + list(cube.ancillary_variables())
-        )
+        components = [
+            cube,
+            *list(cube.coords()),
+            *list(cube.cell_measures()),
+            *list(cube.ancillary_variables()),
+        ]
         for comp in components:
             names |= prune_attrs_varproperties(comp.attributes)
 
@@ -262,12 +265,12 @@ def remove_cube_nounits(cube_or_cubes):
         cube_or_cubes = [cube_or_cubes]
 
     for cube in cube_or_cubes:
-        components = (
-            [cube]
-            + list(cube.coords())
-            + list(cube.cell_measures())
-            + list(cube.ancillary_variables())
-        )
+        components = [
+            cube,
+            *list(cube.coords()),
+            *list(cube.cell_measures()),
+            *list(cube.ancillary_variables()),
+        ]
         for comp in components:
             remove_element_nounits(comp)
 

@@ -95,7 +95,7 @@ class _XarrayNcDataStore(NetCDF4DataStore):
             if varname in self.ncdata.variables:
                 raise ValueError(f'duplicate variable : "{varname}"')
 
-            for dim_name, size in zip(var.dims, var.shape):
+            for dim_name, size in zip(var.dims, var.shape, strict=True):
                 if dim_name in self.ncdata.dimensions:
                     if self.ncdata.dimensions[dim_name].size != size:
                         raise ValueError(

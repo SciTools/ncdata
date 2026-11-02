@@ -328,8 +328,10 @@ class TestDataCheck__difference_reports:
             expected = []
         else:
             expected = [
-                'Variable "v1" data contents differ, at 1 points: '
-                "@INDICES[(1,)] : LHS=[1.0], RHS=[masked]"
+                (
+                    'Variable "v1" data contents differ, at 1 points: '
+                    "@INDICES[(1,)] : LHS=[1.0], RHS=[masked]"
+                )
             ]
         check(errs, expected)
 
@@ -344,8 +346,10 @@ class TestDataCheck__difference_reports:
             expected = []
         else:
             expected = [
-                'Variable "v1" data contents differ, at 1 points: '
-                "@INDICES[(1,)] : LHS=[1.0], RHS=[nan]"
+                (
+                    'Variable "v1" data contents differ, at 1 points: '
+                    "@INDICES[(1,)] : LHS=[1.0], RHS=[nan]"
+                )
             ]
         check(errs, expected)
 
@@ -356,8 +360,10 @@ class TestDataCheck__difference_reports:
             var.data = np.array(value, dtype=var.dtype)
         errs = variable_differences(self.var1, self.var2)
         expected = [
-            'Variable "v1" data contents differ, at 1 points: '
-            "@INDICES[(0,)] : LHS=[0.0], RHS=[1.0]"
+            (
+                'Variable "v1" data contents differ, at 1 points: '
+                "@INDICES[(0,)] : LHS=[0.0], RHS=[1.0]"
+            )
         ]
         check(errs, expected)
 
@@ -367,15 +373,17 @@ class TestDataCheck__difference_reports:
         # fix the testvar to create a difference
         self.var2.data[1:2] += 1
         # setup vars with lazy/real data arrays
-        for arraytype, var in zip([type1, type2], [self.var1, self.var2]):
+        for arraytype, var in [(type1, self.var1), (type2, self.var2)]:
             if arraytype == "lazy":
                 var.data = da.from_array(var.data, chunks=-1)
         # compare + check results
         errs = variable_differences(self.var1, self.var2)
         # N.B. the result should be the same in all cases
         expected = [
-            'Variable "v1" data contents differ, at 1 points: '
-            "@INDICES[(1,)] : LHS=[1.0], RHS=[2.0]"
+            (
+                'Variable "v1" data contents differ, at 1 points: '
+                "@INDICES[(1,)] : LHS=[1.0], RHS=[2.0]"
+            )
         ]
         check(errs, expected)
 
@@ -404,13 +412,17 @@ class TestDataCheck__difference_reports:
         expected = []
         if ndiffs == 1:
             expected = [
-                'Variable "vx" data contents differ, at 1 points: '
-                "@INDICES[(1, 1)] : LHS=[b'h'], RHS=[b'X']"
+                (
+                    'Variable "vx" data contents differ, at 1 points: '
+                    "@INDICES[(1, 1)] : LHS=[b'h'], RHS=[b'X']"
+                )
             ]
         elif ndiffs == 2:
             expected = [
-                'Variable "vx" data contents differ, at 7 points: '
-                "@INDICES[(1, 1), (3, 3), ...] : "
-                "LHS=[b'h', b'e', ...], RHS=[b'X', b'', ...]"
+                (
+                    'Variable "vx" data contents differ, at 7 points: '
+                    "@INDICES[(1, 1), (3, 3), ...] : "
+                    "LHS=[b'h', b'e', ...], RHS=[b'X', b'', ...]"
+                )
             ]
         check(errs, expected)

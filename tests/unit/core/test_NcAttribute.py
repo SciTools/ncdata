@@ -166,11 +166,9 @@ class Test_NcAttribute_copy:
         assert result == attr
         assert result.name == attr.name
         assert result.value is not attr.value
-        assert (
-            result.value.dtype == attr.value.dtype
-            and result.value.shape == attr.value.shape
-            and np.all(result.value == attr.value)
-        )
+        assert result.value.dtype == attr.value.dtype
+        assert result.value.shape == attr.value.shape
+        assert np.all(result.value == attr.value)
 
 
 class Test_NcAttribute__eq__:

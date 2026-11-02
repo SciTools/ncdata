@@ -126,15 +126,9 @@ def dataset_differences(
     ds1, ds2 = None, None
     try:
         # convert path-likes to netCDF4.Dataset
-        if ds1_was_path:
-            ds1 = nc.Dataset(dataset_or_path_1)
-        else:
-            ds1 = dataset_or_path_1
+        ds1 = nc.Dataset(dataset_or_path_1) if ds1_was_path else dataset_or_path_1
 
-        if ds2_was_path:
-            ds2 = nc.Dataset(dataset_or_path_2)
-        else:
-            ds2 = dataset_or_path_2
+        ds2 = nc.Dataset(dataset_or_path_2) if ds2_was_path else dataset_or_path_2
 
         # NOTE: Both ds1 and ds2 are now *either* NcData *or* netCDF4.Dataset
         #  _isncdata() will be used to distinguish.
@@ -337,7 +331,7 @@ def variable_differences(
     check_var_data: bool = True,
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
-    _group_id_string: str = None,
+    _group_id_string: str | None = None,
 ) -> list[str]:
     r"""
     Compare variables.
@@ -382,10 +376,7 @@ def variable_differences(
         msg = f"'show_n_diffs' must be >=1 : got {show_n_first_different!r}."
         raise ValueError(msg)
 
-    if v1.name == v2.name:
-        varname = v1.name
-    else:
-        varname = f"{v1.name} / {v2.name}"
+    varname = v1.name if v1.name == v2.name else f"{v1.name} / {v2.name}"
 
     if _group_id_string:
         var_id_string = f'{_group_id_string} variable "{varname}"'
@@ -441,10 +432,7 @@ def variable_differences(
 
     # data values
     def _is_strtype(dt):
-        if dt is None:
-            result = False
-        else:
-            result = dt.kind in "SUb"
+        result = False if dt is None else dt.kind in "SUb"
         return result
 
     is_str, is_str2 = (_is_strtype(dt) for dt in (dtype, dtype2))
@@ -554,9 +542,8 @@ def _group_differences(
     """
     errs = []
 
-    if check_names:
-        if g1.name != g2.name:
-            errs.append(f"Datasets have different names: {g1.name!r} != {g2.name!r}.")
+    if check_names and g1.name != g2.name:
+        errs.append(f"Datasets have different names: {g1.name!r} != {g2.name!r}.")
     # Compare lists of dimension names
     dimnames, dimnames2 = [list(grp.dimensions.keys()) for grp in (g1, g2)]
     errs += _namelist_differences(

@@ -39,7 +39,7 @@ def _name_errors(element_container, id_string):
     return errors
 
 
-_NETCDF_VALID_DTYPES = [np.dtype(key) for key in nc.default_fillvals.keys()]
+_NETCDF_VALID_DTYPES = [np.dtype(key) for key in nc.default_fillvals]
 
 
 def _valid_attr_dtype(dtype):
@@ -96,8 +96,8 @@ def _variable_errors(
 
 def _save_errors_inner(
     ncdata: NcData,
-    enclosing_dimensions: dict[str, int] = None,
-    group_path: str = None,
+    enclosing_dimensions: dict[str, int] | None = None,
+    group_path: str | None = None,
 ) -> list[str]:
     """
     Scan dataset, with context allowing operation over inner groups.

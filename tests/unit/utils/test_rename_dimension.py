@@ -143,7 +143,7 @@ class TestRenameDimension:
                 ),
             ]
         )
-        yield ncdata
+        return ncdata
 
     def test_groups(self, group_example):
         ncdata = group_example

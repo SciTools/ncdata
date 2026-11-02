@@ -51,7 +51,7 @@ def data_types():
 # Get the dtype list from the netCDF default fill-values.
 _nc_dtypes = set(nc.default_fillvals.keys())
 # Remove the numpy-only complex types
-_nc_dtypes = set(typename for typename in _nc_dtypes if np.dtype(typename).kind != "c")
+_nc_dtypes = {typename for typename in _nc_dtypes if np.dtype(typename).kind != "c"}
 # Also replace 'S1' with our own 'string' type marker
 _nc_dtypes.remove("S1")
 _nc_dtypes.add("string")
@@ -84,7 +84,7 @@ assert set(_Datatype_Sample_Values.keys()) == set(data_types())
 def _write_nc4_dataset(
     spec: dict,
     ds: nc.Dataset,  # or an inner Group
-    parent_spec: dict = None,
+    parent_spec: dict | None = None,
 ):
     """
     Create a netcdf test file from a 'testcase spec'.

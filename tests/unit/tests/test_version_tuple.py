@@ -2,9 +2,7 @@
 #
 # This file is part of SciTools/ncdata and is released under the BSD license.
 # See LICENSE in the root of the repository for full licensing details.
-"""
-Tests for the test utility :func:`tests.version_majorminor`.
-"""
+"""Tests for the test utility :func:`tests.version_majorminor`."""
 
 import pytest
 

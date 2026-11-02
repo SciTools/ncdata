@@ -20,7 +20,6 @@ from collections.abc import Iterable, Mapping, MutableMapping
 from functools import wraps
 from typing import (
     Any,
-    Optional,
     Union,
 )
 
@@ -70,11 +69,10 @@ class NameMap(dict):
 
         If the NameMap has a non-None 'item_type', the added item is type checked.
         """
-        if self.item_type is not None:
-            if not isinstance(item, self.item_type):
-                raise TypeError(
-                    f'Item expected to be of type {self.item_type} : got {item}."'
-                )
+        if self.item_type is not None and not isinstance(item, self.item_type):
+            raise TypeError(
+                f'Item expected to be of type {self.item_type} : got {item}."'
+            )
         if not hasattr(item, "name"):
             raise TypeError(f"Item has no '.name' property : {item}.")
         self[item.name] = item
@@ -381,10 +379,10 @@ class NcData(_AttributeAccessMixin):
     def __init__(
         self,
         name: str | None = None,
-        dimensions: Mapping | Iterable = None,
-        variables: Mapping | Iterable = None,
-        attributes: Mapping | Iterable = None,
-        groups: Mapping | Iterable = None,
+        dimensions: Mapping | Iterable | None = None,
+        variables: Mapping | Iterable | None = None,
+        attributes: Mapping | Iterable | None = None,
+        groups: Mapping | Iterable | None = None,
     ):
         #: a group/dataset name (optional)
         self.name: str = name
@@ -519,10 +517,7 @@ class NcDimension:
         self.name: str = name
         #: dimension size (current size, if unlimited)
         self.size: int = size  # N.B. we retain the 'zero size means unlimited'
-        if size == 0:
-            unlimited = True
-        else:
-            unlimited = bool(unlimited)
+        unlimited = True if size == 0 else bool(unlimited)
         #: whether dimension is unlimited
         self.unlimited: bool = unlimited
 
@@ -576,11 +571,9 @@ class NcVariable(_AttributeAccessMixin):
         # a quoted reference when it's not otherwise needed (and we don't want to
         # import it).
         # TODO: remove the flake8 annotation if this gets fixed.
-        data: Optional[
-            Union[np.ndarray, "dask.array.array"]  # noqa: F821
-        ] = None,
+        data: Union[np.ndarray, "dask.array.array"] | None = None,
         dtype: np.dtype = None,
-        attributes: Mapping | Iterable = None,
+        attributes: Mapping | Iterable | None = None,
         group: "NcData" = None,
     ):
         """

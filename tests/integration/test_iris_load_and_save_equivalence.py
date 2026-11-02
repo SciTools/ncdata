@@ -100,7 +100,7 @@ def test_load_direct_vs_viancdata(standard_testcase, use_irislock, adjust_chunks
 
     results = [
         (c1.name(), cubes_equal__corrected(c1, c2))
-        for c1, c2 in zip(iris_cubes, iris_ncdata_cubes)
+        for c1, c2 in zip(iris_cubes, iris_ncdata_cubes, strict=False)
     ]
     expected = [(cube.name(), True) for cube in iris_cubes]
     result = results == expected

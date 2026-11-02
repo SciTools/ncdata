@@ -300,11 +300,10 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
         * for byte data, there is no netCDF default fill, so the result can be None.
         """
         fv = self._ncdata.avals.get("_FillValue", None)
-        if fv is None:
-            if self.dtype.itemsize != 1:
-                # NOTE: single-byte types have NO default fill-value
-                dtype_code = self.dtype.str[1:]
-                fv = netCDF4.default_fillvals[dtype_code]
+        if fv is None and self.dtype.itemsize != 1:
+            # NOTE: single-byte types have NO default fill-value
+            dtype_code = self.dtype.str[1:]
+            fv = netCDF4.default_fillvals[dtype_code]
         return fv
 
     def _maskandscale_inner_to_apparent(self, array):

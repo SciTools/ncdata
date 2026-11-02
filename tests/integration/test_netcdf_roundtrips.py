@@ -2,9 +2,7 @@
 #
 # This file is part of SciTools/ncdata and is released under the BSD license.
 # See LICENSE in the root of the repository for full licensing details.
-"""
-Test ncdata.netcdf by checking load-save roundtrips for standard testcases.
-"""
+"""Test ncdata.netcdf by checking load-save roundtrips for standard testcases."""
 
 from subprocess import check_output
 

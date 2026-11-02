@@ -8,7 +8,7 @@ Split in two files ...
   * HERE: "additional" tests cover subsidiary routines and the main
     API usage modes.
   * ( ALSO: "mainfunctions" (q.v.) cover the core functionality
-    -- which elements are compared and what errors this constructs. )
+    -- which elements are compared and what errors this constructs. ).
 """
 
 import shutil
@@ -223,8 +223,10 @@ class Test_attribute_differences:
         obj2 = self.Nc4ObjectWithAttrsMimic(a=np.float64(1))
         errs = _attribute_differences(obj1, obj2, "<object attributes>")
         assert errs == [
-            '<object attributes> "a" attribute datatypes differ : '
-            "dtype('float32') != dtype('float64')"
+            (
+                '<object attributes> "a" attribute datatypes differ : '
+                "dtype('float32') != dtype('float64')"
+            )
         ]
 
     def test_compare_attributes_values__data_arrays_match(self):
@@ -300,8 +302,10 @@ class Test_attribute_differences:
         obj2 = self.Nc4ObjectWithAttrsMimic(a="1")
         errs = _attribute_differences(obj1, obj2, "<object attributes>")
         assert errs == [
-            '<object attributes> "a" attribute datatypes differ : '
-            "dtype('int64') != <class 'str'>"
+            (
+                '<object attributes> "a" attribute datatypes differ : '
+                "dtype('int64') != <class 'str'>"
+            )
         ]
 
     def test_compare_attributes_values__string_match(self):
@@ -333,8 +337,10 @@ class Test_attribute_differences:
         obj2 = self.Nc4ObjectWithAttrsMimic(S=["a", "c"])
         errs = _attribute_differences(obj1, obj2, "<object attributes>")
         assert errs == [
-            '<object attributes> "S" attribute values differ : '
-            "['a', 'b'] != ['a', 'c']"
+            (
+                '<object attributes> "S" attribute values differ : '
+                "['a', 'b'] != ['a', 'c']"
+            )
         ]
 
     def test_compare_attributes__ncdata_string_scalar_array(self):

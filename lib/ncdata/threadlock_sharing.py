@@ -108,7 +108,8 @@ def enable_lockshare(iris: bool = False, xarray: bool = False):
 
             patches = [mock.patch(_NCDATA_TARGET, new=XARRAY_LOCK)]
         else:
-            assert iris and xarray
+            assert iris
+            assert xarray
             # set both ncdata AND Iris to use the Xarray lock
             from xarray.backends.netCDF4_ import (
                 NETCDF4_PYTHON_LOCK as XARRAY_LOCK,

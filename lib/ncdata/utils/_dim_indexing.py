@@ -199,6 +199,6 @@ class Slicer:
             raise ValueError(msg)
 
         # NB too *few* keys is not a problem, since 'zip' truncates for us.
-        dim_kwargs = {name: key for name, key in zip(self.dim_names, keys)}
+        dim_kwargs = dict(zip(self.dim_names, keys, strict=False))
 
         return index_by_dimensions(self.ncdata, **dim_kwargs)

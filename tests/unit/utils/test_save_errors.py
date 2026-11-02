@@ -2,9 +2,7 @@
 #
 # This file is part of SciTools/ncdata and is released under the BSD license.
 # See LICENSE in the root of the repository for full licensing details.
-"""
-Tests for :mod:`ncdata.utils.save_errors`
-"""
+"""Tests for :mod:`ncdata.utils.save_errors`."""
 
 import re
 
@@ -248,7 +246,7 @@ class TestSaveErrors_Variables:
     def test_missing_dims(self, extradims):
         ncdata = _basic_testdata()
         var = list(ncdata.variables.values())[0]
-        extradims = list(char for char in extradims)
+        extradims = list(extradims)
         var.dimensions = var.dimensions + tuple(extradims)
 
         errors = save_errors(ncdata)

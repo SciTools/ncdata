@@ -47,10 +47,7 @@ def _to_nc4_group(
 
     for varname, var in ncdata.variables.items():
         fillattr = "_FillValue"
-        if fillattr in var.avals:
-            fill_value = var.avals[fillattr]
-        else:
-            fill_value = None
+        fill_value = var.avals.get(fillattr, None)
 
         kwargs = var_kwargs.get(varname, {})
         forbidden_keys = set(_Forbidden_Variable_Kwargs) & set(kwargs)
@@ -163,7 +160,7 @@ class _NetCDFDataProxy:
 def to_nc4(
     ncdata: NcData,
     nc4_dataset_or_file: nc.Dataset | Path | str,
-    var_kwargs: dict[str, dict] = None,
+    var_kwargs: dict[str, dict] | None = None,
 ) -> None:
     """
     Save NcData to a netCDF file.
@@ -222,7 +219,7 @@ def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
     parent_ds = nc4ds
     group_names_path = []
     while parent_ds.parent is not None:
-        group_names_path = [parent_ds.name] + group_names_path
+        group_names_path = [parent_ds.name, *group_names_path]
         parent_ds = parent_ds.parent
 
     ncdata = NcData(name=nc4ds.name)
@@ -283,7 +280,7 @@ def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
 
 def from_nc4(
     nc4_dataset_or_file: nc.Dataset | nc.Group | Path | str,
-    dim_chunks: dict[str, int | str] = None,
+    dim_chunks: dict[str, int | str] | None = None,
 ) -> NcData:
     """
     Load NcData from a :class:`netCDF4.Dataset` or netCDF file.

@@ -40,9 +40,7 @@ def file_and_xarray_from_spec(
 
 
 def test_lazy_nocompute(tmp_path):
-    """
-    Check that from_xarray converts lazy variable data without fetching.
-    """
+    """Check that from_xarray converts lazy variable data without fetching."""
     # Create a simple xarray dataset from a spec
     test_spec = {
         "dims": [dict(name="x", size=3)],
@@ -79,9 +77,7 @@ def test_lazy_nocompute(tmp_path):
 
 
 def test_real_nocopy(tmp_path):
-    """
-    Check that from_xarray converts real variable data directly without copying.
-    """
+    """Check that from_xarray converts real variable data directly without copying."""
     # Create a simple xarray dataset from a spec
     test_spec = {
         "dims": [dict(name="x", size=3)],
