@@ -100,7 +100,7 @@ class Test_NcVariable__init__:
             assert var.dtype == data.dtype
         else:
             # with no data, invalid dtype causes error
-            with pytest.raises(TypeError, match="data type.*not understood"):
+            with pytest.raises(TypeError, match=r"data type.*not understood"):
                 _ = NcVariable("x", data=data, dtype=test_dtype_nonfunctional)
 
     @pytest.mark.parametrize(
@@ -269,13 +269,13 @@ class Test_NcVariable_eq:
         # Check that == calls variable_differences
         var1, var2 = [NcVariable(name=name) for name in ("x", "y")]
         called = mocker.patch("ncdata.utils.variable_differences")
-        var1 == var2  # noqa: PLR0124
+        var1 == var2  # noqa: B015
         assert called.call_args_list == [mocker.call(var1, var2)]
 
     def test_self_equal(self, mocker):
         var = NcVariable(name="x")
         called = mocker.patch("ncdata.utils.variable_differences")
-        assert var == var
+        assert var == var  # noqa: PLR0124
         assert called.call_args_list == []
 
     def test_badtype_nonequal(self, mocker):

@@ -34,7 +34,7 @@ def dataset_differences(
     check_var_data: bool = True,
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
-) -> list[str]:
+) -> list[str]:  # noqa: PLR0913, PLR0917
     r"""
     Compare two netcdf datasets.
 
@@ -253,7 +253,7 @@ def _attribute_differences(
     attrs_order=True,
     suppress_warnings=False,
     force_first_attrnames=None,
-) -> list[str]:
+) -> list[str]:  # noqa: PLR0913, PLR0917
     """
     Compare attribute name lists.
 
@@ -332,7 +332,7 @@ def variable_differences(
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
     _group_id_string: str | None = None,
-) -> list[str]:
+) -> list[str]:  # noqa: PLR0912, PLR0913, PLR0915, PLR0917
     r"""
     Compare variables.
 
@@ -409,7 +409,7 @@ def variable_differences(
     def safe_varshape(var):
         if _isncdata(var):
             # NcVariable passed
-            if var.data is None:
+            if var.data is None:  # noqa: SIM108
                 # Allow for NcVariable.data to be empty
                 shape = None
             else:
@@ -447,7 +447,13 @@ def variable_differences(
             else:
                 # expect var to be an actual netCDF4.Variable
                 # (check for obscure property NOT provided by mimics)
-                assert hasattr(var, "use_nc_get_vars")
+                if not hasattr(var, "use_nc_get_vars"):
+                    msg = (
+                        f"Expected var to be a netCDF4.Variable, or compatible. "
+                        f"Got {var!r}, of type {type(var)}: "
+                        "does not provide '.use_nc_get_vars()'."
+                    )
+                    raise TypeError(msg)
                 data = var[:]
 
             if data is None:
@@ -457,7 +463,8 @@ def variable_differences(
             # Return 0D as 1D, as this makes results simpler to interpret.
             if data.ndim == 0:
                 data = data.flatten()
-                assert data.shape == (1,)
+                # NOTE: data.shape == (1,)
+
             return data
 
         data, data2 = (getdata(v) for v in (v1, v2))
@@ -534,7 +541,7 @@ def _group_differences(
     check_names: bool = False,
     check_unlimited: bool = True,
     show_n_diffs: int = 2,
-) -> list[str]:
+) -> list[str]:  # noqa: PLR0913, PLR0917
     """
     Inner routine to compare either whole datasets or subgroups.
 

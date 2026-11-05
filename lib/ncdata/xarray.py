@@ -71,8 +71,8 @@ class _XarrayNcDataStore(NetCDF4DataStore):
         self,
         variables,
         attributes,
-        check_encoding_set=frozenset(),
-        writer=None,
+        check_encoding_set=frozenset(),  # noqa: ARG002
+        writer=None,  # noqa: ARG002
         unlimited_dims=None,
     ):
         """

@@ -402,7 +402,6 @@ class NcData(_AttributeAccessMixin):
         class, so it isn't technically an abstract method).
         This "NcData._print_content()" is called recursively for groups.
         """
-        global _STANDARD_INDENT
         # Define a header line (always a separate line).
         noname = "<'no-name'>"
         lines = [f"<NcData: {self.name or noname}"]
@@ -505,7 +504,7 @@ class NcData(_AttributeAccessMixin):
 
     # Block hashability : NcData objects are mutable, so they cannot be hashed.
     # N.B. this also avoids Ruff PLW1641 - q.v.
-    __hash__ = None  # type: ignore
+    __hash__ = None
 
 
 class NcDimension:
@@ -549,7 +548,7 @@ class NcDimension:
 
     # Block hashability : NcData objects are mutable, so they cannot be hashed.
     # N.B. this also avoids Ruff PLW1641 - q.v.
-    __hash__ = None  # type: ignore
+    __hash__ = None
 
 
 class NcVariable(_AttributeAccessMixin):
@@ -578,11 +577,11 @@ class NcVariable(_AttributeAccessMixin):
         # a quoted reference when it's not otherwise needed (and we don't want to
         # import it).
         # TODO: remove the flake8 annotation if this gets fixed.
-        data: Union[np.ndarray, "dask.array.array"] | None = None,
+        data: Union[np.ndarray, "dask.array.Array"] | None = None,
         dtype: np.dtype = None,
         attributes: Mapping | Iterable | None = None,
         group: "NcData" = None,
-    ):
+    ):  # noqa: PLR0913, PLR0917
         """
         Create a variable.
 
@@ -675,7 +674,7 @@ class NcVariable(_AttributeAccessMixin):
 
     # Block hashability : NcData objects are mutable, so they cannot be hashed.
     # N.B. this also avoids Ruff PLW1641 - q.v.
-    __hash__ = None  # type: ignore
+    __hash__ = None
 
 
 class NcAttribute:
@@ -796,4 +795,4 @@ class NcAttribute:
 
     # Block hashability : NcData objects are mutable, so they cannot be hashed.
     # N.B. this also avoids Ruff PLW1641 - q.v.
-    __hash__ = None  # type: ignore
+    __hash__ = None

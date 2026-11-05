@@ -30,7 +30,7 @@ class Test_AttributeAccesses:
 
     def test_getattr_absent(self, sample_object):
         # Check that fetching a non-existent attribute returns None.
-        sample_object.get_attrval("q") is None
+        assert sample_object.get_attrval("q") is None
 
     def test_setattr(self, sample_object):
         content = np.array([1, 2])

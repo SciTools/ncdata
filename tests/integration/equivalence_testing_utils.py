@@ -87,10 +87,7 @@ def cubes_equal__corrected(c1, c2):
             c1.data, c2.data = fix_arrays(*(cube.core_data() for cube in (c1, c2)))
             # Fix matching of all coords points + bounds
             for co1, co2 in zip(c1.coords(), c2.coords(), strict=False):
-                if (
-                    isinstance(co1, iris.mesh.MeshCoord)
-                    or isinstance(co2, iris.mesh.MeshCoord)
-                ):
+                if any(isinstance(co, iris.mesh.MeshCoord) for co in (co1, co2)):
                     # Can't write MeshCoords
                     continue
                 co1.points, co2.points = fix_arrays(
@@ -116,7 +113,7 @@ _CHUNKSIZE_SPEC = "20Kib"
 
 def set_tiny_chunks(on, size_spec="20Kib"):
     """Turn on and off the tiny-chunks effect of the 'adjust_chunks' fixture."""
-    global _USE_TINY_CHUNKS, _CHUNKSIZE_SPEC
+    global _USE_TINY_CHUNKS, _CHUNKSIZE_SPEC  # noqa: PLW0603
     _CHUNKSIZE_SPEC = size_spec
     _USE_TINY_CHUNKS = on
 

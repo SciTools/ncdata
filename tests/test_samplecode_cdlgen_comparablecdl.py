@@ -11,11 +11,10 @@ The status and usage of this are yet to be determined.
 """
 
 import subprocess
-from pathlib import Path
 
 import pytest
 
-from tests import NCGEN_PATHSTR, NCDUMP_PATHSTR
+from tests import NCDUMP_PATHSTR, NCGEN_PATHSTR
 
 
 def ncgen_from_cdl(cdl_str: str | None, cdl_path: str | None, nc_path: str):
@@ -43,7 +42,7 @@ def ncgen_from_cdl(cdl_str: str | None, cdl_path: str | None, nc_path: str):
 
     """
     if cdl_str and cdl_path:
-        with open(cdl_path, "w") as f_out:
+        with cdl_path.open("w") as f_out:
             f_out.write(cdl_str)
     if cdl_path:
         # Create netcdf from stored CDL file.
@@ -56,7 +55,7 @@ def ncgen_from_cdl(cdl_str: str | None, cdl_path: str | None, nc_path: str):
         call_args = [NCGEN_PATHSTR, "-k3", "-o", nc_path]
         call_kwargs = dict(input=cdl_str, encoding="ascii")
 
-    subprocess.run(call_args, check=True, **call_kwargs)
+    subprocess.run(call_args, check=True, **call_kwargs)  # noqa: S603
 
 
 # CDL to create a reference file with "all" features included.
@@ -135,9 +134,9 @@ def testdata_cdl(tmp_path_factory):
     cdl_path = tmpdir_path / "tmp_nccompare_test.cdl"
     nc_path = tmpdir_path / "tmp_nccompare_test.nc"
     ncgen_from_cdl(cdl_str=_base_cdl, cdl_path=cdl_path, nc_path=nc_path)
-    bytes = subprocess.check_output([NCDUMP_PATHSTR, "-h", nc_path])
-    cdl_regen_text = bytes.decode()
-    return cdl_regen_text
+    cdl_bytes = subprocess.check_output([NCDUMP_PATHSTR, "-h", nc_path])  # noqa: S603
+    cdl_text = cdl_bytes.decode()
+    return cdl_text
 
 
 def test_ncgen_from_cdl(testdata_cdl):

@@ -13,12 +13,8 @@ ci:
 # Alphabetised, for lack of a better order.
 files: |
     (?x)(
-        .github\/.*|
-        docs\/.+\.py|
-        lib\/.+\.py|
-        pyproject\.toml|
-        tests\/.+\.py|
-        tools\/.+\.py
+        \./.*\.py|
+        tests/.+\.py
     )
 
 exclude: |

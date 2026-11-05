@@ -67,7 +67,7 @@ class TestSaveErrors_Names:
     @staticmethod
     def component_propname(component: str):
         """Return the property name corresponding to the component type."""
-        if component == "attribute":
+        if component == "attribute":  # noqa: SIM108
             # Access the NameMap of NcAttributes (not the .attributes values map)
             propname = "attributes"
         else:

@@ -26,7 +26,7 @@ from ncdata.threadlock_sharing import lockshare_context
 from ncdata.utils import dataset_differences
 from ncdata.xarray import from_xarray
 
-from tests import version_tuple
+from tests import NCDUMP_PATHSTR, version_tuple
 from tests.data_testcase_schemas import (
     BAD_LOADSAVE_TESTCASES,
     session_testdir,
@@ -113,7 +113,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
         print("spec =")
         print(standard_testcase.spec)
         print("\nncdump =")
-        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()  # noqa: S603
         print(txt)
 
     # Load the testcase with Iris.
@@ -233,7 +233,7 @@ def test_roundtrip_xix(standard_testcase, use_irislock, adjust_chunks, tmp_path)
         print("spec =")
         print(standard_testcase.spec)
         print("\nncdump =")
-        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()  # noqa: S603
         print(txt)
 
     # Load the testcase with Xarray.
@@ -301,11 +301,10 @@ def test_roundtrip_xix(standard_testcase, use_irislock, adjust_chunks, tmp_path)
             mask |= data == fv
             data = da.ma.masked_array(data, mask=mask)
             var.data = data
-            if "calendar" in var.avals:
-                if var.avals["calendar"] == "gregorian":
-                    # the calendar name 'gregorian' is now deprecated,
-                    #  so Iris replaces it.
-                    var.avals["calendar"] = "standard"
+            if var.avals.get("calendar", "") == "gregorian":
+                # the calendar name 'gregorian' is now deprecated,
+                #  so Iris replaces it.
+                var.avals["calendar"] = "standard"
 
     result = dataset_differences(ncds_xr, ncds_xr_iris)  # , check_var_data=False)
     assert result == []

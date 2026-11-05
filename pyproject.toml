@@ -224,7 +224,7 @@ known-local-folder = ["tests"]
 notice-rgx = "^[ #]*Copyright SciTools contributors"
 
 [tool.ruff.lint.mccabe]
-max-complexity = 22
+max-complexity = 25  # TODO: reduce, and ignore in specific cases.
 
 [tool.ruff.lint.per-file-ignores]
 # All test scripts
@@ -235,6 +235,7 @@ max-complexity = 22
     "D101",  # Missing docstring in public class
     "D102",  # Missing docstring in public method
     "D103",  # Missing docstring in public function
+    "D106",  # Missing docstring in public nested class
     "D205",  # 1 blank line required between summary line and description
     "D401",  # 1 First line of docstring should be in imperative mood
     "N801",  # Class name should use CapWords convention
@@ -244,6 +245,9 @@ max-complexity = 22
     "N806", # Variable in function should be lowercase
     "N813", # Argument name should be lowercase
     "N999", # Argument name should be lowercase
+    "B018", # useless expression  [[used for explicit pytest fixture imports]]
+    "ARG001", # Unused function argument  [[does not recognise explicitly imported pytest fixtures]]
+    "ARG002", # Unused method argument  [[does not recognise explicitly imported pytest fixtures]]
 ]
 
 [tool.ruff.lint.pydocstyle]

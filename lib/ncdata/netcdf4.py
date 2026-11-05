@@ -243,13 +243,13 @@ def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
 
         # Work out the shape of the variable.
         # It may refer to dimensions in enclosing groups.
-        group = parent_ds
-        dims_map = group.dimensions.copy()
+        nc4_group = parent_ds
+        dims_map = nc4_group.dimensions.copy()
         for group_name in group_names_path:
             # Inner groups take priority, of course :
             # their dimensions mask any of the same name in outer groups
-            group = group.groups[group_name]
-            dims_map.update(group.dimensions)
+            nc4_group = nc4_group.groups[group_name]
+            dims_map.update(nc4_group.dimensions)
 
         shape = tuple(dims_map[dimname].size for dimname in var.dimensions)
 
@@ -270,10 +270,8 @@ def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
         ncdata.avals[attrname] = nc4ds.getncattr(attrname)
 
     # And finally, groups -- by the magic of recursion ...
-    for group_name, group in nc4ds.groups.items():
-        ncdata.groups[group_name] = _from_nc4_group(
-            nc4ds.groups[group_name], dim_chunks=dim_chunks
-        )
+    for group_name, nc4_group in nc4ds.groups.items():
+        ncdata.groups[group_name] = _from_nc4_group(nc4_group, dim_chunks=dim_chunks)
 
     return ncdata
 

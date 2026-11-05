@@ -132,7 +132,7 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
     def groups(self):  # noqa: D102
         return None  # not supported
 
-    def createDimension(self, dimname: str, size: int):  # noqa: D102
+    def createDimension(self, dimname: str, size: int):  # noqa: D102, N802
         if dimname in self.dimensions:
             msg = f'creating duplicate dimension "{dimname}".'
             raise ValueError(msg)
@@ -151,8 +151,8 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         datatype: np.dtype,
         dimensions: list[str] = (),
         fill_value=None,
-        **kwargs: dict[str, Any],
-    ):
+        **kwargs: dict[str, Any],  # noqa: ARG002
+    ):  # noqa: D102, N802
         if varname in self.variables:
             msg = f'creating duplicate variable "{varname}".'
             raise ValueError(msg)
@@ -235,7 +235,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
     Thus, at present, we do *not* provide any of the
     ``set_auto_mask/scale/maskandscale()`` methods.
 
-    """
+    """  # noqa: E501
 
     _local_instance_props = ("_ncdata", "name", "datatype", "_data_array")
 

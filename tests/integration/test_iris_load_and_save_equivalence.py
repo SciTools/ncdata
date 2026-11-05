@@ -85,7 +85,7 @@ def test_load_direct_vs_viancdata(standard_testcase, use_irislock, adjust_chunks
         print("\nncdata =")
         print(ncdata)
         print("\nncdump =")
-        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()  # noqa: S603
         print(txt)
 
     # Load the testcase with Iris.
@@ -160,13 +160,13 @@ def test_save_direct_vs_viancdata(standard_testcase, tmp_path):
         print("\nncdata =")
         print(ncdata)
         print("\nncdump ORIGINAL TESTCASE SOURCEFILE =")
-        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()  # noqa: S603
         print(txt)
         print("\nncdump DIRECT FROM IRIS =")
-        txt = check_output([NCDUMP_PATHSTR, str(temp_iris_savepath)]).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(temp_iris_savepath)]).decode()  # noqa: S603
         print(txt)
         print("\nncdump VIA NCDATA =")
-        txt = check_output([NCDUMP_PATHSTR, str(temp_ncdata_savepath)]).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(temp_ncdata_savepath)]).decode()  # noqa: S603
         print(txt)
 
     # Check equivalence
