@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Tests for :func:`ncdata.iris.to_iris`.
 
@@ -27,9 +31,7 @@ def test_lazy_nocompute():
     dask_array = da.from_array(monitored_array, chunks=(2,), meta=np.ndarray)
     ncdata = NcData(
         dimensions=[NcDimension("x", 3)],
-        variables=[
-            NcVariable(name="var_x", dimensions=["x"], data=dask_array)
-        ],
+        variables=[NcVariable(name="var_x", dimensions=["x"], data=dask_array)],
     )
 
     # convert to cubes
@@ -55,9 +57,7 @@ def test_real_nocopy():
     monitored_array = MonitoredArray(real_array)
     ncdata = NcData(
         dimensions=[NcDimension("x", 3)],
-        variables=[
-            NcVariable(name="var_x", dimensions=["x"], data=monitored_array)
-        ],
+        variables=[NcVariable(name="var_x", dimensions=["x"], data=monitored_array)],
     )
 
     # convert to cubes
@@ -122,7 +122,6 @@ def test_kwargs__load_by_name():
 
 def test_iris_loadchain():
     """Check that standard iris load-chain processing is applied, including a merge."""
-
     # Create a pair of datasets with mergeable variables.
     # Start by making one, with a scalar 'z' coord.
     ncdata = NcData(

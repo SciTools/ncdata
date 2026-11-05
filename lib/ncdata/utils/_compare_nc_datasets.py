@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Utility for comparing 2 netcdf datasets.
 
@@ -8,7 +12,7 @@ TODO: one day might be public ?
 """
 
 from pathlib import Path
-from typing import AnyStr, List, Union
+from typing import AnyStr
 from warnings import warn
 
 import netCDF4
@@ -19,8 +23,8 @@ from ncdata import NcData, NcVariable
 
 
 def dataset_differences(
-    dataset_or_path_1: Union[Path, AnyStr, nc.Dataset, NcData],
-    dataset_or_path_2: Union[Path, AnyStr, nc.Dataset, NcData],
+    dataset_or_path_1: Path | AnyStr | nc.Dataset | NcData,
+    dataset_or_path_2: Path | AnyStr | nc.Dataset | NcData,
     check_names: bool = False,
     check_dims_order: bool = True,
     check_dims_unlimited: bool = True,
@@ -30,7 +34,7 @@ def dataset_differences(
     check_var_data: bool = True,
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
-) -> List[str]:
+) -> list[str]:  # noqa: PLR0913, PLR0917
     r"""
     Compare two netcdf datasets.
 
@@ -116,21 +120,15 @@ def dataset_differences(
     See Also
     --------
     :func:`~ncdata.utils.variable_differences`
-    """
+    """  # noqa: E501
     ds1_was_path = not hasattr(dataset_or_path_1, "variables")
     ds2_was_path = not hasattr(dataset_or_path_2, "variables")
     ds1, ds2 = None, None
     try:
         # convert path-likes to netCDF4.Dataset
-        if ds1_was_path:
-            ds1 = nc.Dataset(dataset_or_path_1)
-        else:
-            ds1 = dataset_or_path_1
+        ds1 = nc.Dataset(dataset_or_path_1) if ds1_was_path else dataset_or_path_1
 
-        if ds2_was_path:
-            ds2 = nc.Dataset(dataset_or_path_2)
-        else:
-            ds2 = dataset_or_path_2
+        ds2 = nc.Dataset(dataset_or_path_2) if ds2_was_path else dataset_or_path_2
 
         # NOTE: Both ds1 and ds2 are now *either* NcData *or* netCDF4.Dataset
         #  _isncdata() will be used to distinguish.
@@ -158,9 +156,7 @@ def dataset_differences(
     return errs
 
 
-def _namelist_differences(
-    l1, l2, elemname, order_strict=True, suppress_warnings=False
-):
+def _namelist_differences(l1, l2, elemname, order_strict=True, suppress_warnings=False):
     errs = []
     msg = f"{elemname} do not match: {list(l1)} != {list(l2)}"
     ok = l1 == l2
@@ -206,7 +202,8 @@ def _attribute_arrays_eq(a1, a2):
 
 
 def _array_element_str(x):
-    """Make a string representation of a numpy array element (scalar).
+    """
+    Make a string representation of a numpy array element (scalar).
 
     Does *not* rely on numpy array printing.
     Instead converts to an equivalent Python object, and takes str(that).
@@ -232,7 +229,8 @@ def _array_element_str(x):
 
 
 def _attribute_str(x):
-    """Make a string representing an attribute value.
+    """
+    Make a string representing an attribute value.
 
     Like the above, not depending on numpy array printing.
     """
@@ -255,7 +253,7 @@ def _attribute_differences(
     attrs_order=True,
     suppress_warnings=False,
     force_first_attrnames=None,
-) -> List[str]:
+) -> list[str]:  # noqa: PLR0913, PLR0917
     """
     Compare attribute name lists.
 
@@ -292,11 +290,7 @@ def _attribute_differences(
             continue
 
         attr, attr2 = [
-            (
-                obj.avals[attrname]
-                if _isncdata(obj)
-                else obj.getncattr(attrname)
-            )
+            (obj.avals[attrname] if _isncdata(obj) else obj.getncattr(attrname))
             for obj in (obj1, obj2)
         ]
 
@@ -308,10 +302,7 @@ def _attribute_differences(
             getattr(attr, "dtype", type(attr))
             for attr in (attr, attr2)
         ]
-        if all(
-            isinstance(dt, np.dtype) and dt.kind in "SUb"
-            for dt in (dtype, dtype2)
-        ):
+        if all(isinstance(dt, np.dtype) and dt.kind in "SUb" for dt in (dtype, dtype2)):
             dtype = dtype2 = "string"
         if dtype != dtype2:
             msg = (
@@ -340,8 +331,8 @@ def variable_differences(
     check_var_data: bool = True,
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
-    _group_id_string: str = None,
-) -> List[str]:
+    _group_id_string: str | None = None,
+) -> list[str]:  # noqa: PLR0912, PLR0913, PLR0915, PLR0917
     r"""
     Compare variables.
 
@@ -353,11 +344,13 @@ def variable_differences(
         variables to compare
     check_attrs_order : bool, default True
         If False, no error results from the same contents in a different order,
-        however unless `suppress_warnings` is True, the error string is issued as a warning.
+        however unless `suppress_warnings` is True, the error string is issued
+        as a warning.
     check_var_data : bool, default True
         If True, all variable data is also checked for equality.
         If False, only dtype and shape are compared.
-        NOTE: comparison of large arrays is done in-memory, so may be highly inefficient.
+        NOTE: comparison of large arrays is done in-memory, so may be highly
+        inefficient.
     show_n_first_different: int, default 2
         Number of value differences to display.
     suppress_warnings : bool, default False
@@ -383,10 +376,7 @@ def variable_differences(
         msg = f"'show_n_diffs' must be >=1 : got {show_n_first_different!r}."
         raise ValueError(msg)
 
-    if v1.name == v2.name:
-        varname = v1.name
-    else:
-        varname = f"{v1.name} / {v2.name}"
+    varname = v1.name if v1.name == v2.name else f"{v1.name} / {v2.name}"
 
     if _group_id_string:
         var_id_string = f'{_group_id_string} variable "{varname}"'
@@ -419,7 +409,7 @@ def variable_differences(
     def safe_varshape(var):
         if _isncdata(var):
             # NcVariable passed
-            if var.data is None:
+            if var.data is None:  # noqa: SIM108
                 # Allow for NcVariable.data to be empty
                 shape = None
             else:
@@ -442,20 +432,12 @@ def variable_differences(
 
     # data values
     def _is_strtype(dt):
-        if dt is None:
-            result = False
-        else:
-            result = dt.kind in "SUb"
+        result = False if dt is None else dt.kind in "SUb"
         return result
 
     is_str, is_str2 = (_is_strtype(dt) for dt in (dtype, dtype2))
     # TODO: is this correct check to allow compare between different dtypes?
-    if (
-        check_var_data
-        and dims == dims2
-        and shape == shape2
-        and is_str == is_str2
-    ):
+    if check_var_data and dims == dims2 and shape == shape2 and is_str == is_str2:
         # NOTE: no attempt to use laziness here.  Could be improved.
         def getdata(var):
             if _isncdata(var):
@@ -465,7 +447,13 @@ def variable_differences(
             else:
                 # expect var to be an actual netCDF4.Variable
                 # (check for obscure property NOT provided by mimics)
-                assert hasattr(var, "use_nc_get_vars")
+                if not hasattr(var, "use_nc_get_vars"):
+                    msg = (
+                        f"Expected var to be a netCDF4.Variable, or compatible. "
+                        f"Got {var!r}, of type {type(var)}: "
+                        "does not provide '.use_nc_get_vars()'."
+                    )
+                    raise TypeError(msg)
                 data = var[:]
 
             if data is None:
@@ -475,18 +463,15 @@ def variable_differences(
             # Return 0D as 1D, as this makes results simpler to interpret.
             if data.ndim == 0:
                 data = data.flatten()
-                assert data.shape == (1,)
+                # NOTE: data.shape == (1,)
+
             return data
 
         data, data2 = (getdata(v) for v in (v1, v2))
-        flatdata, flatdata2 = (
-            np.asanyarray(arr).flatten() for arr in (data, data2)
-        )
+        flatdata, flatdata2 = (np.asanyarray(arr).flatten() for arr in (data, data2))
 
         # For simpler checking, use flat versions
-        flat_diff_inds = (
-            []
-        )  # NB *don't* make this an array, it causes problems
+        flat_diff_inds = []  # NB *don't* make this an array, it causes problems
 
         # Work out whether string : N.B. array type does not ALWAYS match the
         # variable type, because apparently the scalar content of a *masked* scalar
@@ -499,9 +484,7 @@ def variable_differences(
 
         # Where data is masked, count mask mismatches and skip those points
         if any(np.ma.is_masked(arr) for arr in (data, data2)):
-            mask, mask2 = (
-                np.ma.getmaskarray(array) for array in (flatdata, flatdata2)
-            )
+            mask, mask2 = (np.ma.getmaskarray(array) for array in (flatdata, flatdata2))
             flat_diff_inds = list(np.where(mask != mask2)[0])
             # Replace all masked points to exclude them from unmasked-point checks.
             either_masked = mask | mask2
@@ -524,14 +507,10 @@ def variable_differences(
         flat_diff_inds = sorted(flat_diff_inds)
         n_diffs = len(flat_diff_inds)
         if n_diffs:
-            msg = (
-                f"{var_id_string} data contents differ, at {n_diffs} points: "
-            )
+            msg = f"{var_id_string} data contents differ, at {n_diffs} points: "
             ellps = ", ..." if n_diffs > show_n_first_different else ""
             diffinds = flat_diff_inds[:show_n_first_different]
-            diffinds = [
-                np.unravel_index(ind, shape=data.shape) for ind in diffinds
-            ]
+            diffinds = [np.unravel_index(ind, shape=data.shape) for ind in diffinds]
             diffinds_str = ", ".join(
                 str(tuple([int(ind) for ind in x])) for x in diffinds
             )
@@ -544,17 +523,14 @@ def variable_differences(
             )
             points_lhs_str = f"[{points_lhs_str}{ellps}]"
             points_rhs_str = f"[{points_rhs_str}{ellps}]"
-            msg += (
-                f"@INDICES{inds_str}"
-                f" : LHS={points_lhs_str}, RHS={points_rhs_str}"
-            )
+            msg += f"@INDICES{inds_str} : LHS={points_lhs_str}, RHS={points_rhs_str}"
             errs.append(msg)
     return errs
 
 
 def _group_differences(
-    g1: Union[netCDF4.Dataset, netCDF4.Group],
-    g2: Union[netCDF4.Dataset, netCDF4.Group],
+    g1: netCDF4.Dataset | netCDF4.Group,
+    g2: netCDF4.Dataset | netCDF4.Group,
     group_id_string: str,
     dims_order: bool = True,
     vars_order: bool = True,
@@ -565,7 +541,7 @@ def _group_differences(
     check_names: bool = False,
     check_unlimited: bool = True,
     show_n_diffs: int = 2,
-) -> List[str]:
+) -> list[str]:  # noqa: PLR0913, PLR0917
     """
     Inner routine to compare either whole datasets or subgroups.
 
@@ -573,11 +549,8 @@ def _group_differences(
     """
     errs = []
 
-    if check_names:
-        if g1.name != g2.name:
-            errs.append(
-                f"Datasets have different names: {g1.name!r} != {g2.name!r}."
-            )
+    if check_names and g1.name != g2.name:
+        errs.append(f"Datasets have different names: {g1.name!r} != {g2.name!r}.")
     # Compare lists of dimension names
     dimnames, dimnames2 = [list(grp.dimensions.keys()) for grp in (g1, g2)]
     errs += _namelist_differences(

@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """Tests for class :class:`ncdata._core.AttrvalsDict`."""
 
 from copy import deepcopy
@@ -36,16 +40,16 @@ _alltype_opts = list(_testitem.keys())
 
 @pytest.fixture(params=_alltype_opts)
 def itemtype(request):
-    yield request.param
+    return request.param
 
 
 @pytest.fixture(params=_alltype_opts)
 def value_oftype(request):
-    yield _testitem[request.param]
+    return _testitem[request.param]
 
 
 class Test_setitem(MixinEquivTest):
-    """Testing equivalence to ".attributes" """
+    """Testing equivalence to ".attributes"."""
 
     def test_types(self, value_oftype):
         a, b = self.vars_a_b
@@ -79,7 +83,7 @@ class Test_setitem(MixinEquivTest):
 
 
 class Test_getitems(MixinEquivTest):
-    """Testing equivalence to ".attributes" """
+    """Testing equivalence to ".attributes"."""
 
     def test_getitem(self, value_oftype):
         v = self.var
@@ -164,9 +168,7 @@ class Test_otherops(MixinEquivTest):
     def test_update(self):
         v = self.var
         # renaming : name of NcAttribute supplied as a value is lost
-        v.avals.update(
-            {"q": 49.3, "ZZ": NcAttribute("<lost>", [1, 2]), "a": 17}
-        )
+        v.avals.update({"q": 49.3, "ZZ": NcAttribute("<lost>", [1, 2]), "a": 17})
         # ordering : "q" and "ZZ" are added after, but "a" stays where it was
         assert list(v.attributes.keys()) == ["a", "b", "q", "ZZ"]
         assert v.attributes["a"] == NcAttribute("a", 17)

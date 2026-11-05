@@ -1,29 +1,16 @@
 [build-system]
 # Defined by PEP 518
 requires = [
-  "setuptools>=77",
-  "setuptools_scm[toml]>=7.0",
-  "wheel",
+  "setuptools>=77.0.3",
+  "setuptools_scm[toml]>=8",
 ]
 # Defined by PEP 517
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ncdata"
 authors = [
     {name = "Iris Contributors", email = "scitools.pub@gmail.com"}
 ]
-description = "Abstract NetCDF data objects, providing fast data transfer between analysis packages."
-requires-python = ">=3.10"
-keywords = [
-    "cf-metadata",
-    "data-analysis",
-    "netcdf",
-    "iris",
-    "xarray",
-]
-license = "BSD-3-Clause"
-license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -41,13 +28,26 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dynamic = [
+    # NOTE: dependencies are NOT dynamic (for now).
     "readme",
     "version",
 ]
+description = "Abstract NetCDF data objects, providing fast data transfer between analysis packages."
 # Strictly, dask + netcdf are not core dependencies.
 # But almost *any* conceivable use will need them.
 # For now, this works in place of a dependencies file, so 'dependencies' is NOT dynamic.
 dependencies = ["numpy", "dask", "netCDF4"]
+keywords = [
+    "cf-metadata",
+    "data-analysis",
+    "netcdf",
+    "iris",
+    "xarray",
+]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+name = "ncdata"
+requires-python = ">=3.10"
 
 
 [project.urls]
@@ -56,30 +56,221 @@ Discussions = "https://github.com/SciTools/ncdata/discussions"
 Documentation = "https://ncdata.readthedocs.io"
 Issues = "https://github.com/SciTools/ncdata/issues"
 
+[tool.check-manifest]
+# Ignores here will vary by repository.
+ignore = ["lib/ncdata/_version.py/_version.py"]
+
+[tool.codespell]
+ignore-words-list = "alpha-numeric,assertIn,degreee,discontiguities,lazyness,meaned,nin,re-use,re-uses,re-using,re-used,anc,abl,ND,Nd"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.coverage.run]
+branch = true
+include = [
+    "lib/ncdata/*"
+]
+# NB no omit, sinces tests are not within the main package
+
+
+[tool.mypy]
+# https://mypy.readthedocs.io/en/stable/error_code_list2.html
+disable_error_code = [] # Include any error codes that you want to ignore
+enable_error_code = [
+    "ignore-without-code",
+    "redundant-expr",
+    "truthy-bool",
+]
+strict = true
+warn_unreachable = true
+
+[tool.numpydoc_validation]
+# We have agreed a that some of the numpydoc rules that we are going to ignore.
+# Our repositories are going to have extra rules that they are ignoring that is expected, but they are not included here.
+# https://numpydoc.readthedocs.io/en/latest/validation.html#validation-checks
+checks = [
+    "all",  # Enable all numpydoc validation rules, apart from the following:
+
+    # -> Docstring text (summary) should start in the line immediately
+    #    after the opening quotes (not in the same line, or leaving a
+    #    blank line in between)
+    # Reason for ignore: A chosen house-style
+    "GL01",  # Permit summary line on same line as docstring opening quotes.
+
+    # -> Closing quotes should be placed in the line after the last text
+    #    in the docstring (do not close the quotes in the same line as
+    #    the text, or leave a blank line between the last text and the
+    # quotes)
+    # Reason for ignore: A chosen house-style
+    "GL02",  # Permit a blank line before docstring closing quotes.
+
+    #    -> Double line break found; please use only one blank line to
+    #    separate sections or paragraphs, and do not leave blank lines
+    #    at the end of docstrings
+    # Reason for ignore: We benefit from more flexability in formatting
+    "GL03",  # Ignoring.
+
+    # -> See Also section not found
+    "SA01",  # Not all docstrings require a "See Also" section.
+
+    # -> No extended summary found
+    "ES01",  # Not all docstrings require an "Extended Summary" section.
+
+    # -> No examples section found
+    "EX01",  # Not all docstrings require an "Examples" section.
+
+    # -> No Yields section found
+    "YD01",  # Not all docstrings require a "Yields" section.
+
+    # TODO: exceptions that still need investigating are below. Might be fixable, or might become permanent (above):
+]
+exclude = [
+    '\.__eq__$',
+    '\.__ne__$',
+    '\.__repr__$',
+]
+exclude_files = ["^tests/.*", "^lib/ncdata/_version.py$"]
+
+[tool.pytest.ini_options] # The list of keys vary by repository
+addopts = ["-ra", "-v", "--strict-config", "--strict-markers", "--doctest-modules"] # This addopts list varies by repository
+filterwarnings = ["default"]
+log_level = "INFO"
+minversion = "6.0"
+testpaths = "<PATH_TO_MAIN_CODE>" # e.g "cf_units" or "lib/iris"
+xfail_strict = "True"
+
+[tool.repo-review]
+# We have agreed that we will permanently ignore the repo-review rules in the first half of this ignore list.
+ignore = [
+    # https://learn.scientific-python.org/development/guides/style/#PC180
+    # Not possible to run on the hardware used by the majority of our developers. Might change in future!
+    "PC180", # Uses prettier.
+    # https://learn.scientific-python.org/development/guides/packaging-simple#PP006
+    "PP006",  # Uses dev dependency group
+
+    # TODO: exceptions that still need investigating are below. Might be fixable, or might become permanent (above):
+
+    # VERY TEMPORARY FOR-NOW
+    "PY007",  # should have a task runner (nox/tox etc).
+]
+[tool.ruff]
+extend-exclude = [
+    "docs/conf.py",  # based on Sphix template, is too different to be worth checking.
+]
+line-length = 88
+src = ["lib"]
+
+[tool.ruff.format]
+exclude = [
+    "*.md", "*.rst"  #don't reformat code in docs etc
+]
+preview = false
+
+[tool.ruff.lint]
+# We have agreed that we will permanently ignore the ruff rules in the first half of this ignore list.
+ignore = [
+    # flake8-commas (COM)
+    # https://docs.astral.sh/ruff/rules/#flake8-commas-com
+    "COM812",  # Trailing comma missing.
+    "COM819",  # Trailing comma prohibited.
+
+    # flake8-implicit-str-concat (ISC)
+    # https://docs.astral.sh/ruff/rules/single-line-implicit-string-concatenation/
+    # NOTE: This rule may cause conflicts when used with "ruff format".
+    "ISC001",  # Implicitly concatenate string literals on one line.
+
+    # project-specific ignores
+    "ANN",  # not needed as we are using MyPy
+    "C408", # Unnecessary `dict()` call (rewrite as a literal)
+            # [[TRUST: where used, readabiility is wanted over efficiency]]
+    "FBT",  # flake8-boolean-trap (no bools in positional args)
+    "FIX002",  # TODO comments.
+    "PLC0415",  # Imports at top [[TRUST: exceptions are intentional]]
+    "SLF",  # flake8 private member accesses
+    "T201",  # Print statement.
+    "TD",  # flake8 TODO bans
+    "RET504",  # unnecessary assignment before return [[readabiility wins]]
+    "TRY003",  # Avoid...long messages outside the exception class [[over-applied. unhelpful]]
+    "EM",  # (string construstion in raised exceptions) [[unhelpful]]
+    "B028",  # warn without stacklevel=  [[probably not]]
+    "FLY002",  # use f-string instead of joins  [[TRUST: readability]]
+    "RUF015",  # prefer 'next' over [0]  [[readability]]
+    "N813",  # Camelcase imported as lowercase  [[ok for netCDF4]]
+    "E402",  # module level import not at top of file [[TRUST: usages intended]]
+
+    # TODO: exceptions that still need investigating are below. Might be fixable, or might become permanent (above):
+    "ERA001", # Found commented-out code
+]
+preview = false
+select = [
+    "ALL",
+    # Note: the above "all" disables conflicting rules, if you want that
+    # rule it needs to be explicitly enabled below:
+    "D213",  # Multi-line docstring summary should start at the second line
+]
+
+[tool.ruff.lint.isort]
+#known-first-party = ["ncdata"]
+known-local-folder = ["tests"]
+# The identification of first-party modules is wrong here, and **different from isort**.
+# It seems to consider these first-party because there is an 'ncdata.xarray' etc.
+# Also that confuses it and it then treats all ncdata as **third-party**.
+#known-third-party = ["iris", "xarray"]
+
+[tool.ruff.lint.flake8-copyright]
+notice-rgx = "^[ #]*Copyright SciTools contributors"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25  # TODO: reduce, and ignore in specific cases.
+
+[tool.ruff.lint.per-file-ignores]
+# All test scripts
+"./tests/**/*.py" = [ # e.g "cf_units/tests" or "lib/iris/tests"
+    # https://docs.astral.sh/ruff/rules
+    "S101",  # Use of assert.
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D106",  # Missing docstring in public nested class
+    "D205",  # 1 blank line required between summary line and description
+    "D401",  # 1 First line of docstring should be in imperative mood
+    "N801",  # Class name should use CapWords convention
+    "PLR2004",  # Magic constants in comparison
+    "PLR09",  # Various complexity warns: too many args, statements, branches...
+    "N802",  # Function name should be lowercase
+    "N806", # Variable in function should be lowercase
+    "N813", # Argument name should be lowercase
+    "N999", # Argument name should be lowercase
+    "B018", # useless expression  [[used for explicit pytest fixture imports]]
+    "ARG001", # Unused function argument  [[does not recognise explicitly imported pytest fixtures]]
+    "ARG002", # Unused method argument  [[does not recognise explicitly imported pytest fixtures]]
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.setuptools]
+zip-safe = false
+
 [tool.setuptools.dynamic]
+# NOTE: no dependencies, for now.
 readme = {file = "README.md", content-type = "text/markdown"}
+
 
 [tool.setuptools.packages.find]
 include = ["ncdata*"]
 where = ["lib"]
 
 [tool.setuptools_scm]
-version_file = "lib/ncdata/_version.py"
 local_scheme = "dirty-tag"
 version_scheme = "release-branch-semver"
-
-
-[tool.black]
-line-length = 79
-target-version = ['py310']
-include = '\.pyi?$'
-
-[tool.isort]
-line_length = "79"
-profile = "black"
-known_local_folder = ["tests"]
-known_first_party = "ncdata"
-skip = ["lib/ncdata/__init__.py"]
+write_to = "lib/ncdata/_version.py"
 
 [tool.towncrier]
 package = "ncdata"
@@ -113,4 +304,3 @@ showcontent = true
 directory = "misc"
 name = "Developer and Internal changes"
 showcontent = true
-

@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 r"""
 Support for "unifying" the thread-safety mechanisms between ncdata and other packages.
 
@@ -86,7 +90,7 @@ def enable_lockshare(iris: bool = False, xarray: bool = False):
     lock as xarray.
 
     """
-    global _SHARE_PATCHES
+    global _SHARE_PATCHES  # noqa: PLW0603
     # N.B. implement sharing *only if* none already exists
     if not _SHARE_PATCHES and (iris or xarray):
         if iris and not xarray:
@@ -103,8 +107,7 @@ def enable_lockshare(iris: bool = False, xarray: bool = False):
             )
 
             patches = [mock.patch(_NCDATA_TARGET, new=XARRAY_LOCK)]
-        else:
-            assert iris and xarray
+        else:  # case (iris AND xarray)
             # set both ncdata AND Iris to use the Xarray lock
             from xarray.backends.netCDF4_ import (
                 NETCDF4_PYTHON_LOCK as XARRAY_LOCK,
@@ -126,7 +129,7 @@ def disable_lockshare():
 
     Does nothing if no lock share is in operation.
     """
-    global _SHARE_PATCHES
+    global _SHARE_PATCHES  # noqa: PLW0603
     for patch in _SHARE_PATCHES:
         patch.stop()
     _SHARE_PATCHES = []

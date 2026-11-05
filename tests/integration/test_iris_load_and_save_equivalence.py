@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Test ncdata.iris by checking roundtrips for standard testcases.
 
@@ -14,7 +18,7 @@ import pytest
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.utils import dataset_differences
 
-from tests import version_tuple
+from tests import NCDUMP_PATHSTR, version_tuple
 from tests.data_testcase_schemas import session_testdir, standard_testcase
 from tests.integration.equivalence_testing_utils import (
     adjust_chunks,
@@ -48,9 +52,7 @@ _USE_TINY_CHUNKS = False
 set_tiny_chunks(_USE_TINY_CHUNKS)
 
 
-def test_load_direct_vs_viancdata(
-    standard_testcase, use_irislock, adjust_chunks
-):
+def test_load_direct_vs_viancdata(standard_testcase, use_irislock, adjust_chunks):
     specific_excludes = [
         # This one has latitude points which exceed the valid_min/max attributes
         # The netcdf-variable-like transform in Nc4VariableLike._data_array don't
@@ -67,8 +69,7 @@ def test_load_direct_vs_viancdata(
             ]
         )
     if any(
-        name_fragment in standard_testcase.name
-        for name_fragment in specific_excludes
+        name_fragment in standard_testcase.name for name_fragment in specific_excludes
     ):
         pytest.skip("excluded testcase")
 
@@ -84,7 +85,7 @@ def test_load_direct_vs_viancdata(
         print("\nncdata =")
         print(ncdata)
         print("\nncdump =")
-        txt = check_output([f"ncdump {source_filepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()  # noqa: S603
         print(txt)
 
     # Load the testcase with Iris.
@@ -99,7 +100,7 @@ def test_load_direct_vs_viancdata(
 
     results = [
         (c1.name(), cubes_equal__corrected(c1, c2))
-        for c1, c2 in zip(iris_cubes, iris_ncdata_cubes)
+        for c1, c2 in zip(iris_cubes, iris_ncdata_cubes, strict=False)
     ]
     expected = [(cube.name(), True) for cube in iris_cubes]
     result = results == expected
@@ -132,8 +133,7 @@ def test_save_direct_vs_viancdata(standard_testcase, tmp_path):
         # TODO: remove backwards compatibility when we drop Python 3.10 support
         specific_excludes.append("theta_nodal_xios")
     if any(
-        name_fragment in standard_testcase.name
-        for name_fragment in specific_excludes
+        name_fragment in standard_testcase.name for name_fragment in specific_excludes
     ):
         pytest.skip("excluded testcase")
 
@@ -160,17 +160,13 @@ def test_save_direct_vs_viancdata(standard_testcase, tmp_path):
         print("\nncdata =")
         print(ncdata)
         print("\nncdump ORIGINAL TESTCASE SOURCEFILE =")
-        txt = check_output([f"ncdump {source_filepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()  # noqa: S603
         print(txt)
         print("\nncdump DIRECT FROM IRIS =")
-        txt = check_output(
-            [f"ncdump {temp_iris_savepath}"], shell=True
-        ).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(temp_iris_savepath)]).decode()  # noqa: S603
         print(txt)
         print("\nncdump VIA NCDATA =")
-        txt = check_output(
-            [f"ncdump {temp_ncdata_savepath}"], shell=True
-        ).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(temp_ncdata_savepath)]).decode()  # noqa: S603
         print(txt)
 
     # Check equivalence

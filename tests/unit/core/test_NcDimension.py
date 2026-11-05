@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """Tests for class :class:`ncdata.NcDimension`."""
 
 import numpy as np
@@ -81,7 +85,7 @@ class Test_NcDimension_eq:
     def size(self, request):
         return request.param
 
-    @pytest.fixture()
+    @pytest.fixture
     def refdim(self, unlimited, size):
         return NcDimension(name="ref_name", size=size, unlimited=unlimited)
 

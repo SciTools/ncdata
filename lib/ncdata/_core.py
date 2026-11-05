@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Our main classes for representing netCDF data.
 
@@ -12,19 +16,13 @@ of dimensions referenced by variables.
 
 """
 
+from collections.abc import Iterable, Mapping, MutableMapping
 from functools import wraps
 from typing import (
     Any,
-    Dict,
-    Iterable,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Tuple,
     Union,
 )
 
-import numpy
 import numpy as np
 
 
@@ -70,11 +68,10 @@ class NameMap(dict):
 
         If the NameMap has a non-None 'item_type', the added item is type checked.
         """
-        if self.item_type is not None:
-            if not isinstance(item, self.item_type):
-                raise TypeError(
-                    f'Item expected to be of type {self.item_type} : got {item}."'
-                )
+        if self.item_type is not None and not isinstance(item, self.item_type):
+            raise TypeError(
+                f'Item expected to be of type {self.item_type} : got {item}."'
+            )
         if not hasattr(item, "name"):
             raise TypeError(f"Item has no '.name' property : {item}.")
         self[item.name] = item
@@ -116,7 +113,7 @@ class NameMap(dict):
         >>> mymap.rename('a', 'c')
         >>> mymap
         {'c': NcAttribute('c', 'A'), 'qqq': NcAttribute('qqq', 'B'), 'd': NcAttribute('d', 'D')}
-        """
+        """  # noqa: E501
         if new_name == name:
             # skip this case, to avoid removing the item because it matches 'new_name'.
             pass
@@ -132,9 +129,7 @@ class NameMap(dict):
             self.addall(items)
 
     @classmethod
-    def from_items(
-        cls, arg: Union[Iterable, Mapping], item_type=None
-    ) -> "NameMap":
+    def from_items(cls, arg: Iterable | Mapping, item_type=None) -> "NameMap":
         """
         Convert an iterable or mapping of items to a NameMap.
 
@@ -186,9 +181,7 @@ class NameMap(dict):
                     if (
                         item_type == NcAttribute
                         and len(arg) > 0
-                        and not isinstance(
-                            next(iter(arg.values())), NcAttribute
-                        )
+                        and not isinstance(next(iter(arg.values())), NcAttribute)
                     ):
                         # for attributes only, also allow simple name=value map
                         # for which, convert each value to an NcAttribute
@@ -202,9 +195,7 @@ class NameMap(dict):
                 elif isinstance(arg, Iterable):
                     result.addall(arg)
                 else:
-                    msg = (
-                        f"Argument must be an iterable or mapping: got {arg}."
-                    )
+                    msg = f"Argument must be an iterable or mapping: got {arg}."
                     raise TypeError(msg)
 
         return result
@@ -231,10 +222,10 @@ class AttrvalsDict(MutableMapping):
     def __init__(self, attrs: NameMap):
         self._attrs = attrs
 
-    def __getitem__(self, key):  # noqa: D105
+    def __getitem__(self, key):
         return self._attrs[key].as_python_value()
 
-    def __setitem__(self, key, value):  # noqa: D105
+    def __setitem__(self, key, value):
         # Special case : assigning an NcAttribute object is equivalent to assigning
         #  its value (which forces rename).
         # This is supposed to avoid potential confusion (!)
@@ -251,31 +242,31 @@ class AttrvalsDict(MutableMapping):
     #
     # Provide the minimal set of methods required for a MutableMapping
     #
-    def __len__(self):  # noqa: D105
+    def __len__(self):
         return len(self._attrs)
 
-    def __iter__(self):  # noqa: D105
+    def __iter__(self):
         return iter(self._attrs)
 
-    def __delitem__(self, key):  # noqa: D105
+    def __delitem__(self, key):
         self._attrs.__delitem__(key)
 
     #
     # Other useful methods
     #
     def __str__(self):
-        """Provide a string representation.
+        """
+        Provide a string representation.
 
-        A convenient representation, somewhat consistent with how we print the attributes
-        in the printout of an NcData / NcVariable.
+        A convenient representation, somewhat consistent with how we print the
+        attributes in the printout of an NcData / NcVariable.
         """
         text = "AttrvalsDict{"
         if not self._attrs:
             text += "}"
         else:
             lines = [
-                f"{attr.name!s}: {attr._print_value()}"
-                for attr in self._attrs.values()
+                f"{attr.name!s}: {attr._print_value()}" for attr in self._attrs.values()
             ]
             if len(lines) == 1:
                 text += lines[0] + "}"
@@ -289,10 +280,10 @@ class AttrvalsDict(MutableMapping):
     # Also really nice-to-have : the "rename" operation, as implemented by NameMap
     @wraps(NameMap.rename)
     # N.B. this is *not* missing a docstring, actually..
-    def rename(self, name: str, new_name: str):  # noqa: D102
+    def rename(self, name: str, new_name: str):
         self._attrs.rename(name, new_name)
 
-    def copy(self, deepcopy=True):
+    def copy(self):
         """
         Make a copy.
 
@@ -300,11 +291,11 @@ class AttrvalsDict(MutableMapping):
         -------
             AttrvalsDict
 
-        The copy is 'shallow', in that it contains a NameMap with the *same* NcAttributes
-        as the original. These are themselves mutable, so the copy will change if the
-        original content attributes are modified, and vice versa.
+        The copy is 'shallow', in that it contains a NameMap with the *same*
+        NcAttributes as the original. These are themselves mutable, so the copy will
+        change if the original content attributes are modified, and vice versa.
 
-        N.B. if a truly independent 'deep' copy is required, you can use `copy.deepcopy`.
+        N.B. for a truly independent 'deep' copy, use `copy.deepcopy`.
         """
         return self.__class__(self._attrs.copy())
 
@@ -345,7 +336,7 @@ class _AttributeAccessMixin:
         If no such attribute exists, returns None.
 
         .. warning::
-            This legacy method is now deprecated, and will be removed in a future release.
+            This legacy method is deprecated, and will be removed in a future release.
 
         """
         return self.avals.get(name, None)
@@ -355,7 +346,7 @@ class _AttributeAccessMixin:
         Set the Python value of a named attribute in self.attributes.
 
         .. warning::
-            This legacy method is now deprecated, and will be removed in a future release.
+            This legacy method is deprecated, and will be removed in a future release.
 
         """
         self.avals[name] = value
@@ -386,28 +377,22 @@ class NcData(_AttributeAccessMixin):
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        dimensions: Union[Mapping, Iterable] = None,
-        variables: Union[Mapping, Iterable] = None,
-        attributes: Union[Mapping, Iterable] = None,
-        groups: Union[Mapping, Iterable] = None,
-    ):  # noqa: D107
+        name: str | None = None,
+        dimensions: Mapping | Iterable | None = None,
+        variables: Mapping | Iterable | None = None,
+        attributes: Mapping | Iterable | None = None,
+        groups: Mapping | Iterable | None = None,
+    ):
         #: a group/dataset name (optional)
         self.name: str = name
         #: group/dataset dimensions
-        self.dimensions: Dict[str, "NcDimension"] = as_namemap(
-            dimensions, NcDimension
-        )
+        self.dimensions: dict[str, NcDimension] = as_namemap(dimensions, NcDimension)
         #: group/dataset variables
-        self.variables: Dict[str, "NcVariable"] = as_namemap(
-            variables, NcVariable
-        )
+        self.variables: dict[str, NcVariable] = as_namemap(variables, NcVariable)
         #: group/dataset global attributes
-        self.attributes: Dict[str, "NcAttribute"] = as_namemap(
-            attributes, NcAttribute
-        )
+        self.attributes: dict[str, NcAttribute] = as_namemap(attributes, NcAttribute)
         #: sub-groups
-        self.groups: Dict[str, "NcData"] = as_namemap(groups, NcData)
+        self.groups: dict[str, NcData] = as_namemap(groups, NcData)
 
     def _print_content(self) -> str:
         """
@@ -417,7 +402,6 @@ class NcData(_AttributeAccessMixin):
         class, so it isn't technically an abstract method).
         This "NcData._print_content()" is called recursively for groups.
         """
-        global _STANDARD_INDENT  # noqa: F824
         # Define a header line (always a separate line).
         noname = "<'no-name'>"
         lines = [f"<NcData: {self.name or noname}"]
@@ -431,8 +415,7 @@ class NcData(_AttributeAccessMixin):
                     lines += [f"{_STANDARD_INDENT}global attributes:"]
                     # NOTE: #2 show like variable attributes, but *no parent name*.
                     attrs_lines = [
-                        f":{attr._print_content()}"
-                        for attr in self.attributes.values()
+                        f":{attr._print_content()}" for attr in self.attributes.values()
                     ]
                     lines += _addlines_indent(
                         "\n".join(attrs_lines), _STANDARD_INDENT * 2
@@ -454,7 +437,7 @@ class NcData(_AttributeAccessMixin):
         # Join with linefeeds for a simple string result.
         return "\n".join(lines)
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return self._print_content()
 
     # NOTE: for 'repr', an interpretable literal string is too complex.
@@ -500,7 +483,7 @@ class NcData(_AttributeAccessMixin):
 
         return Slicer(self, *dim_names)
 
-    def __getitem__(self, indices):  # noqa: D105
+    def __getitem__(self, indices):
         # N.B. Python [,,] syntax ensures there is only ever one argument,
         #  either a single key or a tuple :
         #    : [x] --> keys == x
@@ -508,7 +491,7 @@ class NcData(_AttributeAccessMixin):
         return self.slicer().__getitem__(indices)
 
     # Define equality in terms of dataset comparison utility
-    def __eq__(self, other):  # noqa: D105
+    def __eq__(self, other):
         if id(other) == id(self):
             result = True
         elif not isinstance(other, NcData):
@@ -519,6 +502,10 @@ class NcData(_AttributeAccessMixin):
             result = dataset_differences(self, other) == []
         return result
 
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None
+
 
 class NcDimension:
     """
@@ -527,29 +514,24 @@ class NcDimension:
     Associates a name with a length, and also an 'unlimited' flag.
     """
 
-    def __init__(
-        self, name: str, size: int, unlimited: Optional[bool] = None
-    ):  # noqa: D107
+    def __init__(self, name: str, size: int, unlimited: bool | None = None):
         #: dimension name
         self.name: str = name
         #: dimension size (current size, if unlimited)
         self.size: int = size  # N.B. we retain the 'zero size means unlimited'
-        if size == 0:
-            unlimited = True
-        else:
-            unlimited = bool(unlimited)
+        unlimited = True if size == 0 else bool(unlimited)
         #: whether dimension is unlimited
         self.unlimited: bool = unlimited
 
-    def _print_content(self) -> str:  # noqa: D105
+    def _print_content(self) -> str:
         str_unlim = "  **UNLIMITED**" if self.unlimited else ""
         return f"{self.name} = {self.size}{str_unlim}"
 
-    def __repr__(self):  # noqa: D105
+    def __repr__(self):
         str_unlim = ", unlimited=True" if self.unlimited else ""
         return f"NcDimension({self.name!r}, {self.size}{str_unlim})"
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return repr(self)
 
     def copy(self):
@@ -563,6 +545,10 @@ class NcDimension:
             and self.size == other.size
             and self.unlimited == other.unlimited
         )
+
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None
 
 
 class NcVariable(_AttributeAccessMixin):
@@ -591,13 +577,11 @@ class NcVariable(_AttributeAccessMixin):
         # a quoted reference when it's not otherwise needed (and we don't want to
         # import it).
         # TODO: remove the flake8 annotation if this gets fixed.
-        data: Optional[
-            Union[np.ndarray, "dask.array.array"]  # noqa: F821
-        ] = None,
+        data: Union[np.ndarray, "dask.array.Array"] | None = None,
         dtype: np.dtype = None,
-        attributes: Union[Mapping, Iterable] = None,
+        attributes: Mapping | Iterable | None = None,
         group: "NcData" = None,
-    ):
+    ):  # noqa: PLR0913, PLR0917
         """
         Create a variable.
 
@@ -608,21 +592,21 @@ class NcVariable(_AttributeAccessMixin):
         #: variable name
         self.name: str = name
         #: variable dimension names (a list of strings, *not* a dict of objects)
-        self.dimensions: Tuple[str] = tuple(dimensions)
+        self.dimensions: tuple[str] = tuple(dimensions)
         if data is not None:
             if not hasattr(data, "dtype"):
                 data = np.asanyarray(data)
             dtype = data.dtype
-        #: variable datatype, as a numpy :class:`numpy.dtype`
+        #: variable datatype, as a numpy :class:`np.dtype`
         if dtype is not None and not isinstance(dtype, np.dtype):
             dtype = np.dtype(dtype)
-        self.dtype: numpy.dtype = dtype
+        self.dtype: np.dtype = dtype
         #: variable data (an array-like, typically a dask or numpy array)
         self.data = data  # Supports lazy, and normally provides a dtype
         #: variable attributes
         self.attributes: NameMap = as_namemap(attributes, NcAttribute)
         #: parent group
-        self.group: Optional[NcData] = group
+        self.group: NcData | None = group
 
     # # Provide some array-like readonly properties reflected from the data.
     # @property
@@ -634,7 +618,7 @@ class NcVariable(_AttributeAccessMixin):
     #     return self.data.shape
 
     def _print_content(self):
-        global _STANDARD_INDENT  # noqa: F824
+        global _STANDARD_INDENT
         dimstr = ", ".join(self.dimensions)
         typestr = str(self.dtype) if self.dtype else "<no-dtype>"
         hdr = f"<NcVariable({typestr}): {self.name}({dimstr})"
@@ -651,7 +635,7 @@ class NcVariable(_AttributeAccessMixin):
             lines += [">"]
         return "\n".join(lines)
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return self._print_content()
 
     # NOTE: as for NcData, an interpretable 'repr' string is too complex.
@@ -677,7 +661,7 @@ class NcVariable(_AttributeAccessMixin):
         return var
 
     # Define equality in terms of variable comparison utility
-    def __eq__(self, other):  # noqa: D105
+    def __eq__(self, other):
         if id(other) == id(self):
             result = True
         elif not isinstance(other, NcVariable):
@@ -687,6 +671,10 @@ class NcVariable(_AttributeAccessMixin):
 
             result = variable_differences(self, other) == []
         return result
+
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None
 
 
 class NcAttribute:
@@ -699,7 +687,7 @@ class NcAttribute:
     In an actual netcdf dataset, a "scalar" is actually just an array of length 1.
     """
 
-    def __init__(self, name: str, value):  # noqa: D107
+    def __init__(self, name: str, value):
         #: attribute name
         self.name: str = name
         # Attribute values are arraylike, have dtype
@@ -707,7 +695,7 @@ class NcAttribute:
         self.value: np.ndarray = value
 
     @property
-    def value(self):  # noqa: D102
+    def value(self):
         return self._value
 
     @value.setter
@@ -715,9 +703,7 @@ class NcAttribute:
         if not hasattr(value, "dtype"):
             value = np.asanyarray(value)
         if value.ndim > 1:
-            raise ValueError(
-                "Attribute value should only be 0- or 1-dimensional."
-            )
+            raise ValueError("Attribute value should only be 0- or 1-dimensional.")
         self._value = value
 
     def as_python_value(self):
@@ -749,10 +735,8 @@ class NcAttribute:
         """
         result = self.value
         # Attributes are either scalar or 1-D
-        if result.ndim >= 2:
-            raise ValueError(
-                "Attribute value should only be 0- or 1-dimensional."
-            )
+        if result.ndim >= 2:  # noqa: PLR2004
+            raise ValueError("Attribute value should only be 0- or 1-dimensional.")
 
         if result.shape == (1,):
             # Reduce the dimension, but *always* return an array scalar.
@@ -785,10 +769,10 @@ class NcAttribute:
     def _print_content(self):
         return f"{self.name} = {self._print_value()}"
 
-    def __repr__(self):  # noqa: D105
+    def __repr__(self):
         return f"NcAttribute({self.name!r}, {self._print_value()})"
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return repr(self)
 
     def copy(self):
@@ -805,8 +789,10 @@ class NcAttribute:
                 v1 = self.value
                 v2 = other.value
                 result = (
-                    v1.shape == v2.shape
-                    and v1.dtype == v2.dtype
-                    and np.all(v1 == v2)
+                    v1.shape == v2.shape and v1.dtype == v2.dtype and np.all(v1 == v2)
                 )
         return result
+
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None

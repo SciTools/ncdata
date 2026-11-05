@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """Unit tests for :mod:`ncdata.utils._dim_indexing`."""
 
 import numpy as np
@@ -50,9 +54,7 @@ def make_dims_testdata(x, y):
     else:
         ydims = []
 
-    data.variables.add(
-        NcVariable("Y", ydims, data=y, attributes={"role": "Y dim var"})
-    )
+    data.variables.add(NcVariable("Y", ydims, data=y, attributes={"role": "Y dim var"}))
 
     data.variables.add(
         NcVariable(
@@ -68,9 +70,7 @@ def make_dims_testdata(x, y):
     else:
         xdims = []
 
-    data.variables.add(
-        NcVariable("X", xdims, data=x, attributes={"role": "X dim var"})
-    )
+    data.variables.add(NcVariable("X", xdims, data=x, attributes={"role": "X dim var"}))
     xydims = ["Z"] + (["Y"] if y.ndim else []) + (["X"] if x.ndim else [])
     shape = [2] + ([len(y)] if y.ndim else []) + ([len(x)] if x.ndim else [])
     data.variables.add(
@@ -97,7 +97,7 @@ def make_dims_testdata_1d(x):
     return data
 
 
-class Slicekeys:  # noqa: D101
+class Slicekeys:
     def __getitem__(self, keys):  # noqa: D105
         return keys
 

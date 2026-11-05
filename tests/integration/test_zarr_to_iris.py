@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """Test conversion of remote and local Zarr store to iris Cube."""
 
 from importlib.resources import files as importlib_files
@@ -98,8 +102,7 @@ S3_TEST_PATH = (
 
 # Check 3 files, as we apparently sometimes get 'partial success'
 _S3_accessible = all(
-    _is_url_ok(S3_TEST_PATH + subpath)
-    for subpath in ["", "/.zattrs", "/.zmetadata"]
+    _is_url_ok(S3_TEST_PATH + subpath) for subpath in ["", "/.zattrs", "/.zmetadata"]
 )
 
 
@@ -108,7 +111,8 @@ _S3_accessible = all(
 )
 @pytest.mark.skipif(not _S3_accessible, reason="S3 url not accessible")
 def test_load_remote_zarr():
-    """Test loading a remote Zarr store.
+    """
+    Test loading a remote Zarr store.
 
     This is a ~250MB compressed Zarr in an S3 bucket.
     Conversion is done fully lazily, by passing chunks={}

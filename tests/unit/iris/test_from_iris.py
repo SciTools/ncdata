@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Tests for :func:`ncdata.iris.from_iris`.
 
@@ -31,9 +35,7 @@ def sample_cube(data_array=None):
     """
     if data_array is None:
         data_array = np.arange(3.0)
-    time_co = DimCoord(
-        [0.0, 1, 2], standard_name="time", units="days since 2001-01-01"
-    )
+    time_co = DimCoord([0.0, 1, 2], standard_name="time", units="days since 2001-01-01")
     cube = Cube(data_array, standard_name="air_temperature", units="K")
     cube.add_dim_coord(time_co, 0)
     return cube
@@ -137,9 +139,7 @@ def test_kwargs_packing():
     cube = sample_cube(data)
 
     # Save with packing controls in a 'packing' keyword.
-    kwargs = dict(
-        packing=dict(dtype=np.int16, scale_factor=0.1, add_offset=-5.3)
-    )
+    kwargs = dict(packing=dict(dtype=np.int16, scale_factor=0.1, add_offset=-5.3))
     ncdata = from_iris(cube, **kwargs)
 
     # Check that the resulting variable has the expected dtype and (raw) data values

@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 r"""
 An adaptor layer for :mod:`ncdata` to emulate :mod:`netCDF4`.
 
@@ -30,7 +34,7 @@ complete, so this module may need to be extended, in future, to support other su
 
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 import dask.array as da
 import netCDF4
@@ -46,7 +50,7 @@ class _Nc4DatalikeWithNcattrs:
     # N.B. "self._ncdata" is the underlying NcData object : either an NcData or
     #  NcVariable object.
 
-    def ncattrs(self) -> List[str]:
+    def ncattrs(self) -> list[str]:
         return list(self._ncdata.attributes.keys())
 
     def getncattr(self, attr: str):
@@ -83,7 +87,10 @@ class _Nc4DatalikeWithNcattrs:
 
     def set_auto_chartostring(self, value):
         if bool(value):
-            msg = "Cannot enable 'auto_chartostring' for Nc4Dataselike or Nc4VariableLike."
+            msg = (
+                "Cannot enable 'auto_chartostring' for Nc4Dataselike "
+                "or Nc4VariableLike."
+            )
             raise ValueError(msg)
 
 
@@ -118,15 +125,14 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
             for name, ncvar in self._ncdata.variables.items()
         }
         self.dimensions = {
-            name: Nc4DimensionLike(dim)
-            for name, dim in self._ncdata.dimensions.items()
+            name: Nc4DimensionLike(dim) for name, dim in self._ncdata.dimensions.items()
         }
 
     @property
     def groups(self):  # noqa: D102
         return None  # not supported
 
-    def createDimension(self, dimname: str, size: int):  # noqa: D102
+    def createDimension(self, dimname: str, size: int):  # noqa: D102, N802
         if dimname in self.dimensions:
             msg = f'creating duplicate dimension "{dimname}".'
             raise ValueError(msg)
@@ -143,10 +149,10 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         self,
         varname: str,
         datatype: np.dtype,
-        dimensions: List[str] = (),
+        dimensions: list[str] = (),
         fill_value=None,
-        **kwargs: Dict[str, Any],
-    ):  # noqa: D102
+        **kwargs: dict[str, Any],  # noqa: ARG002
+    ):  # noqa: D102, N802
         if varname in self.variables:
             msg = f'creating duplicate variable "{varname}".'
             raise ValueError(msg)
@@ -155,9 +161,7 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         # N.B. to correctly mirror netCDF4, a variable should be created with all-masked
         # content.  For this we need to decode the dims + work out the shape.
         # NOTE: simplistic version here, as we don't support groups.
-        shape = tuple(
-            self._ncdata.dimensions[dim_name].size for dim_name in dimensions
-        )
+        shape = tuple(self._ncdata.dimensions[dim_name].size for dim_name in dimensions)
         # Note: initial content is an all-masked lazy array, to avoid allocating space
         # in memory.  This is not assignable, so we cannot mimic partial writes, but
         # that's okay as we don't currently provide any Nc4VariableLike.__setitem__ :
@@ -198,7 +202,8 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         return "<Nc4DatasetLike>"
 
     def __lt__(self, other):
-        """Support comparison operations.
+        """
+        Support comparison operations.
 
         Not a real operation: we provide "comparison", just so that Iris can load a list
         of them.
@@ -210,7 +215,8 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
     """
     An object which contains a :class:`ncdata.NcVariable` and emulates a :class:`netCDF4.Variable`.
 
-    The core, contained content object, ``self._ncdata``, is a :class:`~ncdata.NcVariable`.
+    The core, contained content object, ``self._ncdata``, is a
+    :class:`~ncdata.NcVariable`.
     This completely defines the parent object state.
 
     The property ``._data_array`` is detected by Iris to do direct data transfer
@@ -229,11 +235,11 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
     Thus, at present, we do *not* provide any of the
     ``set_auto_mask/scale/maskandscale()`` methods.
 
-    """
+    """  # noqa: E501
 
     _local_instance_props = ("_ncdata", "name", "datatype", "_data_array")
 
-    def __init__(self, ncvar: NcVariable, datatype: np.dtype):  # noqa: D107
+    def __init__(self, ncvar: NcVariable, datatype: np.dtype):
         self._ncdata = ncvar
         self.name = ncvar.name
         # Note: datatype must be known at creation, which may be before an actual data
@@ -245,9 +251,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
         if array is None:
             # temporary empty data (to correctly support never-written content)
             # NOTE: significantly, does *not* allocate an actual full array in memory
-            array = da.ma.masked_array(
-                da.zeros(self.shape, self.datatype), mask=True
-            )
+            array = da.ma.masked_array(da.zeros(self.shape, self.datatype), mask=True)
 
         # Convert from the "inner" raw form to masked-and-scaled, and then back again
         # (by assigning self._data_array).
@@ -296,11 +300,10 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
         * for byte data, there is no netCDF default fill, so the result can be None.
         """
         fv = self._ncdata.avals.get("_FillValue", None)
-        if fv is None:
-            if self.dtype.itemsize != 1:
-                # NOTE: single-byte types have NO default fill-value
-                dtype_code = self.dtype.str[1:]
-                fv = netCDF4.default_fillvals[dtype_code]
+        if fv is None and self.dtype.itemsize != 1:
+            # NOTE: single-byte types have NO default fill-value
+            dtype_code = self.dtype.str[1:]
+            fv = netCDF4.default_fillvals[dtype_code]
         return fv
 
     def _maskandscale_inner_to_apparent(self, array):
@@ -358,9 +361,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
                 # 'meta' argument, but in this case we don't know what 'array' might be,
                 # so we have no (other) generic way to construct a suitable 'meta'.
                 array = da.from_array(array, chunks="auto")
-            array = da.map_blocks(
-                self._fill_masked, array, fv, meta=array._meta
-            )
+            array = da.map_blocks(self._fill_masked, array, fv, meta=array._meta)
 
         return array
 
@@ -395,7 +396,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
         return self._ncdata.group
 
     @property
-    def dimensions(self) -> List[str]:  # noqa: D102
+    def dimensions(self) -> list[str]:  # noqa: D102
         return self._ncdata.dimensions
 
     #
@@ -451,7 +452,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
     def size(self):  # noqa: D102
         return np.prod(self.shape)
 
-    def chunking(self):  # noqa: D102
+    def chunking(self):
         """
         Return chunk sizes.
 
@@ -459,19 +460,20 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
 
         For now, simply returns ``None``.  Could be replaced when required.
         """
-        return None
+        return
 
 
 class Nc4DimensionLike:
     """
     An object which emulates a :class:`netCDF4.Dimension` object.
 
-    The core, contained content object, ``self._ncdata``, is a :class:`ncdata.NcDimension`.
+    The core, contained content object, ``self._ncdata``, is a
+    :class:`ncdata.NcDimension`.
     This completely defines the parent object state.
 
     """
 
-    def __init__(self, ncdim: NcDimension):  # noqa: D107
+    def __init__(self, ncdim: NcDimension):
         self._ncdata = ncdim
 
     @property

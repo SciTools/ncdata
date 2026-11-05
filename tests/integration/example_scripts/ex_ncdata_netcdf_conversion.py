@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 A proof-of-concept example workflow for :mod:`ncdata.netcdf4`.
 
@@ -7,6 +11,7 @@ Showing loading and saving ncdata to/from netcdf files.
 import tempfile
 from pathlib import Path
 from shutil import rmtree
+from subprocess import check_call
 
 import netCDF4 as nc
 import numpy as np
@@ -18,7 +23,7 @@ from ncdata.utils import dataset_differences
 from tests import testdata_dir
 
 
-def example_nc4_load_save_roundtrip():  # noqa: D103
+def example_nc4_load_save_roundtrip():
     """Load an existing file ; save to netcdf4 ; check they are the same."""
     print("\n----\nNetcdf4 load-save example.")
 
@@ -63,14 +68,14 @@ def example_nc4_save_reload_unlimited_roundtrip():
 
     tempdir_path = Path(tempfile.mkdtemp())
     try:
-        print("")
+        print()
         filepath = tempdir_path / "temp_nc_2_unlim.nc"
         print("Saving to file ", filepath)
         to_nc4(ncdata, filepath)
-        import os
 
-        print("\n\nCreated output:")
-        os.system(f"ncdump -h {filepath!s}")
+        print("\n\nCreated output (ncdump):")
+        _NCDUMP_EXE_PATH = Path(nc.__file__).parents[4] / "bin" / "ncdump"
+        check_call([_NCDUMP_EXE_PATH, "-h", filepath])  # noqa: S603
         print("\n")
 
         ds = nc.Dataset(filepath)
@@ -91,8 +96,10 @@ def example_nc4_save_reload_unlimited_roundtrip():
 
         assert list(ds_back.dimensions.keys()) == ["dim_x", "dim_y"]
         dimx, dimy = [ds_back.dimensions[name] for name in ("dim_x", "dim_y")]
-        assert dimx.size == len_x and dimx.unlimited
-        assert dimy.size == len_y and not dimy.unlimited
+        assert dimx.size == len_x
+        assert dimx.unlimited
+        assert dimy.size == len_y
+        assert not dimy.unlimited
 
         assert list(ds_back.variables.keys()) == ["var_x"]
         varx = ds_back.variables["var_x"]

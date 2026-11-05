@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 r"""
 Interface routines for converting data between ncdata and xarray.
 
@@ -11,7 +15,7 @@ Converts :class:`ncdata.NcData`\s to and from :class:`xarray.Dataset` objects.
 #
 
 from pathlib import Path
-from typing import AnyStr, Union
+from typing import AnyStr
 
 import dask.array as da
 import numpy as np
@@ -67,8 +71,8 @@ class _XarrayNcDataStore(NetCDF4DataStore):
         self,
         variables,
         attributes,
-        check_encoding_set=frozenset(),
-        writer=None,
+        check_encoding_set=frozenset(),  # noqa: ARG002
+        writer=None,  # noqa: ARG002
         unlimited_dims=None,
     ):
         """
@@ -91,7 +95,7 @@ class _XarrayNcDataStore(NetCDF4DataStore):
             if varname in self.ncdata.variables:
                 raise ValueError(f'duplicate variable : "{varname}"')
 
-            for dim_name, size in zip(var.dims, var.shape):
+            for dim_name, size in zip(var.dims, var.shape, strict=True):
                 if dim_name in self.ncdata.dimensions:
                     if self.ncdata.dimensions[dim_name].size != size:
                         raise ValueError(
@@ -106,8 +110,7 @@ class _XarrayNcDataStore(NetCDF4DataStore):
                     )
 
             attrs = {
-                name: NcAttribute(name, value)
-                for name, value in var.attrs.items()
+                name: NcAttribute(name, value) for name, value in var.attrs.items()
             }
 
             data = var.data
@@ -146,14 +149,10 @@ class _XarrayNcDataStore(NetCDF4DataStore):
     # either real or lazy arrays.
     #
     @classmethod
-    def from_xarray(
-        cls, dataset_or_file: Union[xr.Dataset, AnyStr, Path], **xr_load_kwargs
-    ):
+    def from_xarray(cls, dataset_or_file: xr.Dataset | AnyStr | Path, **xr_load_kwargs):
         if not isinstance(dataset_or_file, xr.Dataset):
             # It's a "file" (or pathstring, or Path ?).
-            dataset_or_file = xr.load_dataset(
-                dataset_or_file, **xr_load_kwargs
-            )
+            dataset_or_file = xr.load_dataset(dataset_or_file, **xr_load_kwargs)
         nc_data = cls()
         dataset_or_file.dump_to_store(nc_data, **xr_load_kwargs)
         return nc_data
@@ -189,9 +188,7 @@ def to_xarray(ncdata: NcData, **xarray_load_kwargs) -> xr.Dataset:
     return _XarrayNcDataStore(ncdata).to_xarray(**xarray_load_kwargs)
 
 
-def from_xarray(
-    xrds: Union[xr.Dataset, Path, AnyStr], **xarray_save_kwargs
-) -> NcData:
+def from_xarray(xrds: xr.Dataset | Path | AnyStr, **xarray_save_kwargs) -> NcData:
     """
     Convert an xarray :class:`xarray.Dataset` to a :class:`NcData`.
 

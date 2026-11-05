@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Define a set of "standard" test cases, built as actual netcdf files.
 
@@ -12,7 +16,6 @@ the Iris and Xarray test suites.
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Union
 
 import iris.tests
 import netCDF4 as nc
@@ -48,9 +51,7 @@ def data_types():
 # Get the dtype list from the netCDF default fill-values.
 _nc_dtypes = set(nc.default_fillvals.keys())
 # Remove the numpy-only complex types
-_nc_dtypes = set(
-    typename for typename in _nc_dtypes if np.dtype(typename).kind != "c"
-)
+_nc_dtypes = {typename for typename in _nc_dtypes if np.dtype(typename).kind != "c"}
 # Also replace 'S1' with our own 'string' type marker
 _nc_dtypes.remove("S1")
 _nc_dtypes.add("string")
@@ -58,10 +59,10 @@ _nc_dtypes.add("string")
 assert set(data_types()) == _nc_dtypes
 
 # Suitable test values for each attribute/data type.
-_INT_Approx_2x31 = int(2**31 - 1)
-_INT_Approx_2x32 = int(2**32 - 2)
-_INT_Approx_2x63 = int(2**63 - 3)
-_INT_Approx_2x64 = int(2**64 - 4)
+_INT_Approx_2x31 = 2**31 - 1
+_INT_Approx_2x32 = 2**32 - 2
+_INT_Approx_2x63 = 2**63 - 3
+_INT_Approx_2x64 = 2**64 - 4
 
 _Datatype_Sample_Values = {
     "u1": np.array([3, 250], dtype="u1"),
@@ -83,7 +84,7 @@ assert set(_Datatype_Sample_Values.keys()) == set(data_types())
 def _write_nc4_dataset(
     spec: dict,
     ds: nc.Dataset,  # or an inner Group
-    parent_spec: dict = None,
+    parent_spec: dict | None = None,
 ):
     """
     Create a netcdf test file from a 'testcase spec'.
@@ -145,9 +146,7 @@ def _write_nc4_dataset(
             shape = nc_var.shape
             n_points = int(np.prod(shape))
             if nc_var.dtype.kind == "S":
-                data = np.array(
-                    "abcdefghijklmnopqrstuvwxyz"[:n_points], dtype="S1"
-                )
+                data = np.array("abcdefghijklmnopqrstuvwxyz"[:n_points], dtype="S1")
             else:
                 data = np.arange(1, n_points + 1)
             data = data.astype(dtype)
@@ -206,9 +205,7 @@ def make_testcase_dataset(filepath, spec):
         ds.close()
 
 
-_minimal_variable_test_spec = {
-    "vars": [dict(name="var_0", dims=[], dtype=int)]
-}
+_minimal_variable_test_spec = {"vars": [dict(name="var_0", dims=[], dtype=int)]}
 
 
 _simple_test_spec = {
@@ -299,7 +296,7 @@ _masked_scaled_ints_test_spec = {
 }
 
 # Define a sequence of standard testfile specs, with suitable param-names.
-_STANDARD_TESTCASES: Dict[str, Union[Path, dict]] = {}
+_STANDARD_TESTCASES: dict[str, Path | dict] = {}
 
 
 # A decorator for spec-generating routines.
@@ -323,9 +320,7 @@ def _define_simple_testcases():
         "ds_Minimal": _minimal_variable_test_spec,
         "ds_Basic": _simple_test_spec,
         "ds_testdata1": (
-            Path(__file__).parent
-            / "testdata"
-            / "toa_brightness_temperature.nc"
+            Path(__file__).parent / "testdata" / "toa_brightness_temperature.nc"
         ),
         "ds_scaleoffset": _scaleoffset_test_spec,
         "ds_masked_floats": _masked_floats_test_spec,
@@ -360,14 +355,11 @@ def _define_iris_testdata_testcases():
             param_name = str(filepath)
             # remove unwanted path elements
             param_name = param_name.replace(str(_testdirpath), "")
-            if param_name.endswith(".nc"):
-                param_name = param_name[:-3]
+            param_name = param_name.removesuffix(".nc")
             # replace path-separators and other awkward chars with dunder
             for char in ("/", ".", "-"):
                 param_name = param_name.replace(char, "__")
-            # TEMPORARY: skip unstructured ones, just for now, as it makes the run faster
             if not any(key in param_name for key in EXCLUDES):
-                # if "small_theta_colpex" in param_name:
                 testcases[f"testdata__{param_name}"] = filepath
 
     return testcases
@@ -417,9 +409,7 @@ def _define_unit_dtype_testcases():
                 "attrs": {
                     f"tstatt_type__{dtype_name}__single": _Datatype_Sample_Values[
                         dtype_name
-                    ][
-                        0
-                    ],
+                    ][0],
                     f"tstatt_type__{dtype_name}__multi": _Datatype_Sample_Values[
                         dtype_name
                     ],

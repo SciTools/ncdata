@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 A proof-of-concept example workflow for :mod:`ncdata.iris_xarray`.
 
@@ -14,7 +18,7 @@ from ncdata.iris_xarray import cubes_from_xarray, cubes_to_xarray
 from tests import testdata_dir
 
 
-def example_from_xr():  # noqa: D103
+def example_from_xr():
     filepath = testdata_dir / "toa_brightness_temperature.nc"
     xrds = xr.open_dataset(filepath, chunks="auto")
     iris.FUTURE.datum_support = True
@@ -47,7 +51,7 @@ def example_from_xr():  # noqa: D103
 
     print("\n")
     print("============ CONVERT cubes TO xr.Dataset ... =========")
-    print("")
+    print()
     xrds2 = cubes_to_xarray(cubes)
     print("\nxrds2:\n", xrds2)
     print("\ntime:\n", xrds2["time"])
@@ -74,10 +78,7 @@ def example_from_xr():  # noqa: D103
 
     print(
         "xrds2['x'].data   is   cube.coord('projection_x_coordinate').core_points() : ",
-        bool(
-            xrds2["x"].data
-            is cube.coord("projection_x_coordinate").core_points()
-        ),
+        bool(xrds2["x"].data is cube.coord("projection_x_coordinate").core_points()),
     )
     # NOTE: this one does **not** succeed.
     # TODO: find out exactly why -- ? in some way, because it is a dim coord ?
@@ -91,15 +92,9 @@ def example_from_xr():  # noqa: D103
     # special care is needed.
     print(
         "np.all(xrds2['x'].data == cube.coord('projection_x_coordinate').points) : ",
-        bool(
-            np.all(
-                xrds2["x"].data == cube.coord("projection_x_coordinate").points
-            )
-        ),
+        bool(np.all(xrds2["x"].data == cube.coord("projection_x_coordinate").points)),
     )
-    assert np.all(
-        xrds2["x"].data == cube.coord("projection_x_coordinate").points
-    )
+    assert np.all(xrds2["x"].data == cube.coord("projection_x_coordinate").points)
 
 
 if __name__ == "__main__":

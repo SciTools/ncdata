@@ -1,5 +1,10 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
+from collections.abc import Mapping
 from numbers import Number
-from typing import Any, Mapping
+from typing import Any
 
 import dask.array as da
 import numpy as np
@@ -62,9 +67,7 @@ def index_by_dimensions(
         # Dimension names must occur in the ncdata.
         dimension = ncdata.dimensions.get(dim_name)
         if dimension is None:
-            raise ValueError(
-                f"Dimension {dim_name!r} is not present in 'ncdata'."
-            )
+            raise ValueError(f"Dimension {dim_name!r} is not present in 'ncdata'.")
 
         # Specifically error forbidden key types.
         if np.array(key).ndim > 1:
@@ -72,12 +75,12 @@ def index_by_dimensions(
                 f"Key for dimension {dim_name!r} is multi-dimensional: {key}. "
                 "Multi-dimensional keys are not supported."
             )
-        elif key is Ellipsis:
+        if key is Ellipsis:
             raise ValueError(
                 f'Key for dimension {dim_name!r} is Ellipsis / "...": '
                 "Ellipsis is not supported."
             )
-        elif key in (np.newaxis, None):
+        if key in (np.newaxis, None):
             raise ValueError(
                 f"Key for dimension {dim_name!r} is np.newaxis / None: "
                 "New-axis is not supported. "
@@ -91,9 +94,7 @@ def index_by_dimensions(
             if dim_name in var.dimensions:
                 # construct a list of slice objects
                 (i_slicedim,) = [
-                    i
-                    for i, name in enumerate(var.dimensions)
-                    if name == dim_name
+                    i for i, name in enumerate(var.dimensions) if name == dim_name
                 ]
                 slices = [slice(None) for dim in var.dimensions]
                 slices[i_slicedim] = key
@@ -154,7 +155,7 @@ class Slicer:
     See Also
     --------
     :meth:`index_by_dimensions`
-    """
+    """  # noqa: E501
 
     def __init__(self, ncdata: NcData, *dimension_names: tuple[str]):
         """
@@ -198,6 +199,6 @@ class Slicer:
             raise ValueError(msg)
 
         # NB too *few* keys is not a problem, since 'zip' truncates for us.
-        dim_kwargs = {name: key for name, key in zip(self.dim_names, keys)}
+        dim_kwargs = dict(zip(self.dim_names, keys, strict=False))
 
         return index_by_dimensions(self.ncdata, **dim_kwargs)

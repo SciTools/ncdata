@@ -1,4 +1,9 @@
-"""Tests for class :class:`ncdata.NcVariable`.
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
+"""
+Tests for class :class:`ncdata.NcVariable`.
 
 There is almost no actual behaviour, but we can test some constructor behaviours,
 such as valid calling options and possibilities for data and dtype.
@@ -31,7 +36,8 @@ class Test_NcVariable__init__:
             _ = NcVariable()
 
     def test_allargs(self):
-        # Constructor slots are not type-checked, if the right kind of arg. There is no enforced type checking, put whatever you like in the "slots".
+        # Constructor slots are not type-checked, if the right kind of arg.
+        # There is no enforced type checking, put whatever you like in the "slots".
         name = "data_name"
         # NOTE: for *no-copy* construction, args must be NameMap of correct item_type
         dims = [f"dimname_{i}" for i in range(3)]
@@ -94,7 +100,7 @@ class Test_NcVariable__init__:
             assert var.dtype == data.dtype
         else:
             # with no data, invalid dtype causes error
-            with pytest.raises(TypeError, match="data type.*not understood"):
+            with pytest.raises(TypeError, match=r"data type.*not understood"):
                 _ = NcVariable("x", data=data, dtype=test_dtype_nonfunctional)
 
     @pytest.mark.parametrize(
@@ -128,16 +134,14 @@ class Test_NcVariable__init__:
         assert var.data.shape == (2, 3)
         assert var.dtype == var.data.dtype == np.dtype("U5")
 
-    @pytest.mark.parametrize(
-        "dtype", ["i4", "i8", "f4", "f8", "u1", "i1", "U4"]
-    )
+    @pytest.mark.parametrize("dtype", ["i4", "i8", "f4", "f8", "u1", "i1", "U4"])
     def test_data__numpy(self, dtype):
         elem = "abc" if dtype.startswith("U") else 12
         dtype = np.dtype(dtype)
         arr = np.zeros((2, 3), dtype=dtype)
         arr[:] = elem
-        # The variable should preserve the original of a contained numpy array, and adopt
-        # it's dtype as it's own
+        # The variable should preserve the original of a contained numpy array,
+        #  and adopt it's dtype as it's own
         var = NcVariable("x", data=arr)
         assert var.data is arr  # not copied or re-formed
         assert var.dtype == dtype
@@ -265,13 +269,13 @@ class Test_NcVariable_eq:
         # Check that == calls variable_differences
         var1, var2 = [NcVariable(name=name) for name in ("x", "y")]
         called = mocker.patch("ncdata.utils.variable_differences")
-        var1 == var2
+        var1 == var2  # noqa: B015
         assert called.call_args_list == [mocker.call(var1, var2)]
 
     def test_self_equal(self, mocker):
         var = NcVariable(name="x")
         called = mocker.patch("ncdata.utils.variable_differences")
-        assert var == var
+        assert var == var  # noqa: PLR0124
         assert called.call_args_list == []
 
     def test_badtype_nonequal(self, mocker):

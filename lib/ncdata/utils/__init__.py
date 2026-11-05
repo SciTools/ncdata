@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """General user utility functions."""
 
 from ._compare_nc_datasets import dataset_differences, variable_differences

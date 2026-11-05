@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 PoC code for netcdf file CDL-based testing mechanisms.
 
@@ -6,52 +10,14 @@ File generation from CDL (with ncgen), and CDL comparison (with ncdump).
 The status and usage of this are yet to be determined.
 """
 
-import os
 import subprocess
-from pathlib import Path
-from typing import AnyStr, List, Optional
 
 import pytest
 
-# Note : `_env_bin_path` and `ncgen_from_cdl` are taken from Iris test code.
-# Code here duplicated from Iris v3.4.1
-# https://github.com/SciTools/iris/blob/v3.4.1/lib/iris/tests/stock/netcdf.py#L18-L63
+from tests import NCDUMP_PATHSTR, NCGEN_PATHSTR
 
 
-def _env_bin_path(exe_name: AnyStr = None):
-    """
-    Return a Path object for (an executable in) the environment bin directory.
-
-    Parameters
-    ----------
-    exe_name : str
-        If set, the name of an executable to append to the path.
-
-    Returns
-    -------
-    exe_path : Path
-        A path to the bin directory, or an executable file within it.
-
-    Notes
-    -----
-    For use in tests which spawn commands which should call executables within
-    the Python environment, since many IDEs (Eclipse, PyCharm) don't
-    automatically include this location in $PATH (as opposed to $PYTHONPATH).
-    """
-    exe_path = Path(os.__file__)
-    exe_path = (exe_path / "../../../bin").resolve()
-    if exe_name is not None:
-        exe_path = exe_path / exe_name
-    return exe_path
-
-
-NCGEN_PATHSTR = str(_env_bin_path("ncgen"))
-NCDUMP_PATHSTR = str(_env_bin_path("ncdump"))
-
-
-def ncgen_from_cdl(
-    cdl_str: Optional[str], cdl_path: Optional[str], nc_path: str
-):
+def ncgen_from_cdl(cdl_str: str | None, cdl_path: str | None, nc_path: str):
     """
     Generate a test netcdf file from cdl.
 
@@ -76,7 +42,7 @@ def ncgen_from_cdl(
 
     """
     if cdl_str and cdl_path:
-        with open(cdl_path, "w") as f_out:
+        with cdl_path.open("w") as f_out:
             f_out.write(cdl_str)
     if cdl_path:
         # Create netcdf from stored CDL file.
@@ -89,7 +55,7 @@ def ncgen_from_cdl(
         call_args = [NCGEN_PATHSTR, "-k3", "-o", nc_path]
         call_kwargs = dict(input=cdl_str, encoding="ascii")
 
-    subprocess.run(call_args, check=True, **call_kwargs)
+    subprocess.run(call_args, check=True, **call_kwargs)  # noqa: S603
 
 
 # CDL to create a reference file with "all" features included.
@@ -137,7 +103,7 @@ group: grp_2 {
 """
 
 
-def comparable_cdl(text: str) -> List[str]:
+def comparable_cdl(text: str) -> list[str]:
     """
     Convert a CDL string to a list of stripped lines, with certain problematic things
     removed.  The resulting list of strings should be comparable between identical
@@ -157,7 +123,8 @@ def comparable_cdl(text: str) -> List[str]:
     ]
     # Also exclude the first line, which includes the filename
     hdr, lines = lines[0], lines[1:]
-    assert hdr.startswith("netcdf") and hdr[-1] == "{"
+    assert hdr.startswith("netcdf")
+    assert hdr[-1] == "{"
     return lines
 
 
@@ -167,9 +134,9 @@ def testdata_cdl(tmp_path_factory):
     cdl_path = tmpdir_path / "tmp_nccompare_test.cdl"
     nc_path = tmpdir_path / "tmp_nccompare_test.nc"
     ncgen_from_cdl(cdl_str=_base_cdl, cdl_path=cdl_path, nc_path=nc_path)
-    bytes = subprocess.check_output([NCDUMP_PATHSTR, "-h", nc_path])
-    cdl_regen_text = bytes.decode()
-    return cdl_regen_text
+    cdl_bytes = subprocess.check_output([NCDUMP_PATHSTR, "-h", nc_path])  # noqa: S603
+    cdl_text = cdl_bytes.decode()
+    return cdl_text
 
 
 def test_ncgen_from_cdl(testdata_cdl):

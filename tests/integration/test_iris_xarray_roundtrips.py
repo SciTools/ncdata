@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Test ncdata.iris by checking roundtrips for standard testcases.
 
@@ -22,7 +26,7 @@ from ncdata.threadlock_sharing import lockshare_context
 from ncdata.utils import dataset_differences
 from ncdata.xarray import from_xarray
 
-from tests import version_tuple
+from tests import NCDUMP_PATHSTR, version_tuple
 from tests.data_testcase_schemas import (
     BAD_LOADSAVE_TESTCASES,
     session_testdir,
@@ -109,7 +113,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
         print("spec =")
         print(standard_testcase.spec)
         print("\nncdump =")
-        txt = check_output([f"ncdump {source_filepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()  # noqa: S603
         print(txt)
 
     # Load the testcase with Iris.
@@ -122,9 +126,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
     # _PRUNE_CFVAR_PROPNAMES = False
     if _PRUNE_CFVAR_PROPNAMES:
         removed_props = prune_cube_varproperties(iris_cubes)
-        assert removed_props == set() or removed_props == {
-            "name",
-        }
+        assert removed_props in (set(), {"name"})
 
     # Remove any 'no_units' units, since these do not save correctly
     # see : https://github.com/SciTools/iris/issues/5368
@@ -158,7 +160,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
     _UNIFY_TIME_UNITS = True
     # _UNIFY_TIME_UNITS = False
     if _UNIFY_TIME_UNITS:
-        for iris_cube, iris_xr_cube in zip(iris_cubes, iris_xr_cubes):
+        for iris_cube, iris_xr_cube in zip(iris_cubes, iris_xr_cubes, strict=False):
             for xr_coord in iris_xr_cube.coords():
                 iris_coords = iris_cube.coords(xr_coord.name())
                 if len(iris_coords) != 1:
@@ -183,7 +185,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
 
     results = [
         (c1.name(), cubes_equal__corrected(c1, c2))
-        for c1, c2 in zip(iris_cubes, iris_xr_cubes)
+        for c1, c2 in zip(iris_cubes, iris_xr_cubes, strict=False)
     ]
     expected = [(cube.name(), True) for cube in iris_cubes]
     result = results == expected
@@ -191,9 +193,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
     if not result:
         # FOR NOW: compare with experimental ncdata comparison.
         # I know this is a bit circular, but it is useful for debugging, for now ...
-        result = dataset_differences(
-            from_iris(iris_cubes), from_iris(iris_xr_cubes)
-        )
+        result = dataset_differences(from_iris(iris_cubes), from_iris(iris_xr_cubes))
         assert result == []
 
 
@@ -202,9 +202,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
 # It's not currently clear if we *can* find a simple view of what "ought" to work here,
 # or whether we should be attempting to test this at all.
 @pytest.mark.skip("Roundtrip testing xarray-iris-xarray : currently disabled.")
-def test_roundtrip_xix(
-    standard_testcase, use_irislock, adjust_chunks, tmp_path
-):
+def test_roundtrip_xix(standard_testcase, use_irislock, adjust_chunks, tmp_path):
     source_filepath = standard_testcase.filepath
 
     # Skip some cases
@@ -235,7 +233,7 @@ def test_roundtrip_xix(
         print("spec =")
         print(standard_testcase.spec)
         print("\nncdump =")
-        txt = check_output([f"ncdump {source_filepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(source_filepath)]).decode()  # noqa: S603
         print(txt)
 
     # Load the testcase with Xarray.
@@ -303,14 +301,12 @@ def test_roundtrip_xix(
             mask |= data == fv
             data = da.ma.masked_array(data, mask=mask)
             var.data = data
-            if "calendar" in var.avals:
-                if var.avals["calendar"] == "gregorian":
-                    # the calendar name 'gregorian' is now deprecated, so Iris replaces it.
-                    var.avals["calendar"] = "standard"
+            if var.avals.get("calendar", "") == "gregorian":
+                # the calendar name 'gregorian' is now deprecated,
+                #  so Iris replaces it.
+                var.avals["calendar"] = "standard"
 
-    result = dataset_differences(
-        ncds_xr, ncds_xr_iris
-    )  # , check_var_data=False)
+    result = dataset_differences(ncds_xr, ncds_xr_iris)  # , check_var_data=False)
     assert result == []
 
     # TODO:  check equivalence, in Xarray terms

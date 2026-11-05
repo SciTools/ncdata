@@ -1,6 +1,45 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """Tests for :mod:`ncdata`."""
 
+import os
 from pathlib import Path
+from typing import AnyStr
+
+
+# Note : `_env_bin_path` and the ncgen/ncdump path constants are shared across
+# the tests package, so they live here rather than in an individual test module.
+def _env_bin_path(exe_name: AnyStr | None = None):
+    """
+    Return a Path object for (an executable in) the environment bin directory.
+
+    Parameters
+    ----------
+    exe_name : str
+        If set, the name of an executable to append to the path.
+
+    Returns
+    -------
+    exe_path : Path
+        A path to the bin directory, or an executable file within it.
+
+    Notes
+    -----
+    For use in tests which spawn commands which should call executables within
+    the Python environment, since many IDEs (Eclipse, PyCharm) don't
+    automatically include this location in $PATH (as opposed to $PYTHONPATH).
+    """
+    exe_path = Path(os.__file__)
+    exe_path = (exe_path / "../../../bin").resolve()
+    if exe_name is not None:
+        exe_path = exe_path / exe_name
+    return exe_path
+
+
+NCGEN_PATHSTR = str(_env_bin_path("ncgen"))
+NCDUMP_PATHSTR = str(_env_bin_path("ncdump"))
 
 testdata_dir = Path(__file__).parent / "testdata"
 
@@ -28,7 +67,8 @@ class MonitoredArray:
 
 
 def version_tuple(version_string):
-    """Make a comparable tuple from a package version string.
+    """
+    Make a comparable tuple from a package version string.
 
     Allows only the final segment to have non-numeric parts.
     Returns a tuple of the parts.
@@ -42,7 +82,5 @@ def version_tuple(version_string):
     else:
         parts = parts[:-1]
     if any(str(int(part)) != part for part in parts):
-        raise ValueError(
-            f"invalid numerics in version string: {version_string!r}"
-        )
+        raise ValueError(f"invalid numerics in version string: {version_string!r}")
     return tuple(int(part) for part in parts)

@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """Temporary integrational proof-of-concept example for dataset printout."""
 
 import iris
@@ -8,7 +12,7 @@ from ncdata import NcData, NcDimension, NcVariable
 from tests import testdata_dir
 
 
-def sample_printout():  # noqa: D103
+def sample_printout():
     iris.FUTURE.datum_support = True
     filepath = testdata_dir / "toa_brightness_temperature.nc"
     cubes = iris.load(filepath)

@@ -1,10 +1,14 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Tests for :mod:`tests.unit.netcdf._compare_nc_files`
 Split in two files ...
     * HERE: "mainfunctions" cover the core functionality
         -- which elements are compared and what errors this constructs.
     * ( ALSO: "additional" tests (q.v.) cover subsidiary routines and the
-        main API usage modes. )
+        main API usage modes. ).
 """
 
 import numpy as np
@@ -17,12 +21,10 @@ from ncdata.utils import dataset_differences
 # data_types  # avoid 'unused' warning
 
 
-@pytest.fixture(
-    params=["in_named", "in_unnamed", "in_namedgroup", "in_unnamedgroup"]
-)
+@pytest.fixture(params=["in_named", "in_unnamed", "in_namedgroup", "in_unnamedgroup"])
 def group_context(request):
     """
-    The different contexts of locations in a dataset
+    The different contexts of locations in a dataset.
 
     In which an element (dimension, group or variable) might be found, and
     which might appear different in the mismatch-error messages.
@@ -120,9 +122,7 @@ class TestCompareDimensions:
 
     @pytest.fixture(autouse=True)
     def _dims_data(self, group_context):
-        data1, data2 = [
-            self.dimension_testdata(group_context) for _ in range(2)
-        ]
+        data1, data2 = [self.dimension_testdata(group_context) for _ in range(2)]
         location = data2
         if "group" in group_context:
             location = location.groups["inner_group"]
@@ -136,8 +136,10 @@ class TestCompareDimensions:
         self.dims.rename("x", "q")
         errs = dataset_differences(self.data1, self.data2)
         expected = [
-            f"{self.location_string} dimension lists do not match: "
-            "['x', 'y'] != ['q', 'y']"
+            (
+                f"{self.location_string} dimension lists do not match: "
+                "['x', 'y'] != ['q', 'y']"
+            )
         ]
         check(errs, expected)
 
@@ -151,9 +153,7 @@ class TestCompareDimensions:
         ]
         check(errs, expected)
 
-    @pytest.mark.parametrize(
-        "check_unlim", ["unlims_checked", "unlims_unchecked"]
-    )
+    @pytest.mark.parametrize("check_unlim", ["unlims_checked", "unlims_unchecked"])
     def test_unlimited(self, check_unlim):
         self.dims["y"].unlimited = True
 
@@ -166,8 +166,11 @@ class TestCompareDimensions:
 
         if do_check_unlims:
             expected = [
-                f'{self.location_string} "y" dimension has different "unlimited" status : '
-                "False != True"
+                (
+                    f'{self.location_string} "y" dimension '
+                    'has different "unlimited" status : '
+                    "False != True"
+                )
             ]
         else:
             expected = []
@@ -186,8 +189,10 @@ class TestCompareDimensions:
 
         if do_ordercheck:
             expected = [
-                f"{self.location_string} dimension lists do not match: "
-                "['x', 'y'] != ['y', 'x']"
+                (
+                    f"{self.location_string} dimension lists do not match: "
+                    "['x', 'y'] != ['y', 'x']"
+                )
             ]
         else:
             expected = []
@@ -203,8 +208,7 @@ class TestCompareDimensions:
         errs = dataset_differences(self.data1, self.data2)
 
         expected = [
-            f"{self.location_string} dimension lists do not match: "
-            "['x', 'y'] != ['x']"
+            f"{self.location_string} dimension lists do not match: ['x', 'y'] != ['x']"
         ]
         check(errs, expected)
 
@@ -234,9 +238,7 @@ class TestCompareAttributes:
 
     @pytest.fixture(autouse=True)
     def _attrs_data(self, group_context, attr_context):
-        data1, data2 = [
-            self.attribute_testdata(group_context) for _ in range(2)
-        ]
+        data1, data2 = [self.attribute_testdata(group_context) for _ in range(2)]
         location = data2
         if "group" in group_context:
             location = location.groups["inner_group"]
@@ -255,8 +257,10 @@ class TestCompareAttributes:
         errs = dataset_differences(self.data1, self.data2)
 
         expected = [
-            f"{self.location_string} attribute lists do not match: "
-            "['att1', 'att2'] != ['changed', 'att2']"
+            (
+                f"{self.location_string} attribute lists do not match: "
+                "['att1', 'att2'] != ['changed', 'att2']"
+            )
         ]
         check(errs, expected)
 
@@ -265,13 +269,12 @@ class TestCompareAttributes:
 
         errs = dataset_differences(self.data1, self.data2)
 
-        if "variable" in attr_context:
-            value_string = "1"
-        else:
-            value_string = "11"
+        value_string = "1" if "variable" in attr_context else "11"
         expected = [
-            f'{self.location_string} "att1" attribute values differ : '
-            f"{value_string} != 999"
+            (
+                f'{self.location_string} "att1" attribute values differ : '
+                f"{value_string} != 999"
+            )
         ]
         check(errs, expected)
 
@@ -287,8 +290,10 @@ class TestCompareAttributes:
 
         if do_ordercheck:
             expected = [
-                f"{self.location_string} attribute lists do not match: "
-                "['att1', 'att2'] != ['att2', 'att1']"
+                (
+                    f"{self.location_string} attribute lists do not match: "
+                    "['att1', 'att2'] != ['att2', 'att1']"
+                )
             ]
         else:
             expected = []
@@ -303,8 +308,10 @@ class TestCompareAttributes:
         )
 
         expected = [
-            f"{self.location_string} attribute lists do not match: "
-            "['att1', 'att2'] != ['att2']"
+            (
+                f"{self.location_string} attribute lists do not match: "
+                "['att1', 'att2'] != ['att2']"
+            )
         ]
         check(errs, expected)
 
@@ -316,9 +323,7 @@ class TestCompareAttributes:
         attr_pair = [NcAttribute(name, 1), NcAttribute("x", 1)]
         data1, data2 = [
             NcData(
-                variables=[
-                    NcVariable("vx", (), data=np.array(0.0), attributes=attrs)
-                ]
+                variables=[NcVariable("vx", (), data=np.array(0.0), attributes=attrs)]
             )
             for attrs in (attr_pair, attr_pair[::-1])
         ]
@@ -327,8 +332,10 @@ class TestCompareAttributes:
 
         if "generic" in attname:
             expected = [
-                'Dataset variable "vx" attribute lists do not match: '
-                "['anyold', 'x'] != ['x', 'anyold']"
+                (
+                    'Dataset variable "vx" attribute lists do not match: '
+                    "['anyold', 'x'] != ['x', 'anyold']"
+                )
             ]
         else:
             expected = []
@@ -380,8 +387,10 @@ class TestCompareVariables:
         errs = dataset_differences(self.data1, self.data2)
 
         expected = [
-            f"{self.location_string} variable lists do not match: "
-            "['v1', 'v2'] != ['v1', 'q']"
+            (
+                f"{self.location_string} variable lists do not match: "
+                "['v1', 'v2'] != ['v1', 'q']"
+            )
         ]
         check(errs, expected)
 
@@ -397,8 +406,10 @@ class TestCompareVariables:
 
         if do_ordercheck:
             expected = [
-                f"{self.location_string} variable lists do not match: "
-                "['v1', 'v2'] != ['v2', 'v1']"
+                (
+                    f"{self.location_string} variable lists do not match: "
+                    "['v1', 'v2'] != ['v2', 'v1']"
+                )
             ]
         else:
             expected = []
@@ -413,8 +424,10 @@ class TestCompareVariables:
         )
 
         expected = [
-            f"{self.location_string} variable lists do not match: "
-            "['v1', 'v2'] != ['v2']"
+            (
+                f"{self.location_string} variable lists do not match: "
+                "['v1', 'v2'] != ['v2']"
+            )
         ]
         check(errs, expected)
 
@@ -441,9 +454,7 @@ class TestCompareGroups:
 
         errs = dataset_differences(self.data1, self.data2)
 
-        expected = [
-            "Dataset subgroup lists do not match: ['g1', 'g2'] != ['g1', 'q']"
-        ]
+        expected = ["Dataset subgroup lists do not match: ['g1', 'g2'] != ['g1', 'q']"]
         check(errs, expected)
 
     def test_group_order(self, order_checking):
@@ -458,8 +469,7 @@ class TestCompareGroups:
 
         if do_ordercheck:
             expected = [
-                "Dataset subgroup lists do not match: "
-                "['g1', 'g2'] != ['g2', 'g1']"
+                "Dataset subgroup lists do not match: ['g1', 'g2'] != ['g2', 'g1']"
             ]
         else:
             expected = []
@@ -474,7 +484,5 @@ class TestCompareGroups:
         )
 
         # NB since the sets are different, the ordering control has no effect
-        expected = [
-            "Dataset subgroup lists do not match: ['g1', 'g2'] != ['g2']"
-        ]
+        expected = ["Dataset subgroup lists do not match: ['g1', 'g2'] != ['g2']"]
         check(errs, expected)
