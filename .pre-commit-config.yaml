@@ -91,7 +91,7 @@ repos:
     rev: 'v2.4.0'
     hooks:
     -   id: mypy
-        exclude: 'noxfile\.py|docs/conf\.py'
+        exclude: 'noxfile\.py|docs/conf\.py|^tests/'  # NB controlling this in pyproject.toml DOES NOT WORK, as MyPy doesn't apply excludes to a passed list of (changed) files
 
 -   repo: https://github.com/numpy/numpydoc
     # This template does not keep up-to-date with versions, visit the repo to see the most recent release.

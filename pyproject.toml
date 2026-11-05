@@ -87,9 +87,6 @@ enable_error_code = [
     "redundant-expr",
     "truthy-bool",
 ]
-exclude = [
-    '.*tests/unit/xarray.*',
-]
 strict = true
 warn_unreachable = true
 
