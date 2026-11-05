@@ -100,6 +100,12 @@ repos:
       - id: numpydoc-validation
         types: [file, python]
 
+-   repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+    -   id: rst-backticks
+        types: [rst]
+
 -   repo: https://github.com/scientific-python/cookie
     # This template does not keep up-to-date with versions, visit the repo to see the most recent release.
     rev: 2026.08.14

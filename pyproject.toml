@@ -3,7 +3,6 @@
 requires = [
   "setuptools>=77.0.3",
   "setuptools_scm[toml]>=8",
-  "wheel",
 ]
 # Defined by PEP 517
 build-backend = "setuptools.build_meta"
@@ -157,11 +156,7 @@ ignore = [
     # TODO: exceptions that still need investigating are below. Might be fixable, or might become permanent (above):
 
     # VERY TEMPORARY FOR-NOW
-    "PY007",
-    "PP003",
-    "GH102",
-    "GH212",
-    "PC170",
+    "PY007",  # should have a task runner (nox/tox etc).
 ]
 [tool.ruff]
 extend-exclude = [

@@ -15,3 +15,7 @@ updates:
     labels:
       - "new: pull request"
       - "bot"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
