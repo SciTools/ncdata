@@ -87,6 +87,9 @@ enable_error_code = [
     "redundant-expr",
     "truthy-bool",
 ]
+exclude = [
+    '.*tests/unit/xarray.*',
+]
 strict = true
 warn_unreachable = true
 
@@ -135,6 +138,7 @@ exclude = [
     '\.__ne__$',
     '\.__repr__$',
 ]
+exclude_files = ["^tests/.*", "^lib/ncdata/_version.py$"]
 
 [tool.pytest.ini_options] # The list of keys vary by repository
 addopts = ["-ra", "-v", "--strict-config", "--strict-markers", "--doctest-modules"] # This addopts list varies by repository
@@ -154,8 +158,14 @@ ignore = [
     "PP006",  # Uses dev dependency group
 
     # TODO: exceptions that still need investigating are below. Might be fixable, or might become permanent (above):
-]
 
+    # VERY TEMPORARY FOR-NOW
+    "PY007",
+    "PP003",
+    "GH102",
+    "GH212",
+    "PC170",
+]
 [tool.ruff]
 extend-exclude = [
     "docs/conf.py",  # based on Sphix template, is too different to be worth checking.
