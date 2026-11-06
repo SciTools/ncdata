@@ -153,10 +153,10 @@ ignore = [
     # https://learn.scientific-python.org/development/guides/packaging-simple#PP006
     "PP006",  # Uses dev dependency group
 
-    # TODO: exceptions that still need investigating are below. Might be fixable, or might become permanent (above):
-
-    # VERY TEMPORARY FOR-NOW
+    # Project-specific.  May be reviewed in future.
     "PY007",  # should have a task runner (nox/tox etc).
+
+    # TODO: exceptions that still need investigating are below. Might be fixable, or might become permanent (above):
 ]
 [tool.ruff]
 extend-exclude = [
@@ -215,12 +215,9 @@ select = [
 ]
 
 [tool.ruff.lint.isort]
-#known-first-party = ["ncdata"]
+force-sort-within-sections = true
+#known-first-party = ["ncdata"]  # not needed, follows ruff 'src' setting
 known-local-folder = ["tests"]
-# The identification of first-party modules is wrong here, and **different from isort**.
-# It seems to consider these first-party because there is an 'ncdata.xarray' etc.
-# Also that confuses it and it then treats all ncdata as **third-party**.
-#known-third-party = ["iris", "xarray"]
 
 [tool.ruff.lint.flake8-copyright]
 notice-rgx = "^[ #]*Copyright SciTools contributors"
@@ -232,24 +229,27 @@ max-complexity = 25  # TODO: reduce, and ignore in specific cases.
 # All test scripts
 "./tests/**/*.py" = [ # e.g "cf_units/tests" or "lib/iris/tests"
     # https://docs.astral.sh/ruff/rules
-    "S101",  # Use of assert.
-    "D100",  # Missing docstring in public module
+    # Generic ignores.
     "D101",  # Missing docstring in public class
+    "D205",  # 1 blank line required between summary line and description
+    "D401",  # 1 First line of docstring should be in imperative mood
+
+    # Project-specific
+    "ARG001", # Unused function argument  [[does not recognise explicitly imported pytest fixtures]]
+    "ARG002", # Unused method argument  [[does not recognise explicitly imported pytest fixtures]]
+    "B018", # useless expression  [[used for explicit pytest fixture imports]]
+    "D100",  # Missing docstring in public module
     "D102",  # Missing docstring in public method
     "D103",  # Missing docstring in public function
     "D106",  # Missing docstring in public nested class
-    "D205",  # 1 blank line required between summary line and description
-    "D401",  # 1 First line of docstring should be in imperative mood
     "N801",  # Class name should use CapWords convention
-    "PLR2004",  # Magic constants in comparison
-    "PLR09",  # Various complexity warns: too many args, statements, branches...
     "N802",  # Function name should be lowercase
     "N806", # Variable in function should be lowercase
     "N813", # Argument name should be lowercase
-    "N999", # Argument name should be lowercase
-    "B018", # useless expression  [[used for explicit pytest fixture imports]]
-    "ARG001", # Unused function argument  [[does not recognise explicitly imported pytest fixtures]]
-    "ARG002", # Unused method argument  [[does not recognise explicitly imported pytest fixtures]]
+    "N999", # Invalid module name (e.g. other 'test_xx' modules)
+    "PLR09",  # Various complexity warns: too many args, statements, branches...
+    "PLR2004",  # Magic constants in comparison
+    "S101",  # Use of assert.
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -273,11 +273,11 @@ version_scheme = "release-branch-semver"
 write_to = "lib/ncdata/_version.py"
 
 [tool.towncrier]
-package = "ncdata"
-package_dir = "lib"
 directory = "docs/changelog_fragments"
 filename = "docs/change_log.rst"
 issue_format = "`ISSUE#{issue} <https://github.com/SciTools/ncdata/pull/{issue}>`_"
+package = "ncdata"
+package_dir = "lib"
 underlines = ["~", "^", "*", "+"]
 
 [[tool.towncrier.type]]
