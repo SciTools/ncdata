@@ -114,7 +114,8 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         # N.B. we need to create + store our OWN variables, as they are wrappers for
         #  the underlying NcVariable objects, with different properties.
         self.variables = {
-            name: Nc4VariableLike._from_ncvariable(ncvar)
+            # N.B. see Nc4VariableLike for why we provide 'group' here.
+            name: Nc4VariableLike._from_ncvariable(ncvar, group=ncdata)
             for name, ncvar in self._ncdata.variables.items()
         }
         self.dimensions = {
@@ -231,11 +232,32 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
 
     """
 
-    _local_instance_props = ("_ncdata", "name", "datatype", "_data_array")
+    _local_instance_props = (
+        "_ncdata",
+        "name",
+        "datatype",
+        "_data_array",
+        "_group",
+    )
 
-    def __init__(self, ncvar: NcVariable, datatype: np.dtype):  # noqa: D107
+    def __init__(
+        self,
+        ncvar: NcVariable,
+        datatype: np.dtype,
+        group: NcData | None = None,
+    ):  # noqa: D107
         self._ncdata = ncvar
         self.name = ncvar.name
+
+        # Note: the 'group' argument identifies the containing dataset, which provides
+        #  the value of 'self.group' if ncvar.group is None.
+        # This lets Nc4DatasetLike creation make sure that all its vars have
+        #  'var.group == dataset', as expected netCDF4-like behaviour, while it still
+        #  contains + dynamically reflects the original "wrapped" data.
+        # Without this, we would have to set var.group on contained variables when
+        #  wrapping them - i.e. either change them or replace with copies.
+        self._group = group  # used if ncdata.group is None
+
         # Note: datatype must be known at creation, which may be before an actual data
         #  array is assigned on the ncvar.
         self.datatype = np.dtype(datatype)
@@ -257,12 +279,18 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
         self._data_array = array
 
     @classmethod
-    def _from_ncvariable(cls, ncvar: NcVariable, dtype: np.dtype = None):
+    def _from_ncvariable(
+        cls,
+        ncvar: NcVariable,
+        dtype: np.dtype | None = None,
+        group: NcData | None = None,
+    ) -> "Nc4VariableLike":
         if dtype is None:
             dtype = ncvar.dtype
         self = cls(
             ncvar=ncvar,
             datatype=dtype,
+            group=group,
         )
         return self
 
@@ -392,7 +420,12 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
         self._ncdata.data = data
 
     def group(self):  # noqa: D102
-        return self._ncdata.group
+        group = self._ncdata.group
+        if group is None:
+            # self._group may be provided at creation, to ensure that a containing
+            #  Nc4DatasetLike has "ds.variables[varname].group == ds" for all variables.
+            group = self._group
+        return group
 
     @property
     def dimensions(self) -> List[str]:  # noqa: D102
