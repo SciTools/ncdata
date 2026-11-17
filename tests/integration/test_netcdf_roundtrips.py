@@ -9,6 +9,7 @@ from subprocess import check_output
 from ncdata.netcdf4 import from_nc4, to_nc4
 from ncdata.utils import dataset_differences
 
+from tests import NCDUMP_PATHSTR
 from tests.data_testcase_schemas import session_testdir, standard_testcase
 
 # Avoid complaints that the imported fixtures are "unused"
@@ -36,7 +37,7 @@ def test_basic(standard_testcase, tmp_path):
         print("\nncdata =")
         print(ncdata)
         print("\nncdump =")
-        txt = check_output([f"ncdump {intermediate_filepath}"], shell=True).decode()
+        txt = check_output([NCDUMP_PATHSTR, str(intermediate_filepath)]).decode()  # noqa: S603
         print(txt)
 
     # Check that the re-saved file matches the original
