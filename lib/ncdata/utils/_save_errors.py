@@ -4,7 +4,6 @@
 # See LICENSE in the root of the repository for full licensing details.
 """User utility routines for ncdata."""
 
-from typing import Dict, List, Union
 
 import netCDF4 as nc
 import numpy as np
@@ -17,12 +16,11 @@ def _name_is_valid(name) -> bool:
     if not isinstance(name, str) or not name:
         # Catches non-string (e.g. None, 0, ..) and empty string
         result = False
-    else:
-        # The name rules for netCDF are not fully clear, but seem *extremely* liberal.
-        # It seems that "/" is not allowed, and that's about it
-        # So *allow* whitespace, backslash, initial digit, initial underscore ...
-        if "/" in name:
-            result = False
+    # The name rules for netCDF are not fully clear, but seem *extremely* liberal.
+    # It seems that "/" is not allowed, and that's about it
+    # So *allow* whitespace, backslash, initial digit, initial underscore ...
+    elif "/" in name:
+        result = False
     return result
 
 
@@ -53,8 +51,8 @@ def _valid_attr_dtype(dtype):
 
 
 def _invalid_attr_errors(
-    element: Union[NcData, NcVariable], name_prefix: str
-) -> List[str]:
+    element: NcData | NcVariable, name_prefix: str
+) -> list[str]:
     errors = []
     for attr in element.attributes.values():
         dtype = attr.value.dtype
@@ -67,8 +65,8 @@ def _invalid_attr_errors(
 
 
 def _variable_errors(
-    var: NcVariable, var_prefix: str, known_dimensions: Dict[str, int]
-) -> List[str]:
+    var: NcVariable, var_prefix: str, known_dimensions: dict[str, int]
+) -> list[str]:
     errors = []
     if var.data is None:
         errors.append(f"{var_prefix} has no data array.")
@@ -102,9 +100,9 @@ def _variable_errors(
 
 def _save_errors_inner(
     ncdata: NcData,
-    enclosing_dimensions: Dict[str, int] = None,
+    enclosing_dimensions: dict[str, int] = None,
     group_path: str = None,
-) -> List[str]:
+) -> list[str]:
     """
     Scan dataset, with context allowing operation over inner groups.
 
@@ -183,7 +181,7 @@ def _save_errors_inner(
     return errors
 
 
-def save_errors(ncdata: NcData) -> List[str]:
+def save_errors(ncdata: NcData) -> list[str]:
     """
     Scan a dataset for consistency and completeness.
 

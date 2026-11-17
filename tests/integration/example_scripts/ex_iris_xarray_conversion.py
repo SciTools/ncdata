@@ -18,7 +18,7 @@ from ncdata.iris_xarray import cubes_from_xarray, cubes_to_xarray
 from tests import testdata_dir
 
 
-def example_from_xr():  # noqa: D103
+def example_from_xr():
     filepath = testdata_dir / "toa_brightness_temperature.nc"
     xrds = xr.open_dataset(filepath, chunks="auto")
     iris.FUTURE.datum_support = True
@@ -51,7 +51,7 @@ def example_from_xr():  # noqa: D103
 
     print("\n")
     print("============ CONVERT cubes TO xr.Dataset ... =========")
-    print("")
+    print()
     xrds2 = cubes_to_xarray(cubes)
     print("\nxrds2:\n", xrds2)
     print("\ntime:\n", xrds2["time"])

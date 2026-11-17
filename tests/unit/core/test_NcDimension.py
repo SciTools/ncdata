@@ -85,7 +85,7 @@ class Test_NcDimension_eq:
     def size(self, request):
         return request.param
 
-    @pytest.fixture()
+    @pytest.fixture
     def refdim(self, unlimited, size):
         return NcDimension(name="ref_name", size=size, unlimited=unlimited)
 

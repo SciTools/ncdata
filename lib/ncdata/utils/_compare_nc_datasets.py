@@ -12,7 +12,7 @@ TODO: one day might be public ?
 """
 
 from pathlib import Path
-from typing import AnyStr, List, Union
+from typing import AnyStr
 from warnings import warn
 
 import netCDF4
@@ -23,8 +23,8 @@ from ncdata import NcData, NcVariable
 
 
 def dataset_differences(
-    dataset_or_path_1: Union[Path, AnyStr, nc.Dataset, NcData],
-    dataset_or_path_2: Union[Path, AnyStr, nc.Dataset, NcData],
+    dataset_or_path_1: Path | AnyStr | nc.Dataset | NcData,
+    dataset_or_path_2: Path | AnyStr | nc.Dataset | NcData,
     check_names: bool = False,
     check_dims_order: bool = True,
     check_dims_unlimited: bool = True,
@@ -34,7 +34,7 @@ def dataset_differences(
     check_var_data: bool = True,
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
-) -> List[str]:
+) -> list[str]:
     r"""
     Compare two netcdf datasets.
 
@@ -210,7 +210,8 @@ def _attribute_arrays_eq(a1, a2):
 
 
 def _array_element_str(x):
-    """Make a string representation of a numpy array element (scalar).
+    """
+    Make a string representation of a numpy array element (scalar).
 
     Does *not* rely on numpy array printing.
     Instead converts to an equivalent Python object, and takes str(that).
@@ -236,7 +237,8 @@ def _array_element_str(x):
 
 
 def _attribute_str(x):
-    """Make a string representing an attribute value.
+    """
+    Make a string representing an attribute value.
 
     Like the above, not depending on numpy array printing.
     """
@@ -259,7 +261,7 @@ def _attribute_differences(
     attrs_order=True,
     suppress_warnings=False,
     force_first_attrnames=None,
-) -> List[str]:
+) -> list[str]:
     """
     Compare attribute name lists.
 
@@ -345,7 +347,7 @@ def variable_differences(
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
     _group_id_string: str = None,
-) -> List[str]:
+) -> list[str]:
     r"""
     Compare variables.
 
@@ -559,8 +561,8 @@ def variable_differences(
 
 
 def _group_differences(
-    g1: Union[netCDF4.Dataset, netCDF4.Group],
-    g2: Union[netCDF4.Dataset, netCDF4.Group],
+    g1: netCDF4.Dataset | netCDF4.Group,
+    g2: netCDF4.Dataset | netCDF4.Group,
     group_id_string: str,
     dims_order: bool = True,
     vars_order: bool = True,
@@ -571,7 +573,7 @@ def _group_differences(
     check_names: bool = False,
     check_unlimited: bool = True,
     show_n_diffs: int = 2,
-) -> List[str]:
+) -> list[str]:
     """
     Inner routine to compare either whole datasets or subgroups.
 

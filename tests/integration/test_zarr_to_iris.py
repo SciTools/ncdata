@@ -112,7 +112,8 @@ _S3_accessible = all(
 )
 @pytest.mark.skipif(not _S3_accessible, reason="S3 url not accessible")
 def test_load_remote_zarr():
-    """Test loading a remote Zarr store.
+    """
+    Test loading a remote Zarr store.
 
     This is a ~250MB compressed Zarr in an S3 bucket.
     Conversion is done fully lazily, by passing chunks={}

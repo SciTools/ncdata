@@ -22,7 +22,7 @@ from ncdata.utils import dataset_differences
 from tests import testdata_dir
 
 
-def example_nc4_load_save_roundtrip():  # noqa: D103
+def example_nc4_load_save_roundtrip():
     """Load an existing file ; save to netcdf4 ; check they are the same."""
     print("\n----\nNetcdf4 load-save example.")
 
@@ -67,7 +67,7 @@ def example_nc4_save_reload_unlimited_roundtrip():
 
     tempdir_path = Path(tempfile.mkdtemp())
     try:
-        print("")
+        print()
         filepath = tempdir_path / "temp_nc_2_unlim.nc"
         print("Saving to file ", filepath)
         to_nc4(ncdata, filepath)

@@ -126,7 +126,6 @@ def test_kwargs__load_by_name():
 
 def test_iris_loadchain():
     """Check that standard iris load-chain processing is applied, including a merge."""
-
     # Create a pair of datasets with mergeable variables.
     # Start by making one, with a scalar 'z' coord.
     ncdata = NcData(

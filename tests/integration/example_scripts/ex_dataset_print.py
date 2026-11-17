@@ -12,7 +12,7 @@ from ncdata import NcData, NcDimension, NcVariable
 from tests import testdata_dir
 
 
-def sample_printout():  # noqa: D103
+def sample_printout():
     iris.FUTURE.datum_support = True
     filepath = testdata_dir / "toa_brightness_temperature.nc"
     cubes = iris.load(filepath)

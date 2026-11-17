@@ -2,7 +2,8 @@
 #
 # This file is part of SciTools/ncdata and is released under the BSD license.
 # See LICENSE in the root of the repository for full licensing details.
-"""Tests for :func:`ncdata.utils.ncdata_copy`.
+"""
+Tests for :func:`ncdata.utils.ncdata_copy`.
 
 This is generic utility function version of the copy operation.
 """
@@ -53,7 +54,7 @@ class Test:
         result = ncdata_copy(sample)
         assert not differences_or_duplicated_objects(sample, result)
 
-    @pytest.fixture()
+    @pytest.fixture
     def sample(self):
         attrs = NameMap.from_items(
             [NcAttribute("q", 3)], item_type=NcAttribute

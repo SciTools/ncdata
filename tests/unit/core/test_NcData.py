@@ -2,7 +2,8 @@
 #
 # This file is part of SciTools/ncdata and is released under the BSD license.
 # See LICENSE in the root of the repository for full licensing details.
-"""Tests for class :class:`ncdata.NcData`.
+"""
+Tests for class :class:`ncdata.NcData`.
 
 There is almost no behaviour, but we can test some constructor usages.
 """

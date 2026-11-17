@@ -13,7 +13,7 @@ The status and usage of this are yet to be determined.
 import os
 import subprocess
 from pathlib import Path
-from typing import AnyStr, List, Optional
+from typing import AnyStr
 
 import pytest
 
@@ -54,7 +54,7 @@ NCDUMP_PATHSTR = str(_env_bin_path("ncdump"))
 
 
 def ncgen_from_cdl(
-    cdl_str: Optional[str], cdl_path: Optional[str], nc_path: str
+    cdl_str: str | None, cdl_path: str | None, nc_path: str
 ):
     """
     Generate a test netcdf file from cdl.
@@ -141,7 +141,7 @@ group: grp_2 {
 """
 
 
-def comparable_cdl(text: str) -> List[str]:
+def comparable_cdl(text: str) -> list[str]:
     """
     Convert a CDL string to a list of stripped lines, with certain problematic things
     removed.  The resulting list of strings should be comparable between identical

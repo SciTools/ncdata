@@ -2,8 +2,9 @@
 #
 # This file is part of SciTools/ncdata and is released under the BSD license.
 # See LICENSE in the root of the repository for full licensing details.
+from collections.abc import Mapping
 from numbers import Number
-from typing import Any, Mapping
+from typing import Any
 
 import dask.array as da
 import numpy as np
@@ -76,12 +77,12 @@ def index_by_dimensions(
                 f"Key for dimension {dim_name!r} is multi-dimensional: {key}. "
                 "Multi-dimensional keys are not supported."
             )
-        elif key is Ellipsis:
+        if key is Ellipsis:
             raise ValueError(
                 f'Key for dimension {dim_name!r} is Ellipsis / "...": '
                 "Ellipsis is not supported."
             )
-        elif key in (np.newaxis, None):
+        if key in (np.newaxis, None):
             raise ValueError(
                 f"Key for dimension {dim_name!r} is np.newaxis / None: "
                 "New-axis is not supported. "

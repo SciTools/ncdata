@@ -101,7 +101,7 @@ def make_dims_testdata_1d(x):
     return data
 
 
-class Slicekeys:  # noqa: D101
+class Slicekeys:
     def __getitem__(self, keys):  # noqa: D105
         return keys
 

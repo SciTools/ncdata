@@ -16,15 +16,11 @@ of dimensions referenced by variables.
 
 """
 
+from collections.abc import Iterable, Mapping, MutableMapping
 from functools import wraps
 from typing import (
     Any,
-    Dict,
-    Iterable,
-    Mapping,
-    MutableMapping,
     Optional,
-    Tuple,
     Union,
 )
 
@@ -137,7 +133,7 @@ class NameMap(dict):
 
     @classmethod
     def from_items(
-        cls, arg: Union[Iterable, Mapping], item_type=None
+        cls, arg: Iterable | Mapping, item_type=None
     ) -> "NameMap":
         """
         Convert an iterable or mapping of items to a NameMap.
@@ -235,10 +231,10 @@ class AttrvalsDict(MutableMapping):
     def __init__(self, attrs: NameMap):
         self._attrs = attrs
 
-    def __getitem__(self, key):  # noqa: D105
+    def __getitem__(self, key):
         return self._attrs[key].as_python_value()
 
-    def __setitem__(self, key, value):  # noqa: D105
+    def __setitem__(self, key, value):
         # Special case : assigning an NcAttribute object is equivalent to assigning
         #  its value (which forces rename).
         # This is supposed to avoid potential confusion (!)
@@ -255,20 +251,21 @@ class AttrvalsDict(MutableMapping):
     #
     # Provide the minimal set of methods required for a MutableMapping
     #
-    def __len__(self):  # noqa: D105
+    def __len__(self):
         return len(self._attrs)
 
-    def __iter__(self):  # noqa: D105
+    def __iter__(self):
         return iter(self._attrs)
 
-    def __delitem__(self, key):  # noqa: D105
+    def __delitem__(self, key):
         self._attrs.__delitem__(key)
 
     #
     # Other useful methods
     #
     def __str__(self):
-        """Provide a string representation.
+        """
+        Provide a string representation.
 
         A convenient representation, somewhat consistent with how we print the
         attributes in the printout of an NcData / NcVariable.
@@ -293,7 +290,7 @@ class AttrvalsDict(MutableMapping):
     # Also really nice-to-have : the "rename" operation, as implemented by NameMap
     @wraps(NameMap.rename)
     # N.B. this is *not* missing a docstring, actually..
-    def rename(self, name: str, new_name: str):  # noqa: D102
+    def rename(self, name: str, new_name: str):
         self._attrs.rename(name, new_name)
 
     def copy(self, deepcopy=True):
@@ -390,28 +387,28 @@ class NcData(_AttributeAccessMixin):
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        dimensions: Union[Mapping, Iterable] = None,
-        variables: Union[Mapping, Iterable] = None,
-        attributes: Union[Mapping, Iterable] = None,
-        groups: Union[Mapping, Iterable] = None,
-    ):  # noqa: D107
+        name: str | None = None,
+        dimensions: Mapping | Iterable = None,
+        variables: Mapping | Iterable = None,
+        attributes: Mapping | Iterable = None,
+        groups: Mapping | Iterable = None,
+    ):
         #: a group/dataset name (optional)
         self.name: str = name
         #: group/dataset dimensions
-        self.dimensions: Dict[str, "NcDimension"] = as_namemap(
+        self.dimensions: dict[str, NcDimension] = as_namemap(
             dimensions, NcDimension
         )
         #: group/dataset variables
-        self.variables: Dict[str, "NcVariable"] = as_namemap(
+        self.variables: dict[str, NcVariable] = as_namemap(
             variables, NcVariable
         )
         #: group/dataset global attributes
-        self.attributes: Dict[str, "NcAttribute"] = as_namemap(
+        self.attributes: dict[str, NcAttribute] = as_namemap(
             attributes, NcAttribute
         )
         #: sub-groups
-        self.groups: Dict[str, "NcData"] = as_namemap(groups, NcData)
+        self.groups: dict[str, NcData] = as_namemap(groups, NcData)
 
     def _print_content(self) -> str:
         """
@@ -421,7 +418,7 @@ class NcData(_AttributeAccessMixin):
         class, so it isn't technically an abstract method).
         This "NcData._print_content()" is called recursively for groups.
         """
-        global _STANDARD_INDENT  # noqa: F824
+        global _STANDARD_INDENT
         # Define a header line (always a separate line).
         noname = "<'no-name'>"
         lines = [f"<NcData: {self.name or noname}"]
@@ -458,7 +455,7 @@ class NcData(_AttributeAccessMixin):
         # Join with linefeeds for a simple string result.
         return "\n".join(lines)
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return self._print_content()
 
     # NOTE: for 'repr', an interpretable literal string is too complex.
@@ -504,7 +501,7 @@ class NcData(_AttributeAccessMixin):
 
         return Slicer(self, *dim_names)
 
-    def __getitem__(self, indices):  # noqa: D105
+    def __getitem__(self, indices):
         # N.B. Python [,,] syntax ensures there is only ever one argument,
         #  either a single key or a tuple :
         #    : [x] --> keys == x
@@ -512,7 +509,7 @@ class NcData(_AttributeAccessMixin):
         return self.slicer().__getitem__(indices)
 
     # Define equality in terms of dataset comparison utility
-    def __eq__(self, other):  # noqa: D105
+    def __eq__(self, other):
         if id(other) == id(self):
             result = True
         elif not isinstance(other, NcData):
@@ -532,8 +529,8 @@ class NcDimension:
     """
 
     def __init__(
-        self, name: str, size: int, unlimited: Optional[bool] = None
-    ):  # noqa: D107
+        self, name: str, size: int, unlimited: bool | None = None
+    ):
         #: dimension name
         self.name: str = name
         #: dimension size (current size, if unlimited)
@@ -545,15 +542,15 @@ class NcDimension:
         #: whether dimension is unlimited
         self.unlimited: bool = unlimited
 
-    def _print_content(self) -> str:  # noqa: D105
+    def _print_content(self) -> str:
         str_unlim = "  **UNLIMITED**" if self.unlimited else ""
         return f"{self.name} = {self.size}{str_unlim}"
 
-    def __repr__(self):  # noqa: D105
+    def __repr__(self):
         str_unlim = ", unlimited=True" if self.unlimited else ""
         return f"NcDimension({self.name!r}, {self.size}{str_unlim})"
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return repr(self)
 
     def copy(self):
@@ -599,7 +596,7 @@ class NcVariable(_AttributeAccessMixin):
             Union[np.ndarray, "dask.array.array"]  # noqa: F821
         ] = None,
         dtype: np.dtype = None,
-        attributes: Union[Mapping, Iterable] = None,
+        attributes: Mapping | Iterable = None,
         group: "NcData" = None,
     ):
         """
@@ -612,7 +609,7 @@ class NcVariable(_AttributeAccessMixin):
         #: variable name
         self.name: str = name
         #: variable dimension names (a list of strings, *not* a dict of objects)
-        self.dimensions: Tuple[str] = tuple(dimensions)
+        self.dimensions: tuple[str] = tuple(dimensions)
         if data is not None:
             if not hasattr(data, "dtype"):
                 data = np.asanyarray(data)
@@ -626,7 +623,7 @@ class NcVariable(_AttributeAccessMixin):
         #: variable attributes
         self.attributes: NameMap = as_namemap(attributes, NcAttribute)
         #: parent group
-        self.group: Optional[NcData] = group
+        self.group: NcData | None = group
 
     # # Provide some array-like readonly properties reflected from the data.
     # @property
@@ -638,7 +635,7 @@ class NcVariable(_AttributeAccessMixin):
     #     return self.data.shape
 
     def _print_content(self):
-        global _STANDARD_INDENT  # noqa: F824
+        global _STANDARD_INDENT
         dimstr = ", ".join(self.dimensions)
         typestr = str(self.dtype) if self.dtype else "<no-dtype>"
         hdr = f"<NcVariable({typestr}): {self.name}({dimstr})"
@@ -655,7 +652,7 @@ class NcVariable(_AttributeAccessMixin):
             lines += [">"]
         return "\n".join(lines)
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return self._print_content()
 
     # NOTE: as for NcData, an interpretable 'repr' string is too complex.
@@ -681,7 +678,7 @@ class NcVariable(_AttributeAccessMixin):
         return var
 
     # Define equality in terms of variable comparison utility
-    def __eq__(self, other):  # noqa: D105
+    def __eq__(self, other):
         if id(other) == id(self):
             result = True
         elif not isinstance(other, NcVariable):
@@ -703,7 +700,7 @@ class NcAttribute:
     In an actual netcdf dataset, a "scalar" is actually just an array of length 1.
     """
 
-    def __init__(self, name: str, value):  # noqa: D107
+    def __init__(self, name: str, value):
         #: attribute name
         self.name: str = name
         # Attribute values are arraylike, have dtype
@@ -711,7 +708,7 @@ class NcAttribute:
         self.value: np.ndarray = value
 
     @property
-    def value(self):  # noqa: D102
+    def value(self):
         return self._value
 
     @value.setter
@@ -789,10 +786,10 @@ class NcAttribute:
     def _print_content(self):
         return f"{self.name} = {self._print_value()}"
 
-    def __repr__(self):  # noqa: D105
+    def __repr__(self):
         return f"NcAttribute({self.name!r}, {self._print_value()})"
 
-    def __str__(self):  # noqa: D105
+    def __str__(self):
         return repr(self)
 
     def copy(self):

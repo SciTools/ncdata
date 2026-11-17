@@ -2,7 +2,8 @@
 #
 # This file is part of SciTools/ncdata and is released under the BSD license.
 # See LICENSE in the root of the repository for full licensing details.
-"""Tests for class :class:`ncdata.utils.Slicer`.
+"""
+Tests for class :class:`ncdata.utils.Slicer`.
 
 This is the "indirect" approach, with a Slicer object.
 """

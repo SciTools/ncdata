@@ -9,7 +9,8 @@ Convert :class:`~ncdata.NcData`\s to and from Iris :class:`~iris.cube.Cube`\s.
 
 """
 
-from typing import Any, AnyStr, Dict, Iterable, List, Union
+from collections.abc import Iterable
+from typing import Any, AnyStr
 
 #
 # NOTE:  This uses the :mod:`ncdata.dataset_like` interface ability to mimic a
@@ -30,7 +31,7 @@ __all__ = ["from_iris", "to_iris"]
 
 
 def to_iris(
-    ncdata: NcData | List[NcData], **iris_load_kwargs: Dict[AnyStr, Any]
+    ncdata: NcData | list[NcData], **iris_load_kwargs: dict[AnyStr, Any]
 ) -> CubeList:
     """
     Read Iris cubes from an :class:`~ncdata.NcData`.
@@ -59,7 +60,7 @@ def to_iris(
 
 
 def from_iris(
-    cubes: Union[Cube, Iterable[Cube]], **iris_save_kwargs: Dict[AnyStr, Any]
+    cubes: Cube | Iterable[Cube], **iris_save_kwargs: dict[AnyStr, Any]
 ) -> NcData:
     """
     Create an :class:`~ncdata.NcData` from Iris cubes.

@@ -11,7 +11,6 @@ Converts :class:`ncdata.NcData` to and from :class:`netCDF4.Dataset` objects.
 
 from pathlib import Path
 from threading import Lock
-from typing import Dict, Optional, Union
 
 import dask.array as da
 import netCDF4 as nc
@@ -29,8 +28,8 @@ _Forbidden_Variable_Kwargs = ["data", "dimensions", "datatype", "fill_value"]
 
 def _to_nc4_group(
     ncdata: NcData,
-    nc4object: Union[nc.Dataset, nc.Group],
-    var_kwargs: Optional[Dict[str, Dict]] = None,
+    nc4object: nc.Dataset | nc.Group,
+    var_kwargs: dict[str, dict] | None = None,
 ) -> None:
     """
     Inner routine supporting ``to_nc4``, and recursive calls for sub-groups.
@@ -109,7 +108,8 @@ class _NetCDFDataProxy:
     Copied from Iris, with some simplifications.
     """
 
-    __slots__ = ("shape", "dtype", "path", "variable_name", "group_names_path")
+    # N.B. avoiding sorting this, the order is convenient for understanding.
+    __slots__ = ("shape", "dtype", "path", "variable_name", "group_names_path")  # noqa: RUF023
 
     def __init__(
         self, shape, dtype, filepath, variable_name, group_names_path=None
@@ -164,8 +164,8 @@ class _NetCDFDataProxy:
 
 def to_nc4(
     ncdata: NcData,
-    nc4_dataset_or_file: Union[nc.Dataset, Path, str],
-    var_kwargs: Dict[str, Dict] = None,
+    nc4_dataset_or_file: nc.Dataset | Path | str,
+    var_kwargs: dict[str, dict] = None,
 ) -> None:
     """
     Save NcData to a netCDF file.
@@ -213,7 +213,7 @@ def to_nc4(
             nc4ds.close()
 
 
-def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
+def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
     """
     Inner routine for :func:`from_nc4`.
 
@@ -286,8 +286,8 @@ def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
 
 
 def from_nc4(
-    nc4_dataset_or_file: Union[nc.Dataset, nc.Group, Path, str],
-    dim_chunks: Dict[str, Union[int, str]] = None,
+    nc4_dataset_or_file: nc.Dataset | nc.Group | Path | str,
+    dim_chunks: dict[str, int | str] = None,
 ) -> NcData:
     """
     Load NcData from a :class:`netCDF4.Dataset` or netCDF file.

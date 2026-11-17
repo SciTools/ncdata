@@ -15,7 +15,7 @@ Converts :class:`ncdata.NcData`\s to and from :class:`xarray.Dataset` objects.
 #
 
 from pathlib import Path
-from typing import AnyStr, Union
+from typing import AnyStr
 
 import dask.array as da
 import numpy as np
@@ -151,7 +151,7 @@ class _XarrayNcDataStore(NetCDF4DataStore):
     #
     @classmethod
     def from_xarray(
-        cls, dataset_or_file: Union[xr.Dataset, AnyStr, Path], **xr_load_kwargs
+        cls, dataset_or_file: xr.Dataset | AnyStr | Path, **xr_load_kwargs
     ):
         if not isinstance(dataset_or_file, xr.Dataset):
             # It's a "file" (or pathstring, or Path ?).
@@ -194,7 +194,7 @@ def to_xarray(ncdata: NcData, **xarray_load_kwargs) -> xr.Dataset:
 
 
 def from_xarray(
-    xrds: Union[xr.Dataset, Path, AnyStr], **xarray_save_kwargs
+    xrds: xr.Dataset | Path | AnyStr, **xarray_save_kwargs
 ) -> NcData:
     """
     Convert an xarray :class:`xarray.Dataset` to a :class:`NcData`.

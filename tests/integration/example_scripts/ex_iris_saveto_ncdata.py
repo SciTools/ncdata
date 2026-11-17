@@ -17,7 +17,7 @@ from tests import testdata_dir
 
 def example_ncdata_from_iris():
     """Demonstrate loading from iris and printing the NcData object."""
-    print("")
+    print()
     print("==============")
     print("TEMPORARY: iris save-to-ncdata test")
     iris.FUTURE.datum_support = True

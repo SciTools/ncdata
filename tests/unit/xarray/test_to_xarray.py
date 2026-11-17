@@ -75,7 +75,6 @@ def test_real_nocopy():
 @pytest.mark.parametrize("scaleandoffset", ["WITHscaling", "NOscaling"])
 def test_kwargs__scaleandoffset(scaleandoffset):
     """Check the operation of kwargs (= xarray load controls)."""
-
     # Make a test NcData dataset with a scaled-and-offset variable.
     raw_int_data = np.array([66, 75, 99], dtype=np.int16)
     ncdata = NcData(

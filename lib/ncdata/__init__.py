@@ -18,7 +18,8 @@ thus acting as an efficient exchange channel between any of those forms.
 from ._core import NameMap, NcAttribute, NcData, NcDimension, NcVariable
 from ._version import __version__
 
-__all__ = [
+# N.B. avoiding sorting this, the order is convenient for understanding.
+__all__ = [  # noqa: RUF022
     "NcData",
     "NcDimension",
     "NcVariable",

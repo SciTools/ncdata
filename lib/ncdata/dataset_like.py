@@ -34,7 +34,7 @@ complete, so this module may need to be extended, in future, to support other su
 
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 import dask.array as da
 import netCDF4
@@ -50,7 +50,7 @@ class _Nc4DatalikeWithNcattrs:
     # N.B. "self._ncdata" is the underlying NcData object : either an NcData or
     #  NcVariable object.
 
-    def ncattrs(self) -> List[str]:
+    def ncattrs(self) -> list[str]:
         return list(self._ncdata.attributes.keys())
 
     def getncattr(self, attr: str):
@@ -150,10 +150,10 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         self,
         varname: str,
         datatype: np.dtype,
-        dimensions: List[str] = (),
+        dimensions: list[str] = (),
         fill_value=None,
-        **kwargs: Dict[str, Any],
-    ):  # noqa: D102
+        **kwargs: dict[str, Any],
+    ):
         if varname in self.variables:
             msg = f'creating duplicate variable "{varname}".'
             raise ValueError(msg)
@@ -205,7 +205,8 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         return "<Nc4DatasetLike>"
 
     def __lt__(self, other):
-        """Support comparison operations.
+        """
+        Support comparison operations.
 
         Not a real operation: we provide "comparison", just so that Iris can load a list
         of them.
@@ -241,7 +242,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
 
     _local_instance_props = ("_ncdata", "name", "datatype", "_data_array")
 
-    def __init__(self, ncvar: NcVariable, datatype: np.dtype):  # noqa: D107
+    def __init__(self, ncvar: NcVariable, datatype: np.dtype):
         self._ncdata = ncvar
         self.name = ncvar.name
         # Note: datatype must be known at creation, which may be before an actual data
@@ -403,7 +404,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
         return self._ncdata.group
 
     @property
-    def dimensions(self) -> List[str]:  # noqa: D102
+    def dimensions(self) -> list[str]:  # noqa: D102
         return self._ncdata.dimensions
 
     #
@@ -459,7 +460,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
     def size(self):  # noqa: D102
         return np.prod(self.shape)
 
-    def chunking(self):  # noqa: D102
+    def chunking(self):
         """
         Return chunk sizes.
 
@@ -467,7 +468,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
 
         For now, simply returns ``None``.  Could be replaced when required.
         """
-        return None
+        return
 
 
 class Nc4DimensionLike:
@@ -480,7 +481,7 @@ class Nc4DimensionLike:
 
     """
 
-    def __init__(self, ncdim: NcDimension):  # noqa: D107
+    def __init__(self, ncdim: NcDimension):
         self._ncdata = ncdim
 
     @property

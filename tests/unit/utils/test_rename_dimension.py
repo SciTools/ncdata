@@ -14,7 +14,8 @@ from ncdata.utils import rename_dimension, save_errors
 def make_saveable(
     ncdata: NcData, _outer_dims: dict[str, NcDimension] | None = None
 ):
-    """Add missing dimensions + data, to make a sample NcData save-able.
+    """
+    Add missing dimensions + data, to make a sample NcData save-able.
 
     Create any missing variable dimensions (length==2).
     Add any missing variable data arrays.
@@ -27,7 +28,8 @@ def make_saveable(
     outer_dim_names = [dim.name for dim in _outer_dims.values()]
 
     def getdim(dimname):
-        """Fetch a known dimension by name.
+        """
+        Fetch a known dimension by name.
 
         Check own, then "outer" ones, to correctly implement *scope masking*.
         """
@@ -125,7 +127,7 @@ class TestRenameDimension:
         # No error in this case, because the "z" is inside a group with its own "x".
         rename_dimension(ncdata, "x", "z")
 
-    @pytest.fixture()
+    @pytest.fixture
     def group_example(self, setup):
         ncdata = self.ncdata.copy()
         ncdata.groups.addall(

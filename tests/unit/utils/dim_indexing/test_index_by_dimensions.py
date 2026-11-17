@@ -2,7 +2,8 @@
 #
 # This file is part of SciTools/ncdata and is released under the BSD license.
 # See LICENSE in the root of the repository for full licensing details.
-"""Tests for class :class:`ncdata.utils.index_by_dimension`.
+"""
+Tests for class :class:`ncdata.utils.index_by_dimension`.
 
 This is the more direct indexer approach.
 """

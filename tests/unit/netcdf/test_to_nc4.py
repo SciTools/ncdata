@@ -14,7 +14,6 @@ by the generic 'roundtrip' testcases.  This includes error cases.
 """
 
 from pathlib import Path
-from typing import List
 
 import netCDF4 as nc
 import numpy as np
@@ -70,7 +69,7 @@ def test_target_types(targettype, tmp_path):
     assert dataset_differences(target_path, original_path) == []
 
 
-def fetch_nc_var(nc_file: nc.Dataset, var_path: str or List[str]):
+def fetch_nc_var(nc_file: nc.Dataset, var_path: str or list[str]):
     """
     Return a variable instance from an open dataset for inspection.
 

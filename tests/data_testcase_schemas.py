@@ -16,7 +16,6 @@ the Iris and Xarray test suites.
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Union
 
 import iris.tests
 import netCDF4 as nc
@@ -62,10 +61,10 @@ _nc_dtypes.add("string")
 assert set(data_types()) == _nc_dtypes
 
 # Suitable test values for each attribute/data type.
-_INT_Approx_2x31 = int(2**31 - 1)
-_INT_Approx_2x32 = int(2**32 - 2)
-_INT_Approx_2x63 = int(2**63 - 3)
-_INT_Approx_2x64 = int(2**64 - 4)
+_INT_Approx_2x31 = 2**31 - 1
+_INT_Approx_2x32 = 2**32 - 2
+_INT_Approx_2x63 = 2**63 - 3
+_INT_Approx_2x64 = 2**64 - 4
 
 _Datatype_Sample_Values = {
     "u1": np.array([3, 250], dtype="u1"),
@@ -303,7 +302,7 @@ _masked_scaled_ints_test_spec = {
 }
 
 # Define a sequence of standard testfile specs, with suitable param-names.
-_STANDARD_TESTCASES: Dict[str, Union[Path, dict]] = {}
+_STANDARD_TESTCASES: dict[str, Path | dict] = {}
 
 
 # A decorator for spec-generating routines.
@@ -364,8 +363,7 @@ def _define_iris_testdata_testcases():
             param_name = str(filepath)
             # remove unwanted path elements
             param_name = param_name.replace(str(_testdirpath), "")
-            if param_name.endswith(".nc"):
-                param_name = param_name[:-3]
+            param_name = param_name.removesuffix(".nc")
             # replace path-separators and other awkward chars with dunder
             for char in ("/", ".", "-"):
                 param_name = param_name.replace(char, "__")

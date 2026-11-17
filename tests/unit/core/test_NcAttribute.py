@@ -59,7 +59,7 @@ def structuretype(request):
 def attrvalue(datatype, structuretype):
     # get basic type = 'int', 'float', 'string'
     (datatype,) = (
-        key for key in _attribute_testdata.keys() if key in datatype
+        key for key in _attribute_testdata if key in datatype
     )
 
     # fetch a set of values
@@ -111,14 +111,13 @@ class Test_NcAttribute__as_python_value:
                 assert all(isinstance(x, str) for x in result)
             else:
                 assert isinstance(result, str)
+        # Numeric data is returned as arrays or array scalars.
+        elif is_vector:
+            assert isinstance(result, np.ndarray)
+            assert result.ndim == 1
         else:
-            # Numeric data is returned as arrays or array scalars.
-            if is_vector:
-                assert isinstance(result, np.ndarray)
-                assert result.ndim == 1
-            else:
-                # scalar : result is *always* an array scalar (e.g. np.float64)
-                assert result.shape == ()
+            # scalar : result is *always* an array scalar (e.g. np.float64)
+            assert result.shape == ()
 
 
 class Test_NcAttribute__str_repr:
