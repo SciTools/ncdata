@@ -2,9 +2,7 @@
 #
 # This file is part of SciTools/ncdata and is released under the BSD license.
 # See LICENSE in the root of the repository for full licensing details.
-"""
-Tests for class :class:`ncdata.NameMap`.
-"""
+"""Tests for class :class:`ncdata.NameMap`."""
 
 from copy import deepcopy
 
@@ -65,7 +63,7 @@ class TestDictlikeInit:
         assert namemap.item_type == item_type
         assert len(namemap) == len(_test_items)
         assert list(namemap.keys()) == [item.name for item in _test_items]
-        assert all(namemap[key].name == key for key in namemap.keys())
+        assert all(namemap[key].name == key for key in namemap)
 
     def test_nameless_items(self):
         """Check we can construct like a "normal" dictionary when item_type is None."""
@@ -92,18 +90,18 @@ class TestFromItems:
         assert namemap.item_type == item_type
         assert len(namemap) == len(_test_items)
         assert list(namemap.keys()) == [item.name for item in _test_items]
-        assert all(namemap[key].name == key for key in namemap.keys())
+        assert all(namemap[key].name == key for key in namemap)
 
     def test_map_arg(self, item_type_and_kwargs):
         item_type, kwargs = item_type_and_kwargs
         # Construct a dictionary, with *arbitrary* keys (they are ignored).
-        arg = {count: item for count, item in enumerate(_test_items)}
+        arg = dict(enumerate(_test_items))
         namemap = NameMap.from_items(arg, **kwargs)
         assert isinstance(namemap, NameMap)
         assert namemap.item_type == item_type
         assert len(namemap) == len(_test_items)
         assert list(namemap.keys()) == [item.name for item in _test_items]
-        assert all(namemap[key].name == key for key in namemap.keys())
+        assert all(namemap[key].name == key for key in namemap)
 
     def test_items_typemismatch(self, item_type_and_kwargs):
         item_type, kwargs = item_type_and_kwargs
@@ -229,7 +227,8 @@ class TestAttributesFromItems:
     def test_attributes_empty(self, arg):
         # Just check correct construction from empty args.
         namemap = NameMap.from_items(arg, item_type=NcAttribute)
-        assert namemap == {} and namemap is not arg
+        assert namemap == {}
+        assert namemap is not arg
 
 
 class Test_copy:
@@ -240,7 +239,9 @@ class Test_copy:
         assert result == source
         assert result.item_type == item_type
         # NOTE: not a *deep* copy : contains the same item objects
-        assert all(e1 is e2 for e1, e2 in zip(result.values(), source.values()))
+        assert all(
+            e1 is e2 for e1, e2 in zip(result.values(), source.values(), strict=True)
+        )
 
 
 class Test_add:
@@ -248,7 +249,7 @@ class Test_add:
         source = sample_namemap(item_type=item_type)
         testmap = source.copy()
         testmap.add(NamedItem("qq"))
-        assert set(testmap) == set(["qq"]) | set(source)
+        assert set(testmap) == {"qq"} | set(source)
 
     def test_differenttype_item(self, item_type):
         testmap = sample_namemap(item_type=item_type)
@@ -288,7 +289,7 @@ class Test_addall:
         testmap.addall(new_items)
         assert list(testmap.keys()) == ["a", "b", "c", "d", "x"]
         assert set(testmap.values()) == (
-            (set(source.values()) - set([source["b"]])) | set(new_items)
+            (set(source.values()) - {source["b"]}) | set(new_items)
         )
 
 

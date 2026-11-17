@@ -20,11 +20,9 @@ from collections.abc import Iterable, Mapping, MutableMapping
 from functools import wraps
 from typing import (
     Any,
-    Optional,
     Union,
 )
 
-import numpy
 import numpy as np
 
 
@@ -70,11 +68,10 @@ class NameMap(dict):
 
         If the NameMap has a non-None 'item_type', the added item is type checked.
         """
-        if self.item_type is not None:
-            if not isinstance(item, self.item_type):
-                raise TypeError(
-                    f'Item expected to be of type {self.item_type} : got {item}."'
-                )
+        if self.item_type is not None and not isinstance(item, self.item_type):
+            raise TypeError(
+                f'Item expected to be of type {self.item_type} : got {item}."'
+            )
         if not hasattr(item, "name"):
             raise TypeError(f"Item has no '.name' property : {item}.")
         self[item.name] = item
@@ -286,7 +283,7 @@ class AttrvalsDict(MutableMapping):
     def rename(self, name: str, new_name: str):
         self._attrs.rename(name, new_name)
 
-    def copy(self, deepcopy=True):
+    def copy(self):
         """
         Make a copy.
 
@@ -381,10 +378,10 @@ class NcData(_AttributeAccessMixin):
     def __init__(
         self,
         name: str | None = None,
-        dimensions: Mapping | Iterable = None,
-        variables: Mapping | Iterable = None,
-        attributes: Mapping | Iterable = None,
-        groups: Mapping | Iterable = None,
+        dimensions: Mapping | Iterable | None = None,
+        variables: Mapping | Iterable | None = None,
+        attributes: Mapping | Iterable | None = None,
+        groups: Mapping | Iterable | None = None,
     ):
         #: a group/dataset name (optional)
         self.name: str = name
@@ -405,7 +402,6 @@ class NcData(_AttributeAccessMixin):
         class, so it isn't technically an abstract method).
         This "NcData._print_content()" is called recursively for groups.
         """
-        global _STANDARD_INDENT
         # Define a header line (always a separate line).
         noname = "<'no-name'>"
         lines = [f"<NcData: {self.name or noname}"]
@@ -506,6 +502,10 @@ class NcData(_AttributeAccessMixin):
             result = dataset_differences(self, other) == []
         return result
 
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None
+
 
 class NcDimension:
     """
@@ -519,10 +519,7 @@ class NcDimension:
         self.name: str = name
         #: dimension size (current size, if unlimited)
         self.size: int = size  # N.B. we retain the 'zero size means unlimited'
-        if size == 0:
-            unlimited = True
-        else:
-            unlimited = bool(unlimited)
+        unlimited = True if size == 0 else bool(unlimited)
         #: whether dimension is unlimited
         self.unlimited: bool = unlimited
 
@@ -548,6 +545,10 @@ class NcDimension:
             and self.size == other.size
             and self.unlimited == other.unlimited
         )
+
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None
 
 
 class NcVariable(_AttributeAccessMixin):
@@ -576,13 +577,11 @@ class NcVariable(_AttributeAccessMixin):
         # a quoted reference when it's not otherwise needed (and we don't want to
         # import it).
         # TODO: remove the flake8 annotation if this gets fixed.
-        data: Optional[
-            Union[np.ndarray, "dask.array.array"]  # noqa: F821
-        ] = None,
+        data: Union[np.ndarray, "dask.array.Array"] | None = None,
         dtype: np.dtype = None,
-        attributes: Mapping | Iterable = None,
+        attributes: Mapping | Iterable | None = None,
         group: "NcData" = None,
-    ):
+    ):  # noqa: PLR0913, PLR0917
         """
         Create a variable.
 
@@ -598,10 +597,10 @@ class NcVariable(_AttributeAccessMixin):
             if not hasattr(data, "dtype"):
                 data = np.asanyarray(data)
             dtype = data.dtype
-        #: variable datatype, as a numpy :class:`numpy.dtype`
+        #: variable datatype, as a numpy :class:`np.dtype`
         if dtype is not None and not isinstance(dtype, np.dtype):
             dtype = np.dtype(dtype)
-        self.dtype: numpy.dtype = dtype
+        self.dtype: np.dtype = dtype
         #: variable data (an array-like, typically a dask or numpy array)
         self.data = data  # Supports lazy, and normally provides a dtype
         #: variable attributes
@@ -673,6 +672,10 @@ class NcVariable(_AttributeAccessMixin):
             result = variable_differences(self, other) == []
         return result
 
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None
+
 
 class NcAttribute:
     """
@@ -732,7 +735,7 @@ class NcAttribute:
         """
         result = self.value
         # Attributes are either scalar or 1-D
-        if result.ndim >= 2:
+        if result.ndim >= 2:  # noqa: PLR2004
             raise ValueError("Attribute value should only be 0- or 1-dimensional.")
 
         if result.shape == (1,):
@@ -789,3 +792,7 @@ class NcAttribute:
                     v1.shape == v2.shape and v1.dtype == v2.dtype and np.all(v1 == v2)
                 )
         return result
+
+    # Block hashability : NcData objects are mutable, so they cannot be hashed.
+    # N.B. this also avoids Ruff PLW1641 - q.v.
+    __hash__ = None

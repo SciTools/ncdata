@@ -14,9 +14,9 @@ covered by the generic 'roundtrip' testcases.
 """
 
 import dask.array as da
-import numpy as np
 from iris._constraints import NameConstraint
 from iris.cube import CubeList
+import numpy as np
 
 from ncdata import NcData, NcDimension, NcVariable
 from ncdata.iris import to_iris

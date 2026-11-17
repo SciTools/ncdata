@@ -18,22 +18,24 @@ from ncdata.utils import dataset_differences, ncdata_copy
 def _ncdata_duplicate_object(d1: NcData, d2: NcData):
     """Find and return the first known duplicate objects between two NcData."""
     dup = None
-    for var1, var2 in zip(d1.variables.values(), d2.variables.values()):
+    for var1, var2 in zip(d1.variables.values(), d2.variables.values(), strict=True):
         if var1 is var2:
             dup = var1
             break
     if not dup:
-        for dim1, dim2 in zip(d1.dimensions.values(), d2.dimensions.values()):
+        for dim1, dim2 in zip(
+            d1.dimensions.values(), d2.dimensions.values(), strict=True
+        ):
             if dim1 is dim2:
                 dup = dim1
                 break
     if not dup:
-        for attr1, attr2 in zip(d1.avals.values(), d2.avals.values()):
+        for attr1, attr2 in zip(d1.avals.values(), d2.avals.values(), strict=True):
             if attr1 is attr2:
                 dup = attr1
                 break
     if not dup:
-        for grp1, grp2 in zip(d1.groups.values(), d2.groups.values()):
+        for grp1, grp2 in zip(d1.groups.values(), d2.groups.values(), strict=True):
             if grp1 is grp2:
                 dup = grp1
                 break
@@ -97,12 +99,10 @@ class Test:
         result = ncdata_copy(sample)
         rva = result.variables["a"]
 
-        assert (
-            result.attributes["extra"].value is not sample.attributes["extra"].value
-        ) and np.all(
+        assert result.attributes["extra"].value is not sample.attributes["extra"].value
+        assert np.all(
             result.attributes["extra"].value == sample.attributes["extra"].value
         )
 
-        assert (
-            rva.attributes["xx2"].value is not sva.attributes["xx2"].value
-        ) and np.all(rva.attributes["xx2"].value == sva.attributes["xx2"].value)
+        assert rva.attributes["xx2"].value is not sva.attributes["xx2"].value
+        assert np.all(rva.attributes["xx2"].value == sva.attributes["xx2"].value)

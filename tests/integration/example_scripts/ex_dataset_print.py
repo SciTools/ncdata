@@ -6,8 +6,8 @@
 
 import iris
 
-import ncdata.iris as nci
 from ncdata import NcData, NcDimension, NcVariable
+import ncdata.iris as nci
 
 from tests import testdata_dir
 

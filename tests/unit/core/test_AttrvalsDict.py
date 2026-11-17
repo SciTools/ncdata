@@ -40,16 +40,16 @@ _alltype_opts = list(_testitem.keys())
 
 @pytest.fixture(params=_alltype_opts)
 def itemtype(request):
-    yield request.param
+    return request.param
 
 
 @pytest.fixture(params=_alltype_opts)
 def value_oftype(request):
-    yield _testitem[request.param]
+    return _testitem[request.param]
 
 
 class Test_setitem(MixinEquivTest):
-    """Testing equivalence to ".attributes" """
+    """Testing equivalence to ".attributes"."""
 
     def test_types(self, value_oftype):
         a, b = self.vars_a_b
@@ -83,7 +83,7 @@ class Test_setitem(MixinEquivTest):
 
 
 class Test_getitems(MixinEquivTest):
-    """Testing equivalence to ".attributes" """
+    """Testing equivalence to ".attributes"."""
 
     def test_getitem(self, value_oftype):
         v = self.var

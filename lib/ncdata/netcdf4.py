@@ -47,10 +47,7 @@ def _to_nc4_group(
 
     for varname, var in ncdata.variables.items():
         fillattr = "_FillValue"
-        if fillattr in var.avals:
-            fill_value = var.avals[fillattr]
-        else:
-            fill_value = None
+        fill_value = var.avals.get(fillattr, None)
 
         kwargs = var_kwargs.get(varname, {})
         forbidden_keys = set(_Forbidden_Variable_Kwargs) & set(kwargs)
@@ -163,7 +160,7 @@ class _NetCDFDataProxy:
 def to_nc4(
     ncdata: NcData,
     nc4_dataset_or_file: nc.Dataset | Path | str,
-    var_kwargs: dict[str, dict] = None,
+    var_kwargs: dict[str, dict] | None = None,
 ) -> None:
     """
     Save NcData to a netCDF file.
@@ -222,7 +219,7 @@ def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
     parent_ds = nc4ds
     group_names_path = []
     while parent_ds.parent is not None:
-        group_names_path = [parent_ds.name] + group_names_path
+        group_names_path = [parent_ds.name, *group_names_path]
         parent_ds = parent_ds.parent
 
     ncdata = NcData(name=nc4ds.name)
@@ -246,13 +243,13 @@ def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
 
         # Work out the shape of the variable.
         # It may refer to dimensions in enclosing groups.
-        group = parent_ds
-        dims_map = group.dimensions.copy()
+        nc4_group = parent_ds
+        dims_map = nc4_group.dimensions.copy()
         for group_name in group_names_path:
             # Inner groups take priority, of course :
             # their dimensions mask any of the same name in outer groups
-            group = group.groups[group_name]
-            dims_map.update(group.dimensions)
+            nc4_group = nc4_group.groups[group_name]
+            dims_map.update(nc4_group.dimensions)
 
         shape = tuple(dims_map[dimname].size for dimname in var.dimensions)
 
@@ -273,17 +270,15 @@ def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
         ncdata.avals[attrname] = nc4ds.getncattr(attrname)
 
     # And finally, groups -- by the magic of recursion ...
-    for group_name, group in nc4ds.groups.items():
-        ncdata.groups[group_name] = _from_nc4_group(
-            nc4ds.groups[group_name], dim_chunks=dim_chunks
-        )
+    for group_name, nc4_group in nc4ds.groups.items():
+        ncdata.groups[group_name] = _from_nc4_group(nc4_group, dim_chunks=dim_chunks)
 
     return ncdata
 
 
 def from_nc4(
     nc4_dataset_or_file: nc.Dataset | nc.Group | Path | str,
-    dim_chunks: dict[str, int | str] = None,
+    dim_chunks: dict[str, int | str] | None = None,
 ) -> NcData:
     """
     Load NcData from a :class:`netCDF4.Dataset` or netCDF file.

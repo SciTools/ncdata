@@ -22,7 +22,7 @@ import pytest
 # https://github.com/SciTools/iris/blob/v3.4.1/lib/iris/tests/stock/netcdf.py#L18-L63
 
 
-def _env_bin_path(exe_name: AnyStr = None):
+def _env_bin_path(exe_name: AnyStr | None = None):
     """
     Return a Path object for (an executable in) the environment bin directory.
 
@@ -159,7 +159,8 @@ def comparable_cdl(text: str) -> list[str]:
     ]
     # Also exclude the first line, which includes the filename
     hdr, lines = lines[0], lines[1:]
-    assert hdr.startswith("netcdf") and hdr[-1] == "{"
+    assert hdr.startswith("netcdf")
+    assert hdr[-1] == "{"
     return lines
 
 

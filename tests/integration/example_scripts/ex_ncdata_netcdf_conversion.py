@@ -8,9 +8,10 @@ A proof-of-concept example workflow for :mod:`ncdata.netcdf4`.
 Showing loading and saving ncdata to/from netcdf files.
 """
 
-import tempfile
 from pathlib import Path
 from shutil import rmtree
+from subprocess import check_call
+import tempfile
 
 import netCDF4 as nc
 import numpy as np
@@ -71,10 +72,10 @@ def example_nc4_save_reload_unlimited_roundtrip():
         filepath = tempdir_path / "temp_nc_2_unlim.nc"
         print("Saving to file ", filepath)
         to_nc4(ncdata, filepath)
-        import os
 
-        print("\n\nCreated output:")
-        os.system(f"ncdump -h {filepath!s}")
+        print("\n\nCreated output (ncdump):")
+        _NCDUMP_EXE_PATH = Path(nc.__file__).parents[4] / "bin" / "ncdump"
+        check_call([_NCDUMP_EXE_PATH, "-h", filepath])  # noqa: S603
         print("\n")
 
         ds = nc.Dataset(filepath)
@@ -95,8 +96,10 @@ def example_nc4_save_reload_unlimited_roundtrip():
 
         assert list(ds_back.dimensions.keys()) == ["dim_x", "dim_y"]
         dimx, dimy = [ds_back.dimensions[name] for name in ("dim_x", "dim_y")]
-        assert dimx.size == len_x and dimx.unlimited
-        assert dimy.size == len_y and not dimy.unlimited
+        assert dimx.size == len_x
+        assert dimx.unlimited
+        assert dimy.size == len_y
+        assert not dimy.unlimited
 
         assert list(ds_back.variables.keys()) == ["var_x"]
         varx = ds_back.variables["var_x"]

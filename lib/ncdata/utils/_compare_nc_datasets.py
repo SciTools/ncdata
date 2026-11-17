@@ -34,7 +34,7 @@ def dataset_differences(
     check_var_data: bool = True,
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
-) -> list[str]:
+) -> list[str]:  # noqa: PLR0913, PLR0917
     r"""
     Compare two netcdf datasets.
 
@@ -126,15 +126,9 @@ def dataset_differences(
     ds1, ds2 = None, None
     try:
         # convert path-likes to netCDF4.Dataset
-        if ds1_was_path:
-            ds1 = nc.Dataset(dataset_or_path_1)
-        else:
-            ds1 = dataset_or_path_1
+        ds1 = nc.Dataset(dataset_or_path_1) if ds1_was_path else dataset_or_path_1
 
-        if ds2_was_path:
-            ds2 = nc.Dataset(dataset_or_path_2)
-        else:
-            ds2 = dataset_or_path_2
+        ds2 = nc.Dataset(dataset_or_path_2) if ds2_was_path else dataset_or_path_2
 
         # NOTE: Both ds1 and ds2 are now *either* NcData *or* netCDF4.Dataset
         #  _isncdata() will be used to distinguish.
@@ -259,7 +253,7 @@ def _attribute_differences(
     attrs_order=True,
     suppress_warnings=False,
     force_first_attrnames=None,
-) -> list[str]:
+) -> list[str]:  # noqa: PLR0913, PLR0917
     """
     Compare attribute name lists.
 
@@ -337,8 +331,8 @@ def variable_differences(
     check_var_data: bool = True,
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
-    _group_id_string: str = None,
-) -> list[str]:
+    _group_id_string: str | None = None,
+) -> list[str]:  # noqa: PLR0912, PLR0913, PLR0915, PLR0917
     r"""
     Compare variables.
 
@@ -382,10 +376,7 @@ def variable_differences(
         msg = f"'show_n_diffs' must be >=1 : got {show_n_first_different!r}."
         raise ValueError(msg)
 
-    if v1.name == v2.name:
-        varname = v1.name
-    else:
-        varname = f"{v1.name} / {v2.name}"
+    varname = v1.name if v1.name == v2.name else f"{v1.name} / {v2.name}"
 
     if _group_id_string:
         var_id_string = f'{_group_id_string} variable "{varname}"'
@@ -418,7 +409,7 @@ def variable_differences(
     def safe_varshape(var):
         if _isncdata(var):
             # NcVariable passed
-            if var.data is None:
+            if var.data is None:  # noqa: SIM108
                 # Allow for NcVariable.data to be empty
                 shape = None
             else:
@@ -441,10 +432,7 @@ def variable_differences(
 
     # data values
     def _is_strtype(dt):
-        if dt is None:
-            result = False
-        else:
-            result = dt.kind in "SUb"
+        result = False if dt is None else dt.kind in "SUb"
         return result
 
     is_str, is_str2 = (_is_strtype(dt) for dt in (dtype, dtype2))
@@ -459,7 +447,13 @@ def variable_differences(
             else:
                 # expect var to be an actual netCDF4.Variable
                 # (check for obscure property NOT provided by mimics)
-                assert hasattr(var, "use_nc_get_vars")
+                if not hasattr(var, "use_nc_get_vars"):
+                    msg = (
+                        f"Expected var to be a netCDF4.Variable, or compatible. "
+                        f"Got {var!r}, of type {type(var)}: "
+                        "does not provide '.use_nc_get_vars()'."
+                    )
+                    raise TypeError(msg)
                 data = var[:]
 
             if data is None:
@@ -469,7 +463,8 @@ def variable_differences(
             # Return 0D as 1D, as this makes results simpler to interpret.
             if data.ndim == 0:
                 data = data.flatten()
-                assert data.shape == (1,)
+                # NOTE: data.shape == (1,)
+
             return data
 
         data, data2 = (getdata(v) for v in (v1, v2))
@@ -546,7 +541,7 @@ def _group_differences(
     check_names: bool = False,
     check_unlimited: bool = True,
     show_n_diffs: int = 2,
-) -> list[str]:
+) -> list[str]:  # noqa: PLR0913, PLR0917
     """
     Inner routine to compare either whole datasets or subgroups.
 
@@ -554,9 +549,8 @@ def _group_differences(
     """
     errs = []
 
-    if check_names:
-        if g1.name != g2.name:
-            errs.append(f"Datasets have different names: {g1.name!r} != {g2.name!r}.")
+    if check_names and g1.name != g2.name:
+        errs.append(f"Datasets have different names: {g1.name!r} != {g2.name!r}.")
     # Compare lists of dimension names
     dimnames, dimnames2 = [list(grp.dimensions.keys()) for grp in (g1, g2)]
     errs += _namelist_differences(
