@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """Test conversion of remote and local Zarr store to iris Cube."""
 
 from importlib.resources import files as importlib_files

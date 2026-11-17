@@ -1,9 +1,14 @@
-# noqa
-# Configuration file for the Sphinx documentation builder.
+# Copyright SciTools contributors
 #
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
+"""
+Configuration file for the Sphinx documentation builder.
+
+This file only contains a selection of the most common options. For a full
+ list see the documentation:
+https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
 
 # -- Path setup --------------------------------------------------------------
 

@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """Tests for :func:`ncdata.utils.ncdata_copy`.
 
 This is generic utility function version of the copy operation.

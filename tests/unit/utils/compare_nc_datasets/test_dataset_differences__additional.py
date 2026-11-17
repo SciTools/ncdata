@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Tests for :mod:`tests.unit.netcdf._compare_nc_files`
 Split in two files ...

@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Define a set of "standard" test cases, built as actual netcdf files.
 
