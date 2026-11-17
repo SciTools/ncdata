@@ -52,9 +52,7 @@ _USE_TINY_CHUNKS = False
 set_tiny_chunks(_USE_TINY_CHUNKS)
 
 
-def test_load_direct_vs_viancdata(
-    standard_testcase, use_irislock, adjust_chunks
-):
+def test_load_direct_vs_viancdata(standard_testcase, use_irislock, adjust_chunks):
     specific_excludes = [
         # This one has latitude points which exceed the valid_min/max attributes
         # The netcdf-variable-like transform in Nc4VariableLike._data_array don't
@@ -71,8 +69,7 @@ def test_load_direct_vs_viancdata(
             ]
         )
     if any(
-        name_fragment in standard_testcase.name
-        for name_fragment in specific_excludes
+        name_fragment in standard_testcase.name for name_fragment in specific_excludes
     ):
         pytest.skip("excluded testcase")
 
@@ -136,8 +133,7 @@ def test_save_direct_vs_viancdata(standard_testcase, tmp_path):
         # TODO: remove backwards compatibility when we drop Python 3.10 support
         specific_excludes.append("theta_nodal_xios")
     if any(
-        name_fragment in standard_testcase.name
-        for name_fragment in specific_excludes
+        name_fragment in standard_testcase.name for name_fragment in specific_excludes
     ):
         pytest.skip("excluded testcase")
 
@@ -167,14 +163,10 @@ def test_save_direct_vs_viancdata(standard_testcase, tmp_path):
         txt = check_output([f"ncdump {source_filepath}"], shell=True).decode()
         print(txt)
         print("\nncdump DIRECT FROM IRIS =")
-        txt = check_output(
-            [f"ncdump {temp_iris_savepath}"], shell=True
-        ).decode()
+        txt = check_output([f"ncdump {temp_iris_savepath}"], shell=True).decode()
         print(txt)
         print("\nncdump VIA NCDATA =")
-        txt = check_output(
-            [f"ncdump {temp_ncdata_savepath}"], shell=True
-        ).decode()
+        txt = check_output([f"ncdump {temp_ncdata_savepath}"], shell=True).decode()
         print(txt)
 
     # Check equivalence

@@ -78,10 +78,7 @@ def example_from_xr():
 
     print(
         "xrds2['x'].data   is   cube.coord('projection_x_coordinate').core_points() : ",
-        bool(
-            xrds2["x"].data
-            is cube.coord("projection_x_coordinate").core_points()
-        ),
+        bool(xrds2["x"].data is cube.coord("projection_x_coordinate").core_points()),
     )
     # NOTE: this one does **not** succeed.
     # TODO: find out exactly why -- ? in some way, because it is a dim coord ?
@@ -95,15 +92,9 @@ def example_from_xr():
     # special care is needed.
     print(
         "np.all(xrds2['x'].data == cube.coord('projection_x_coordinate').points) : ",
-        bool(
-            np.all(
-                xrds2["x"].data == cube.coord("projection_x_coordinate").points
-            )
-        ),
+        bool(np.all(xrds2["x"].data == cube.coord("projection_x_coordinate").points)),
     )
-    assert np.all(
-        xrds2["x"].data == cube.coord("projection_x_coordinate").points
-    )
+    assert np.all(xrds2["x"].data == cube.coord("projection_x_coordinate").points)
 
 
 if __name__ == "__main__":

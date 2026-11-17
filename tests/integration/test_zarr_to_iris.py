@@ -102,8 +102,7 @@ S3_TEST_PATH = (
 
 # Check 3 files, as we apparently sometimes get 'partial success'
 _S3_accessible = all(
-    _is_url_ok(S3_TEST_PATH + subpath)
-    for subpath in ["", "/.zattrs", "/.zmetadata"]
+    _is_url_ok(S3_TEST_PATH + subpath) for subpath in ["", "/.zattrs", "/.zmetadata"]
 )
 
 

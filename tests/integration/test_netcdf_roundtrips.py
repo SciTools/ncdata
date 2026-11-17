@@ -38,9 +38,7 @@ def test_basic(standard_testcase, tmp_path):
         print("\nncdata =")
         print(ncdata)
         print("\nncdump =")
-        txt = check_output(
-            [f"ncdump {intermediate_filepath}"], shell=True
-        ).decode()
+        txt = check_output([f"ncdump {intermediate_filepath}"], shell=True).decode()
         print(txt)
 
     # Check that the re-saved file matches the original

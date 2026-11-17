@@ -58,9 +58,7 @@ def structuretype(request):
 
 def attrvalue(datatype, structuretype):
     # get basic type = 'int', 'float', 'string'
-    (datatype,) = (
-        key for key in _attribute_testdata if key in datatype
-    )
+    (datatype,) = (key for key in _attribute_testdata if key in datatype)
 
     # fetch a set of values
     values = _attribute_testdata[datatype]

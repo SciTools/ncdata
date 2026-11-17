@@ -30,9 +30,7 @@ def test_lazy_nocompute():
     dask_array = da.from_array(monitored_array, chunks=(2,), meta=np.ndarray)
     ncdata = NcData(
         dimensions=[NcDimension("x", 3)],
-        variables=[
-            NcVariable(name="var_x", dimensions=["x"], data=dask_array)
-        ],
+        variables=[NcVariable(name="var_x", dimensions=["x"], data=dask_array)],
     )
 
     # convert to xarray.Dataset
@@ -56,9 +54,7 @@ def test_real_nocopy():
     real_numpy_data = np.array([1.23, 4, 7.3, 4.1], dtype=np.float32)
     ncdata = NcData(
         dimensions=[NcDimension("x", 3)],
-        variables=[
-            NcVariable(name="var_x", dimensions=["x"], data=real_numpy_data)
-        ],
+        variables=[NcVariable(name="var_x", dimensions=["x"], data=real_numpy_data)],
     )
 
     # convert to xarray.Dataset

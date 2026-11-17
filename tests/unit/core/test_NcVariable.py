@@ -134,9 +134,7 @@ class Test_NcVariable__init__:
         assert var.data.shape == (2, 3)
         assert var.dtype == var.data.dtype == np.dtype("U5")
 
-    @pytest.mark.parametrize(
-        "dtype", ["i4", "i8", "f4", "f8", "u1", "i1", "U4"]
-    )
+    @pytest.mark.parametrize("dtype", ["i4", "i8", "f4", "f8", "u1", "i1", "U4"])
     def test_data__numpy(self, dtype):
         elem = "abc" if dtype.startswith("U") else 12
         dtype = np.dtype(dtype)

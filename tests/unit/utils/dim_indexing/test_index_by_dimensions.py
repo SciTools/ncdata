@@ -80,9 +80,7 @@ class TestIndexTypes:
         )
 
     def test_boolean_array(self):
-        res1 = index_by_dimensions(
-            self.sample, X=[True, False, True, False, False]
-        )
+        res1 = index_by_dimensions(self.sample, X=[True, False, True, False, False])
         res2 = index_by_dimensions(self.sample, X=[0, 2])
         assert dataset_differences(res1, res2) == []
 
@@ -96,9 +94,7 @@ class TestIndexTypes:
         with pytest.raises(ValueError, match=msg):
             index_by_dimensions(self.sample, Z=...)
 
-    @pytest.mark.parametrize(
-        "key", [np.newaxis, None], ids=["newaxis", "None"]
-    )
+    @pytest.mark.parametrize("key", [np.newaxis, None], ids=["newaxis", "None"])
     def test_newaxis_fail(self, key):
         msg = "Key for dimension 'Y' is np.newaxis / None.* not supported."
         with pytest.raises(ValueError, match=msg):

@@ -132,9 +132,7 @@ class NameMap(dict):
             self.addall(items)
 
     @classmethod
-    def from_items(
-        cls, arg: Iterable | Mapping, item_type=None
-    ) -> "NameMap":
+    def from_items(cls, arg: Iterable | Mapping, item_type=None) -> "NameMap":
         """
         Convert an iterable or mapping of items to a NameMap.
 
@@ -186,9 +184,7 @@ class NameMap(dict):
                     if (
                         item_type == NcAttribute
                         and len(arg) > 0
-                        and not isinstance(
-                            next(iter(arg.values())), NcAttribute
-                        )
+                        and not isinstance(next(iter(arg.values())), NcAttribute)
                     ):
                         # for attributes only, also allow simple name=value map
                         # for which, convert each value to an NcAttribute
@@ -202,9 +198,7 @@ class NameMap(dict):
                 elif isinstance(arg, Iterable):
                     result.addall(arg)
                 else:
-                    msg = (
-                        f"Argument must be an iterable or mapping: got {arg}."
-                    )
+                    msg = f"Argument must be an iterable or mapping: got {arg}."
                     raise TypeError(msg)
 
         return result
@@ -275,8 +269,7 @@ class AttrvalsDict(MutableMapping):
             text += "}"
         else:
             lines = [
-                f"{attr.name!s}: {attr._print_value()}"
-                for attr in self._attrs.values()
+                f"{attr.name!s}: {attr._print_value()}" for attr in self._attrs.values()
             ]
             if len(lines) == 1:
                 text += lines[0] + "}"
@@ -396,17 +389,11 @@ class NcData(_AttributeAccessMixin):
         #: a group/dataset name (optional)
         self.name: str = name
         #: group/dataset dimensions
-        self.dimensions: dict[str, NcDimension] = as_namemap(
-            dimensions, NcDimension
-        )
+        self.dimensions: dict[str, NcDimension] = as_namemap(dimensions, NcDimension)
         #: group/dataset variables
-        self.variables: dict[str, NcVariable] = as_namemap(
-            variables, NcVariable
-        )
+        self.variables: dict[str, NcVariable] = as_namemap(variables, NcVariable)
         #: group/dataset global attributes
-        self.attributes: dict[str, NcAttribute] = as_namemap(
-            attributes, NcAttribute
-        )
+        self.attributes: dict[str, NcAttribute] = as_namemap(attributes, NcAttribute)
         #: sub-groups
         self.groups: dict[str, NcData] = as_namemap(groups, NcData)
 
@@ -432,8 +419,7 @@ class NcData(_AttributeAccessMixin):
                     lines += [f"{_STANDARD_INDENT}global attributes:"]
                     # NOTE: #2 show like variable attributes, but *no parent name*.
                     attrs_lines = [
-                        f":{attr._print_content()}"
-                        for attr in self.attributes.values()
+                        f":{attr._print_content()}" for attr in self.attributes.values()
                     ]
                     lines += _addlines_indent(
                         "\n".join(attrs_lines), _STANDARD_INDENT * 2
@@ -528,9 +514,7 @@ class NcDimension:
     Associates a name with a length, and also an 'unlimited' flag.
     """
 
-    def __init__(
-        self, name: str, size: int, unlimited: bool | None = None
-    ):
+    def __init__(self, name: str, size: int, unlimited: bool | None = None):
         #: dimension name
         self.name: str = name
         #: dimension size (current size, if unlimited)
@@ -716,9 +700,7 @@ class NcAttribute:
         if not hasattr(value, "dtype"):
             value = np.asanyarray(value)
         if value.ndim > 1:
-            raise ValueError(
-                "Attribute value should only be 0- or 1-dimensional."
-            )
+            raise ValueError("Attribute value should only be 0- or 1-dimensional.")
         self._value = value
 
     def as_python_value(self):
@@ -751,9 +733,7 @@ class NcAttribute:
         result = self.value
         # Attributes are either scalar or 1-D
         if result.ndim >= 2:
-            raise ValueError(
-                "Attribute value should only be 0- or 1-dimensional."
-            )
+            raise ValueError("Attribute value should only be 0- or 1-dimensional.")
 
         if result.shape == (1,):
             # Reduce the dimension, but *always* return an array scalar.
@@ -806,8 +786,6 @@ class NcAttribute:
                 v1 = self.value
                 v2 = other.value
                 result = (
-                    v1.shape == v2.shape
-                    and v1.dtype == v2.dtype
-                    and np.all(v1 == v2)
+                    v1.shape == v2.shape and v1.dtype == v2.dtype and np.all(v1 == v2)
                 )
         return result

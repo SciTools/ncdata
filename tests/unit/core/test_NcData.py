@@ -115,9 +115,7 @@ class Test_NcVariable_getitem:
         ncdata1 = NcData()
 
         mock_slicer = mocker.MagicMock(spec=Slicer)
-        called = mocker.patch(
-            "ncdata._core.NcData.slicer", return_value=mock_slicer
-        )
+        called = mocker.patch("ncdata._core.NcData.slicer", return_value=mock_slicer)
         if multiple_indices:
             # Index with multiple keys, which should be passed as a tuple
             # Slightly awkward code, because the "[*keys]" syntax is only valid from
@@ -130,7 +128,5 @@ class Test_NcVariable_getitem:
             result = ncdata1[dim_keys]
 
         assert called.call_args_list == [mocker.call()]
-        assert mock_slicer.__getitem__.call_args_list == [
-            mocker.call(dim_keys)
-        ]
+        assert mock_slicer.__getitem__.call_args_list == [mocker.call(dim_keys)]
         assert result == mock_slicer[dim_keys]

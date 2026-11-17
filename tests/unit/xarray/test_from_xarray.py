@@ -112,9 +112,7 @@ def test_kwargs__unlimited_dims(tmp_path, unlim_dims):
     """Check xarray-save kwargs control : make the "x" dimension unlimited."""
     test_spec = {
         "dims": [dict(name="x", size=3)],
-        "vars": [
-            dict(name="var_x", dims=["x"], dtype=np.float32, data=[1.0, 3, 7])
-        ],
+        "vars": [dict(name="var_x", dims=["x"], dtype=np.float32, data=[1.0, 3, 7])],
     }
     original_path = tmp_path / "input.nc"
     xrds = file_and_xarray_from_spec(original_path, test_spec)
@@ -132,11 +130,7 @@ def test_kwargs__encoding__packing(tmp_path):
     """Repeat the above, checking use of the 'encoding' kwarg."""
     test_spec = {
         "dims": [dict(name="x", size=3)],
-        "vars": [
-            dict(
-                name="var_x", dims=["x"], dtype=np.float32, data=[1.0, 2, 3.3]
-            )
-        ],
+        "vars": [dict(name="var_x", dims=["x"], dtype=np.float32, data=[1.0, 2, 3.3])],
     }
     original_path = tmp_path / "input.nc"
     xrds = file_and_xarray_from_spec(original_path, test_spec)

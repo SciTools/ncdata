@@ -51,9 +51,7 @@ def data_types():
 # Get the dtype list from the netCDF default fill-values.
 _nc_dtypes = set(nc.default_fillvals.keys())
 # Remove the numpy-only complex types
-_nc_dtypes = set(
-    typename for typename in _nc_dtypes if np.dtype(typename).kind != "c"
-)
+_nc_dtypes = set(typename for typename in _nc_dtypes if np.dtype(typename).kind != "c")
 # Also replace 'S1' with our own 'string' type marker
 _nc_dtypes.remove("S1")
 _nc_dtypes.add("string")
@@ -148,9 +146,7 @@ def _write_nc4_dataset(
             shape = nc_var.shape
             n_points = int(np.prod(shape))
             if nc_var.dtype.kind == "S":
-                data = np.array(
-                    "abcdefghijklmnopqrstuvwxyz"[:n_points], dtype="S1"
-                )
+                data = np.array("abcdefghijklmnopqrstuvwxyz"[:n_points], dtype="S1")
             else:
                 data = np.arange(1, n_points + 1)
             data = data.astype(dtype)
@@ -209,9 +205,7 @@ def make_testcase_dataset(filepath, spec):
         ds.close()
 
 
-_minimal_variable_test_spec = {
-    "vars": [dict(name="var_0", dims=[], dtype=int)]
-}
+_minimal_variable_test_spec = {"vars": [dict(name="var_0", dims=[], dtype=int)]}
 
 
 _simple_test_spec = {
@@ -326,9 +320,7 @@ def _define_simple_testcases():
         "ds_Minimal": _minimal_variable_test_spec,
         "ds_Basic": _simple_test_spec,
         "ds_testdata1": (
-            Path(__file__).parent
-            / "testdata"
-            / "toa_brightness_temperature.nc"
+            Path(__file__).parent / "testdata" / "toa_brightness_temperature.nc"
         ),
         "ds_scaleoffset": _scaleoffset_test_spec,
         "ds_masked_floats": _masked_floats_test_spec,
@@ -417,9 +409,7 @@ def _define_unit_dtype_testcases():
                 "attrs": {
                     f"tstatt_type__{dtype_name}__single": _Datatype_Sample_Values[
                         dtype_name
-                    ][
-                        0
-                    ],
+                    ][0],
                     f"tstatt_type__{dtype_name}__multi": _Datatype_Sample_Values[
                         dtype_name
                     ],

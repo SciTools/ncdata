@@ -110,8 +110,7 @@ class _XarrayNcDataStore(NetCDF4DataStore):
                     )
 
             attrs = {
-                name: NcAttribute(name, value)
-                for name, value in var.attrs.items()
+                name: NcAttribute(name, value) for name, value in var.attrs.items()
             }
 
             data = var.data
@@ -150,14 +149,10 @@ class _XarrayNcDataStore(NetCDF4DataStore):
     # either real or lazy arrays.
     #
     @classmethod
-    def from_xarray(
-        cls, dataset_or_file: xr.Dataset | AnyStr | Path, **xr_load_kwargs
-    ):
+    def from_xarray(cls, dataset_or_file: xr.Dataset | AnyStr | Path, **xr_load_kwargs):
         if not isinstance(dataset_or_file, xr.Dataset):
             # It's a "file" (or pathstring, or Path ?).
-            dataset_or_file = xr.load_dataset(
-                dataset_or_file, **xr_load_kwargs
-            )
+            dataset_or_file = xr.load_dataset(dataset_or_file, **xr_load_kwargs)
         nc_data = cls()
         dataset_or_file.dump_to_store(nc_data, **xr_load_kwargs)
         return nc_data
@@ -193,9 +188,7 @@ def to_xarray(ncdata: NcData, **xarray_load_kwargs) -> xr.Dataset:
     return _XarrayNcDataStore(ncdata).to_xarray(**xarray_load_kwargs)
 
 
-def from_xarray(
-    xrds: xr.Dataset | Path | AnyStr, **xarray_save_kwargs
-) -> NcData:
+def from_xarray(xrds: xr.Dataset | Path | AnyStr, **xarray_save_kwargs) -> NcData:
     """
     Convert an xarray :class:`xarray.Dataset` to a :class:`NcData`.
 

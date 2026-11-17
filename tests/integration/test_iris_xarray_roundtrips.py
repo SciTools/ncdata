@@ -195,9 +195,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
     if not result:
         # FOR NOW: compare with experimental ncdata comparison.
         # I know this is a bit circular, but it is useful for debugging, for now ...
-        result = dataset_differences(
-            from_iris(iris_cubes), from_iris(iris_xr_cubes)
-        )
+        result = dataset_differences(from_iris(iris_cubes), from_iris(iris_xr_cubes))
         assert result == []
 
 
@@ -206,9 +204,7 @@ def test_roundtrip_ixi(standard_testcase, use_irislock, adjust_chunks):
 # It's not currently clear if we *can* find a simple view of what "ought" to work here,
 # or whether we should be attempting to test this at all.
 @pytest.mark.skip("Roundtrip testing xarray-iris-xarray : currently disabled.")
-def test_roundtrip_xix(
-    standard_testcase, use_irislock, adjust_chunks, tmp_path
-):
+def test_roundtrip_xix(standard_testcase, use_irislock, adjust_chunks, tmp_path):
     source_filepath = standard_testcase.filepath
 
     # Skip some cases
@@ -313,9 +309,7 @@ def test_roundtrip_xix(
                     #  so Iris replaces it.
                     var.avals["calendar"] = "standard"
 
-    result = dataset_differences(
-        ncds_xr, ncds_xr_iris
-    )  # , check_var_data=False)
+    result = dataset_differences(ncds_xr, ncds_xr_iris)  # , check_var_data=False)
     assert result == []
 
     # TODO:  check equivalence, in Xarray terms

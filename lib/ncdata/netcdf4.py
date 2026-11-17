@@ -111,9 +111,7 @@ class _NetCDFDataProxy:
     # N.B. avoiding sorting this, the order is convenient for understanding.
     __slots__ = ("shape", "dtype", "path", "variable_name", "group_names_path")  # noqa: RUF023
 
-    def __init__(
-        self, shape, dtype, filepath, variable_name, group_names_path=None
-    ):
+    def __init__(self, shape, dtype, filepath, variable_name, group_names_path=None):
         self.shape = shape
         self.dtype = dtype
         self.path = filepath
@@ -266,9 +264,7 @@ def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
             group_names_path=group_names_path,
         )
         chunks = [dim_chunks.get(name, "auto") for name in var.dimensions]
-        var.data = da.from_array(
-            proxy, chunks=chunks, asarray=True, meta=np.ndarray
-        )
+        var.data = da.from_array(proxy, chunks=chunks, asarray=True, meta=np.ndarray)
 
         for attrname in nc4var.ncattrs():
             var.avals[attrname] = nc4var.getncattr(attrname)

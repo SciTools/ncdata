@@ -125,8 +125,7 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
             for name, ncvar in self._ncdata.variables.items()
         }
         self.dimensions = {
-            name: Nc4DimensionLike(dim)
-            for name, dim in self._ncdata.dimensions.items()
+            name: Nc4DimensionLike(dim) for name, dim in self._ncdata.dimensions.items()
         }
 
     @property
@@ -162,9 +161,7 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         # N.B. to correctly mirror netCDF4, a variable should be created with all-masked
         # content.  For this we need to decode the dims + work out the shape.
         # NOTE: simplistic version here, as we don't support groups.
-        shape = tuple(
-            self._ncdata.dimensions[dim_name].size for dim_name in dimensions
-        )
+        shape = tuple(self._ncdata.dimensions[dim_name].size for dim_name in dimensions)
         # Note: initial content is an all-masked lazy array, to avoid allocating space
         # in memory.  This is not assignable, so we cannot mimic partial writes, but
         # that's okay as we don't currently provide any Nc4VariableLike.__setitem__ :
@@ -254,9 +251,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
         if array is None:
             # temporary empty data (to correctly support never-written content)
             # NOTE: significantly, does *not* allocate an actual full array in memory
-            array = da.ma.masked_array(
-                da.zeros(self.shape, self.datatype), mask=True
-            )
+            array = da.ma.masked_array(da.zeros(self.shape, self.datatype), mask=True)
 
         # Convert from the "inner" raw form to masked-and-scaled, and then back again
         # (by assigning self._data_array).
@@ -367,9 +362,7 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
                 # 'meta' argument, but in this case we don't know what 'array' might be,
                 # so we have no (other) generic way to construct a suitable 'meta'.
                 array = da.from_array(array, chunks="auto")
-            array = da.map_blocks(
-                self._fill_masked, array, fv, meta=array._meta
-            )
+            array = da.map_blocks(self._fill_masked, array, fv, meta=array._meta)
 
         return array
 

@@ -11,9 +11,7 @@ from ncdata import NcData, NcDimension, NcVariable
 from ncdata.utils import rename_dimension, save_errors
 
 
-def make_saveable(
-    ncdata: NcData, _outer_dims: dict[str, NcDimension] | None = None
-):
+def make_saveable(ncdata: NcData, _outer_dims: dict[str, NcDimension] | None = None):
     """
     Add missing dimensions + data, to make a sample NcData save-able.
 
@@ -104,8 +102,7 @@ class TestRenameDimension:
         ncdata = self.ncdata
         grp = NcData(name="inner", dimensions=[NcDimension("z", 2)])
         msg = (
-            "Cannot rename dimension 'x' to 'z', "
-            "because a 'z' dimension already exists"
+            "Cannot rename dimension 'x' to 'z', because a 'z' dimension already exists"
         )
         if innergroup:
             grp = NcData(name="main", groups=[grp])
