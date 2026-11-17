@@ -108,8 +108,6 @@ class NameMap(dict):
         If "new_name == name", has no effect.  Otherwise, if `new_name` already exists,
         the old item of that name is removed, but the renamed item remains in its
         original order place.
-        """
-        """
 
         Examples
         --------

@@ -215,8 +215,7 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
 
 class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
     """
-    An object which contains a :class:`ncdata.NcVariable` """
-    """and emulates a :class:`netCDF4.Variable`.
+    An object which contains a :class:`ncdata.NcVariable` and emulates a :class:`netCDF4.Variable`.
 
     The core, contained content object, ``self._ncdata``, is a
     :class:`~ncdata.NcVariable`.

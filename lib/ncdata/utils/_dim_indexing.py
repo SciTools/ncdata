@@ -131,15 +131,13 @@ class Slicer:
     This wraps the :meth:`index_by_dimensions` method for convenience, returning an
     object which supports the Python extended slicing syntax.
 
-    """
-    """Examples
+    Examples
     --------
     .. testsetup::
         >>> from ncdata import NcDimension
         >>> from ncdata.utils import index_by_dimensions
         >>> data = NcData(dimensions=[NcDimension(nn, 10) for nn in ("time", "levels", "X")])
-    """  # noqa: E501
-    """
+
     >>> subdata = Slicer(data, "time")[:3]
 
     >>> ds = Slicer(data, 'levels', 'time')
@@ -160,7 +158,7 @@ class Slicer:
     See Also
     --------
     :meth:`index_by_dimensions`
-    """
+    """  # noqa: E501
 
     def __init__(self, ncdata: NcData, *dimension_names: tuple[str]):
         """

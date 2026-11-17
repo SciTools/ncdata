@@ -113,8 +113,7 @@ def dataset_differences(
         >>> data2.avals.update({"a1":3, "v":7})
         >>> data2.variables["b"].data = np.array([1, 7, 3, 99])  # must be an array!
         >>> print('\n'.join(dataset_differences(data, data2)))
-        """
-        r"""Dataset attribute lists do not match: ['a1'] != ['a1', 'v']
+        Dataset attribute lists do not match: ['a1'] != ['a1', 'v']
         Dataset "a1" attribute values differ : 4 != 3
         Dataset variable "b" data contents differ, at 2 points: @INDICES[(1,), (3,)] : LHS=[2, 4], RHS=[7, 99]
 
