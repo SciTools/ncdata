@@ -14,7 +14,8 @@ def _rename_dims_in_vars(ncdata: NcData, name_from: str, name_to: str) -> None:
                 ]
             )
 
-    # Also rename in all sub-groups, except where the dimension is redefined ("scope hole").
+    # Also rename in all sub-groups, except where the dimension is redefined
+    #  (i.e. inside a "scope hole").
     for grp in ncdata.groups.values():
         if name_from not in grp.dimensions:
             _rename_dims_in_vars(grp, name_from, name_to)

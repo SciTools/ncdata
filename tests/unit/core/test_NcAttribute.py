@@ -219,7 +219,8 @@ class Test_NcAttribute__eq__:
         assert attr1 == attr2
         assert attr1.value.dtype == "<U4"
 
-    # NOTE: **not** testing a vector of multiple strings, since this has no function at present
+    # NOTE: **not** testing a vector of multiple strings,
+    #  since this has no function at present
 
 
 class Test_NcAttribute__value_assign:

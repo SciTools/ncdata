@@ -84,7 +84,10 @@ class TestRenameDimension:
 
     def test_name_collision_fail(self):
         ncdata = self.ncdata
-        msg = "Cannot rename dimension 'x' to 'y', because a 'y' dimension already exists."
+        msg = (
+            "Cannot rename dimension 'x' to 'y', "
+            "because a 'y' dimension already exists."
+        )
         with pytest.raises(ValueError, match=msg):
             rename_dimension(ncdata, "x", "y")
 
@@ -94,7 +97,10 @@ class TestRenameDimension:
     def test_name_collision_ingroup_fail(self, innergroup):
         ncdata = self.ncdata
         grp = NcData(name="inner", dimensions=[NcDimension("z", 2)])
-        msg = "Cannot rename dimension 'x' to 'z', because a 'z' dimension already exists"
+        msg = (
+            "Cannot rename dimension 'x' to 'z', "
+            "because a 'z' dimension already exists"
+        )
         if innergroup:
             grp = NcData(name="main", groups=[grp])
             msg += ' in group "/main/inner".'

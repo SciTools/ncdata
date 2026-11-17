@@ -166,7 +166,8 @@ class TestCompareDimensions:
 
         if do_check_unlims:
             expected = [
-                f'{self.location_string} "y" dimension has different "unlimited" status : '
+                f'{self.location_string} "y" dimension '
+                'has different "unlimited" status : '
                 "False != True"
             ]
         else:

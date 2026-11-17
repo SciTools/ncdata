@@ -205,7 +205,8 @@ def save_errors(ncdata: NcData) -> List[str]:
     -----
     The checks made are roughly the following:
 
-    **(1)** check names in all components (dimensions, variables, attributes and groups):
+    **(1)** check names in all components
+    (dimensions, variables, attributes and groups):
 
     * all names are valid netcdf names
     * all element names match their key in the component,

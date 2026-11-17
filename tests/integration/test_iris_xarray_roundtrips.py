@@ -305,7 +305,8 @@ def test_roundtrip_xix(
             var.data = data
             if "calendar" in var.avals:
                 if var.avals["calendar"] == "gregorian":
-                    # the calendar name 'gregorian' is now deprecated, so Iris replaces it.
+                    # the calendar name 'gregorian' is now deprecated,
+                    #  so Iris replaces it.
                     var.avals["calendar"] = "standard"
 
     result = dataset_differences(

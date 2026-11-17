@@ -31,7 +31,8 @@ class Test_NcVariable__init__:
             _ = NcVariable()
 
     def test_allargs(self):
-        # Constructor slots are not type-checked, if the right kind of arg. There is no enforced type checking, put whatever you like in the "slots".
+        # Constructor slots are not type-checked, if the right kind of arg.
+        # There is no enforced type checking, put whatever you like in the "slots".
         name = "data_name"
         # NOTE: for *no-copy* construction, args must be NameMap of correct item_type
         dims = [f"dimname_{i}" for i in range(3)]
@@ -136,8 +137,8 @@ class Test_NcVariable__init__:
         dtype = np.dtype(dtype)
         arr = np.zeros((2, 3), dtype=dtype)
         arr[:] = elem
-        # The variable should preserve the original of a contained numpy array, and adopt
-        # it's dtype as it's own
+        # The variable should preserve the original of a contained numpy array,
+        #  and adopt it's dtype as it's own
         var = NcVariable("x", data=arr)
         assert var.data is arr  # not copied or re-formed
         assert var.dtype == dtype

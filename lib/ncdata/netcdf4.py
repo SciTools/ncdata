@@ -214,7 +214,8 @@ def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
     Inner routine for :func:`from_nc4`.
 
     See docstring there.
-    Provided mainly for recursion into groups, also to keep the dataset open/close separate.
+    Provided mainly for recursion into groups, also to keep the dataset
+    open/close separate.
     """
     parent_ds = nc4ds
     group_names_path = []

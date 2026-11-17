@@ -83,7 +83,10 @@ class _Nc4DatalikeWithNcattrs:
 
     def set_auto_chartostring(self, value):
         if bool(value):
-            msg = "Cannot enable 'auto_chartostring' for Nc4Dataselike or Nc4VariableLike."
+            msg = (
+                "Cannot enable 'auto_chartostring' for Nc4Dataselike "
+                "or Nc4VariableLike."
+            )
             raise ValueError(msg)
 
 
@@ -208,9 +211,11 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
 
 class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
     """
-    An object which contains a :class:`ncdata.NcVariable` and emulates a :class:`netCDF4.Variable`.
+    An object which contains a :class:`ncdata.NcVariable` """
+    """and emulates a :class:`netCDF4.Variable`.
 
-    The core, contained content object, ``self._ncdata``, is a :class:`~ncdata.NcVariable`.
+    The core, contained content object, ``self._ncdata``, is a
+    :class:`~ncdata.NcVariable`.
     This completely defines the parent object state.
 
     The property ``._data_array`` is detected by Iris to do direct data transfer
@@ -466,7 +471,8 @@ class Nc4DimensionLike:
     """
     An object which emulates a :class:`netCDF4.Dimension` object.
 
-    The core, contained content object, ``self._ncdata``, is a :class:`ncdata.NcDimension`.
+    The core, contained content object, ``self._ncdata``, is a
+    :class:`ncdata.NcDimension`.
     This completely defines the parent object state.
 
     """

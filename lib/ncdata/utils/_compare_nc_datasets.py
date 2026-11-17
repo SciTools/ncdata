@@ -109,14 +109,15 @@ def dataset_differences(
         >>> data2.avals.update({"a1":3, "v":7})
         >>> data2.variables["b"].data = np.array([1, 7, 3, 99])  # must be an array!
         >>> print('\n'.join(dataset_differences(data, data2)))
-        Dataset attribute lists do not match: ['a1'] != ['a1', 'v']
+        """
+        r"""Dataset attribute lists do not match: ['a1'] != ['a1', 'v']
         Dataset "a1" attribute values differ : 4 != 3
         Dataset variable "b" data contents differ, at 2 points: @INDICES[(1,), (3,)] : LHS=[2, 4], RHS=[7, 99]
 
     See Also
     --------
     :func:`~ncdata.utils.variable_differences`
-    """
+    """  # noqa: E501
     ds1_was_path = not hasattr(dataset_or_path_1, "variables")
     ds2_was_path = not hasattr(dataset_or_path_2, "variables")
     ds1, ds2 = None, None
@@ -353,11 +354,13 @@ def variable_differences(
         variables to compare
     check_attrs_order : bool, default True
         If False, no error results from the same contents in a different order,
-        however unless `suppress_warnings` is True, the error string is issued as a warning.
+        however unless `suppress_warnings` is True, the error string is issued
+        as a warning.
     check_var_data : bool, default True
         If True, all variable data is also checked for equality.
         If False, only dtype and shape are compared.
-        NOTE: comparison of large arrays is done in-memory, so may be highly inefficient.
+        NOTE: comparison of large arrays is done in-memory, so may be highly
+        inefficient.
     show_n_first_different: int, default 2
         Number of value differences to display.
     suppress_warnings : bool, default False

@@ -365,9 +365,7 @@ def _define_iris_testdata_testcases():
             # replace path-separators and other awkward chars with dunder
             for char in ("/", ".", "-"):
                 param_name = param_name.replace(char, "__")
-            # TEMPORARY: skip unstructured ones, just for now, as it makes the run faster
             if not any(key in param_name for key in EXCLUDES):
-                # if "small_theta_colpex" in param_name:
                 testcases[f"testdata__{param_name}"] = filepath
 
     return testcases

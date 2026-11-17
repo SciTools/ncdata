@@ -64,8 +64,8 @@ def cubes_equal__corrected(c1, c2):
                         for arr in (a1, a2)
                     )
                     if allmasked_1 and allmasked_2:
-                        # IN this case == will return 'masked', but for our purposes should be
-                        # considered equal, i.e. 'True'
+                        # IN this case == will return 'masked', but for our purposes
+                        #  should be considered equal, i.e. 'True'
                         a1 = np.zeros(a1.shape, dtype=bool)
                         a2 = a1
 

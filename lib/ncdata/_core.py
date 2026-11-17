@@ -104,6 +104,8 @@ class NameMap(dict):
         If "new_name == name", has no effect.  Otherwise, if `new_name` already exists,
         the old item of that name is removed, but the renamed item remains in its
         original order place.
+        """
+        """
 
         Examples
         --------
@@ -116,7 +118,7 @@ class NameMap(dict):
         >>> mymap.rename('a', 'c')
         >>> mymap
         {'c': NcAttribute('c', 'A'), 'qqq': NcAttribute('qqq', 'B'), 'd': NcAttribute('d', 'D')}
-        """
+        """  # noqa: E501
         if new_name == name:
             # skip this case, to avoid removing the item because it matches 'new_name'.
             pass
@@ -266,8 +268,8 @@ class AttrvalsDict(MutableMapping):
     def __str__(self):
         """Provide a string representation.
 
-        A convenient representation, somewhat consistent with how we print the attributes
-        in the printout of an NcData / NcVariable.
+        A convenient representation, somewhat consistent with how we print the
+        attributes in the printout of an NcData / NcVariable.
         """
         text = "AttrvalsDict{"
         if not self._attrs:
@@ -300,11 +302,11 @@ class AttrvalsDict(MutableMapping):
         -------
             AttrvalsDict
 
-        The copy is 'shallow', in that it contains a NameMap with the *same* NcAttributes
-        as the original. These are themselves mutable, so the copy will change if the
-        original content attributes are modified, and vice versa.
+        The copy is 'shallow', in that it contains a NameMap with the *same*
+        NcAttributes as the original. These are themselves mutable, so the copy will
+        change if the original content attributes are modified, and vice versa.
 
-        N.B. if a truly independent 'deep' copy is required, you can use `copy.deepcopy`.
+        N.B. for a truly independent 'deep' copy, use `copy.deepcopy`.
         """
         return self.__class__(self._attrs.copy())
 
@@ -345,7 +347,7 @@ class _AttributeAccessMixin:
         If no such attribute exists, returns None.
 
         .. warning::
-            This legacy method is now deprecated, and will be removed in a future release.
+            This legacy method is deprecated, and will be removed in a future release.
 
         """
         return self.avals.get(name, None)
@@ -355,7 +357,7 @@ class _AttributeAccessMixin:
         Set the Python value of a named attribute in self.attributes.
 
         .. warning::
-            This legacy method is now deprecated, and will be removed in a future release.
+            This legacy method is deprecated, and will be removed in a future release.
 
         """
         self.avals[name] = value

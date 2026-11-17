@@ -165,8 +165,8 @@ class TestDtypes:
 
     @pytest.mark.parametrize("given", ["nodata", "data", "dtype"])
     def test_nodata_nodtype(self, given):
-        # Check that we can correctly compare a variable with NO specified data or dtype,
-        #  with one that may have either.
+        # Check that we can correctly compare a variable with NO specified data
+        #  or dtype, with one that may have either.
         # N.B. this omits comparing 2 variables with dtype only. See following test,
         #  'test_nodata_withdtype` for that.
         v1 = NcVariable("x")
