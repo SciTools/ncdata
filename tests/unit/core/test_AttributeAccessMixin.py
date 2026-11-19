@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Tests for class :class:`ncdata._core._AttributeAccessMixin`.
 
@@ -26,7 +30,7 @@ class Test_AttributeAccesses:
 
     def test_getattr_absent(self, sample_object):
         # Check that fetching a non-existent attribute returns None.
-        sample_object.get_attrval("q") is None
+        assert sample_object.get_attrval("q") is None
 
     def test_setattr(self, sample_object):
         content = np.array([1, 2])

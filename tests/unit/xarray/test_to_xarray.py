@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Tests for :func:`ncdata.xarray.to_xarray`.
 
@@ -26,9 +30,7 @@ def test_lazy_nocompute():
     dask_array = da.from_array(monitored_array, chunks=(2,), meta=np.ndarray)
     ncdata = NcData(
         dimensions=[NcDimension("x", 3)],
-        variables=[
-            NcVariable(name="var_x", dimensions=["x"], data=dask_array)
-        ],
+        variables=[NcVariable(name="var_x", dimensions=["x"], data=dask_array)],
     )
 
     # convert to xarray.Dataset
@@ -52,9 +54,7 @@ def test_real_nocopy():
     real_numpy_data = np.array([1.23, 4, 7.3, 4.1], dtype=np.float32)
     ncdata = NcData(
         dimensions=[NcDimension("x", 3)],
-        variables=[
-            NcVariable(name="var_x", dimensions=["x"], data=real_numpy_data)
-        ],
+        variables=[NcVariable(name="var_x", dimensions=["x"], data=real_numpy_data)],
     )
 
     # convert to xarray.Dataset
@@ -71,7 +71,6 @@ def test_real_nocopy():
 @pytest.mark.parametrize("scaleandoffset", ["WITHscaling", "NOscaling"])
 def test_kwargs__scaleandoffset(scaleandoffset):
     """Check the operation of kwargs (= xarray load controls)."""
-
     # Make a test NcData dataset with a scaled-and-offset variable.
     raw_int_data = np.array([66, 75, 99], dtype=np.int16)
     ncdata = NcData(

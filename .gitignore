@@ -42,6 +42,11 @@ coverage.xml
 .pydevproject
 .settings
 
+# VS Code
+.vscode/
+*.code-workspace
+.vscode-test/
+
 # Docs
 docs/_build
 docs/api

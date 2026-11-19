@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Tests for class :class:`ncdata.NcAttribute`.
 
@@ -54,9 +58,7 @@ def structuretype(request):
 
 def attrvalue(datatype, structuretype):
     # get basic type = 'int', 'float', 'string'
-    (datatype,) = (
-        key for key in _attribute_testdata.keys() if key in datatype
-    )
+    (datatype,) = (key for key in _attribute_testdata if key in datatype)
 
     # fetch a set of values
     values = _attribute_testdata[datatype]
@@ -107,14 +109,13 @@ class Test_NcAttribute__as_python_value:
                 assert all(isinstance(x, str) for x in result)
             else:
                 assert isinstance(result, str)
+        # Numeric data is returned as arrays or array scalars.
+        elif is_vector:
+            assert isinstance(result, np.ndarray)
+            assert result.ndim == 1
         else:
-            # Numeric data is returned as arrays or array scalars.
-            if is_vector:
-                assert isinstance(result, np.ndarray)
-                assert result.ndim == 1
-            else:
-                # scalar : result is *always* an array scalar (e.g. np.float64)
-                assert result.shape == ()
+            # scalar : result is *always* an array scalar (e.g. np.float64)
+            assert result.shape == ()
 
 
 class Test_NcAttribute__str_repr:
@@ -165,11 +166,9 @@ class Test_NcAttribute_copy:
         assert result == attr
         assert result.name == attr.name
         assert result.value is not attr.value
-        assert (
-            result.value.dtype == attr.value.dtype
-            and result.value.shape == attr.value.shape
-            and np.all(result.value == attr.value)
-        )
+        assert result.value.dtype == attr.value.dtype
+        assert result.value.shape == attr.value.shape
+        assert np.all(result.value == attr.value)
 
 
 class Test_NcAttribute__eq__:
@@ -219,7 +218,8 @@ class Test_NcAttribute__eq__:
         assert attr1 == attr2
         assert attr1.value.dtype == "<U4"
 
-    # NOTE: **not** testing a vector of multiple strings, since this has no function at present
+    # NOTE: **not** testing a vector of multiple strings,
+    #  since this has no function at present
 
 
 class Test_NcAttribute__value_assign:

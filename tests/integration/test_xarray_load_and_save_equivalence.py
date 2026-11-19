@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Test ncdata.xarray by checking roundtrips for standard testcases.
 
@@ -63,9 +67,7 @@ def check_load_equivalence(ds1: xarray.Dataset, ds2: xarray.Dataset):
         assert v1.dims == v2.dims
         assert v1.dtype == v2.dtype
         # Numeric compare may need to allow for NaNs : floats *and datetimes*
-        equal_nan = (
-            v1.dtype.kind in "fM"
-        )  # cannot set kwarg when not applicable
+        equal_nan = v1.dtype.kind in "fM"  # cannot set kwarg when not applicable
         result = np.array_equal(v1.data, v2.data, equal_nan=equal_nan)
         if hasattr(result, "compute"):
             result = result.compute()

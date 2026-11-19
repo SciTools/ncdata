@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 import dask.array as da
 import numpy as np
 import pytest
@@ -21,15 +25,14 @@ class TestSimpleProperties:
     @pytest.fixture(autouse=True)
     def _vars_data(self):
         self.var1, self.var2 = [
-            NcVariable("v1", ("y", "x"), data=np.zeros((2, 3)))
-            for _ in range(2)
+            NcVariable("v1", ("y", "x"), data=np.zeros((2, 3))) for _ in range(2)
         ]
 
     def test_var_names(self):
         self.var2.name = "q"
 
         errs = variable_differences(self.var1, self.var2)
-        expected = ['Variable "v1 / q" names differ : ' "'v1' != 'q'"]
+        expected = ["Variable \"v1 / q\" names differ : 'v1' != 'q'"]
         check(errs, expected)
 
     def test_var_dims__reorder(self):
@@ -41,9 +44,7 @@ class TestSimpleProperties:
 
         errs = variable_differences(self.var1, self.var2)
 
-        expected = [
-            'Variable "v1" dimensions differ : ' "('y', 'x') != ('x', 'y')"
-        ]
+        expected = ["Variable \"v1\" dimensions differ : ('y', 'x') != ('x', 'y')"]
         check(errs, expected)
 
     def test_var_dims__extra_or_missing(self):
@@ -77,8 +78,7 @@ class TestDtypes:
         # Test the comparison
         errs = variable_differences(self.var1, self.var2)
         expected = [
-            'Variable "v1" datatypes differ : '
-            "dtype('float64') != dtype('S5')"
+            "Variable \"v1\" datatypes differ : dtype('float64') != dtype('S5')"
         ]
         check(errs, expected)
 
@@ -97,8 +97,7 @@ class TestDtypes:
         errs = variable_differences(self.var1, self.var2)
 
         expected = [
-            'Variable "v1" datatypes differ : '
-            "dtype('float64') != dtype('int32')"
+            "Variable \"v1\" datatypes differ : dtype('float64') != dtype('int32')"
         ]
         if not equaldata:
             expected.append(
@@ -123,8 +122,7 @@ class TestDtypes:
         errs = variable_differences(self.var1, self.var2)
 
         expected = [
-            'Variable "v1" datatypes differ : '
-            "dtype('float64') != dtype('float32')"
+            "Variable \"v1\" datatypes differ : dtype('float64') != dtype('float32')"
         ]
         if not equaldata:
             expected.append(
@@ -153,8 +151,7 @@ class TestDtypes:
         errs = variable_differences(self.var1, self.var2)
 
         expected = [
-            'Variable "v1" datatypes differ : '
-            "dtype('int64') != dtype('uint64')"
+            "Variable \"v1\" datatypes differ : dtype('int64') != dtype('uint64')"
         ]
         if not equaldata:
             expected.append(
@@ -165,8 +162,8 @@ class TestDtypes:
 
     @pytest.mark.parametrize("given", ["nodata", "data", "dtype"])
     def test_nodata_nodtype(self, given):
-        # Check that we can correctly compare a variable with NO specified data or dtype,
-        #  with one that may have either.
+        # Check that we can correctly compare a variable with NO specified data
+        #  or dtype, with one that may have either.
         # N.B. this omits comparing 2 variables with dtype only. See following test,
         #  'test_nodata_withdtype` for that.
         v1 = NcVariable("x")
@@ -180,9 +177,7 @@ class TestDtypes:
             ]
         elif given == "dtype":
             kwargs["dtype"] = np.float32
-            expected = [
-                "Variable \"x\" datatypes differ : None != dtype('float32')"
-            ]
+            expected = ["Variable \"x\" datatypes differ : None != dtype('float32')"]
         elif given == "nodata":
             expected = []
         else:
@@ -225,9 +220,7 @@ class TestDtypes:
         nodata = differs.endswith("nodata")
         if differs.startswith("dims"):
             dims2 = ["x"]
-            expected = [
-                "Variable \"x\" dimensions differ : ('x', 'y') != ('x',)"
-            ]
+            expected = ["Variable \"x\" dimensions differ : ('x', 'y') != ('x',)"]
             if nodata:
                 # In this case, either one or both have no data.
                 shape1 = None
@@ -236,9 +229,7 @@ class TestDtypes:
                     shape2 = None
                 else:
                     # Only one has data --> triggers a shape warning too.
-                    expected.append(
-                        'Variable "x" shapes differ : None != (2, 3)'
-                    )
+                    expected.append('Variable "x" shapes differ : None != (2, 3)')
         elif differs.startswith("shapes"):
             if nodata:
                 # In this case one has data (and therefore a shape), and the other not.
@@ -278,9 +269,7 @@ class TestDataCheck__controls:
     def test_print_bad_nprint(self):
         msg = "'show_n_diffs' must be >=1 : got 0."
         with pytest.raises(ValueError, match=msg):
-            variable_differences(
-                self.var1, self.var2, show_n_first_different=0
-            )
+            variable_differences(self.var1, self.var2, show_n_first_different=0)
 
     @pytest.mark.parametrize("ndiffs", [1, 2, 3])
     def test_ndiffs(self, ndiffs):
@@ -289,31 +278,24 @@ class TestDataCheck__controls:
         detail = {
             1: "[(0, 1)] : LHS=[1.0], RHS=[2.0]",
             2: "[(0, 1), (0, 2)] : LHS=[1.0, 2.0], RHS=[2.0, 3.0]",
-            3: (
-                "[(0, 1), (0, 2), ...] : "
-                "LHS=[1.0, 2.0, ...], RHS=[2.0, 3.0, ...]"
-            ),
+            3: ("[(0, 1), (0, 2), ...] : LHS=[1.0, 2.0, ...], RHS=[2.0, 3.0, ...]"),
         }[ndiffs]
         expected = [
-            f'Variable "v1" data contents differ, at {ndiffs} points: '
-            f"@INDICES{detail}"
+            f'Variable "v1" data contents differ, at {ndiffs} points: @INDICES{detail}'
         ]
         check(errs, expected)
 
     @pytest.mark.parametrize("nprint", [1, 2, 3])
     def test_show_n_first_different(self, nprint):
         self.var2.data.flat[1:3] += 1
-        errs = variable_differences(
-            self.var1, self.var2, show_n_first_different=nprint
-        )
+        errs = variable_differences(self.var1, self.var2, show_n_first_different=nprint)
         detail = {
             1: "[(0, 1), ...] : LHS=[1.0, ...], RHS=[2.0, ...]",
             2: "[(0, 1), (0, 2)] : LHS=[1.0, 2.0], RHS=[2.0, 3.0]",
             3: "[(0, 1), (0, 2)] : LHS=[1.0, 2.0], RHS=[2.0, 3.0]",
         }[nprint]
         expected = [
-            f'Variable "v1" data contents differ, at 2 points: '
-            f"@INDICES{detail}"
+            f'Variable "v1" data contents differ, at 2 points: @INDICES{detail}'
         ]
         check(errs, expected)
 
@@ -346,8 +328,10 @@ class TestDataCheck__difference_reports:
             expected = []
         else:
             expected = [
-                'Variable "v1" data contents differ, at 1 points: '
-                "@INDICES[(1,)] : LHS=[1.0], RHS=[masked]"
+                (
+                    'Variable "v1" data contents differ, at 1 points: '
+                    "@INDICES[(1,)] : LHS=[1.0], RHS=[masked]"
+                )
             ]
         check(errs, expected)
 
@@ -362,8 +346,10 @@ class TestDataCheck__difference_reports:
             expected = []
         else:
             expected = [
-                'Variable "v1" data contents differ, at 1 points: '
-                "@INDICES[(1,)] : LHS=[1.0], RHS=[nan]"
+                (
+                    'Variable "v1" data contents differ, at 1 points: '
+                    "@INDICES[(1,)] : LHS=[1.0], RHS=[nan]"
+                )
             ]
         check(errs, expected)
 
@@ -374,28 +360,30 @@ class TestDataCheck__difference_reports:
             var.data = np.array(value, dtype=var.dtype)
         errs = variable_differences(self.var1, self.var2)
         expected = [
-            'Variable "v1" data contents differ, at 1 points: '
-            "@INDICES[(0,)] : LHS=[0.0], RHS=[1.0]"
+            (
+                'Variable "v1" data contents differ, at 1 points: '
+                "@INDICES[(0,)] : LHS=[0.0], RHS=[1.0]"
+            )
         ]
         check(errs, expected)
 
-    @pytest.mark.parametrize(
-        "argtypes", ["real_real", "real_lazy", "lazy_lazy"]
-    )
+    @pytest.mark.parametrize("argtypes", ["real_real", "real_lazy", "lazy_lazy"])
     def test_real_and_lazy(self, argtypes):
         type1, type2 = argtypes[:4], argtypes[-4:]
         # fix the testvar to create a difference
         self.var2.data[1:2] += 1
         # setup vars with lazy/real data arrays
-        for arraytype, var in zip([type1, type2], [self.var1, self.var2]):
+        for arraytype, var in [(type1, self.var1), (type2, self.var2)]:
             if arraytype == "lazy":
                 var.data = da.from_array(var.data, chunks=-1)
         # compare + check results
         errs = variable_differences(self.var1, self.var2)
         # N.B. the result should be the same in all cases
         expected = [
-            'Variable "v1" data contents differ, at 1 points: '
-            "@INDICES[(1,)] : LHS=[1.0], RHS=[2.0]"
+            (
+                'Variable "v1" data contents differ, at 1 points: '
+                "@INDICES[(1,)] : LHS=[1.0], RHS=[2.0]"
+            )
         ]
         check(errs, expected)
 
@@ -424,13 +412,17 @@ class TestDataCheck__difference_reports:
         expected = []
         if ndiffs == 1:
             expected = [
-                'Variable "vx" data contents differ, at 1 points: '
-                "@INDICES[(1, 1)] : LHS=[b'h'], RHS=[b'X']"
+                (
+                    'Variable "vx" data contents differ, at 1 points: '
+                    "@INDICES[(1, 1)] : LHS=[b'h'], RHS=[b'X']"
+                )
             ]
         elif ndiffs == 2:
             expected = [
-                'Variable "vx" data contents differ, at 7 points: '
-                "@INDICES[(1, 1), (3, 3), ...] : "
-                "LHS=[b'h', b'e', ...], RHS=[b'X', b'', ...]"
+                (
+                    'Variable "vx" data contents differ, at 7 points: '
+                    "@INDICES[(1, 1), (3, 3), ...] : "
+                    "LHS=[b'h', b'e', ...], RHS=[b'X', b'', ...]"
+                )
             ]
         check(errs, expected)

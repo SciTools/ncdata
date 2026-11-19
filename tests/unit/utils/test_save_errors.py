@@ -1,6 +1,8 @@
-"""
-Tests for :mod:`ncdata.utils.save_errors`
-"""
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
+"""Tests for :mod:`ncdata.utils.save_errors`."""
 
 import re
 
@@ -19,9 +21,7 @@ def _basic_testdata():
     ncdata = NcData(
         name="test_ds",
         dimensions=[
-            NcDimension(
-                "xxx", 2
-            ),  # unused first dim, so rename doesn't break variable
+            NcDimension("xxx", 2),  # unused first dim, so rename doesn't break variable
             NcDimension("x", 3),
         ],
         variables=[
@@ -67,16 +67,14 @@ class TestSaveErrors_Names:
     @staticmethod
     def component_propname(component: str):
         """Return the property name corresponding to the component type."""
-        if component == "attribute":
+        if component == "attribute":  # noqa: SIM108
             # Access the NameMap of NcAttributes (not the .attributes values map)
             propname = "attributes"
         else:
             propname = component + "s"
         return propname
 
-    @pytest.mark.parametrize(
-        "badnametype", ["None", "empty", "number", "object"]
-    )
+    @pytest.mark.parametrize("badnametype", ["None", "empty", "number", "object"])
     def test_bad_name_type(self, badnametype, component):
         bad_name = {
             "None": None,
@@ -121,9 +119,7 @@ class TestSaveErrors_Names:
         debug_errors(errors)
 
         assert len(errors) == 1
-        msg = (
-            f"{component} element {key!r} has a different element.name : 'qqq'"
-        )
+        msg = f"{component} element {key!r} has a different element.name : 'qqq'"
         assert re.search(msg, errors[0])
 
 
@@ -250,7 +246,7 @@ class TestSaveErrors_Variables:
     def test_missing_dims(self, extradims):
         ncdata = _basic_testdata()
         var = list(ncdata.variables.values())[0]
-        extradims = list(char for char in extradims)
+        extradims = list(extradims)
         var.dimensions = var.dimensions + tuple(extradims)
 
         errors = save_errors(ncdata)

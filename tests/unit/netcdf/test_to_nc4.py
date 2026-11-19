@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Tests for :func:`ncdata.netcdf.to_nc4`.
 
@@ -10,7 +14,6 @@ by the generic 'roundtrip' testcases.  This includes error cases.
 """
 
 from pathlib import Path
-from typing import List
 
 import netCDF4 as nc
 import numpy as np
@@ -40,9 +43,7 @@ _targettype_opts = ["str", "path", "file"]
 def test_target_types(targettype, tmp_path):
     """Check the various ways of specifying the output location."""
     # Testcase is minimal spec with just one scalar variable.
-    test_spec = {
-        "vars": [dict(name="x", dims=[], dtype=np.float32, data=[1.23])]
-    }
+    test_spec = {"vars": [dict(name="x", dims=[], dtype=np.float32, data=[1.23])]}
     original_path = tmp_path / "input.nc"
     ncdata = file_and_ncdata_from_spec(original_path, test_spec)
 
@@ -66,7 +67,7 @@ def test_target_types(targettype, tmp_path):
     assert dataset_differences(target_path, original_path) == []
 
 
-def fetch_nc_var(nc_file: nc.Dataset, var_path: str or List[str]):
+def fetch_nc_var(nc_file: nc.Dataset, var_path: str or list[str]):
     """
     Return a variable instance from an open dataset for inspection.
 
@@ -108,9 +109,7 @@ def test_var_kwargs(tmp_path):
                 "groups": [
                     {
                         "name": "sub_subgroup_1_2",
-                        "vars": [
-                            dict(name="var_xx", dims=["x"], dtype=np.float32)
-                        ],
+                        "vars": [dict(name="var_xx", dims=["x"], dtype=np.float32)],
                     },
                 ],
             },
@@ -143,9 +142,7 @@ def test_var_kwargs(tmp_path):
     assert var_2.filters()["zlib"] is False
     assert var_2.chunking() == "contiguous"
 
-    var_3 = fetch_nc_var(
-        saved_ds, ["subgroup_1", "sub_subgroup_1_2", "var_xx"]
-    )
+    var_3 = fetch_nc_var(saved_ds, ["subgroup_1", "sub_subgroup_1_2", "var_xx"])
     assert var_3.filters()["zlib"] is False
     assert var_3.chunking() == [2]
 
@@ -153,9 +150,7 @@ def test_var_kwargs(tmp_path):
 def test_var_kwargs__bad_kwarg(tmp_path):
     """Check that unsuitable var_kwargs entries are errored."""
     # Testcase is a minimal spec with just one scalar variable.
-    test_spec = {
-        "vars": [dict(name="x", dims=[], dtype=np.float32, data=[1.23])]
-    }
+    test_spec = {"vars": [dict(name="x", dims=[], dtype=np.float32, data=[1.23])]}
     original_path = tmp_path / "input.nc"
     ncdata = file_and_ncdata_from_spec(original_path, test_spec)
 

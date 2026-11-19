@@ -12,6 +12,12 @@ updates:
       day: "thursday"
       time: "01:00"
       timezone: "Europe/London"
+    cooldown:
+      default-days: 7
     labels:
       - "new: pull request"
       - "bot"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

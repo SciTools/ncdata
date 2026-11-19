@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Tests for :func:`ncdata.netcdf.from_nc4`.
 
@@ -43,9 +47,7 @@ def test_target_types(sourcetype, tmp_path):
     # In effect, this is also exercising tricky bits of 'dataset_differences' !!
     test_spec = {
         "dims": [dict(name="xdim", size=3)],
-        "vars": [
-            dict(name="x", dims=["xdim"], dtype=np.float32, data=[1.23, 2, 9])
-        ],
+        "vars": [dict(name="x", dims=["xdim"], dtype=np.float32, data=[1.23, 2, 9])],
         "groups": [
             {
                 "dims": [dict(name="ydim", size=2)],

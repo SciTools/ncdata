@@ -1,4 +1,9 @@
-"""Tests for :func:`ncdata.utils.ncdata_copy`.
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
+"""
+Tests for :func:`ncdata.utils.ncdata_copy`.
 
 This is generic utility function version of the copy operation.
 """
@@ -13,22 +18,24 @@ from ncdata.utils import dataset_differences, ncdata_copy
 def _ncdata_duplicate_object(d1: NcData, d2: NcData):
     """Find and return the first known duplicate objects between two NcData."""
     dup = None
-    for var1, var2 in zip(d1.variables.values(), d2.variables.values()):
+    for var1, var2 in zip(d1.variables.values(), d2.variables.values(), strict=True):
         if var1 is var2:
             dup = var1
             break
     if not dup:
-        for dim1, dim2 in zip(d1.dimensions.values(), d2.dimensions.values()):
+        for dim1, dim2 in zip(
+            d1.dimensions.values(), d2.dimensions.values(), strict=True
+        ):
             if dim1 is dim2:
                 dup = dim1
                 break
     if not dup:
-        for attr1, attr2 in zip(d1.avals.values(), d2.avals.values()):
+        for attr1, attr2 in zip(d1.avals.values(), d2.avals.values(), strict=True):
             if attr1 is attr2:
                 dup = attr1
                 break
     if not dup:
-        for grp1, grp2 in zip(d1.groups.values(), d2.groups.values()):
+        for grp1, grp2 in zip(d1.groups.values(), d2.groups.values(), strict=True):
             if grp1 is grp2:
                 dup = grp1
                 break
@@ -49,16 +56,12 @@ class Test:
         result = ncdata_copy(sample)
         assert not differences_or_duplicated_objects(sample, result)
 
-    @pytest.fixture()
+    @pytest.fixture
     def sample(self):
-        attrs = NameMap.from_items(
-            [NcAttribute("q", 3)], item_type=NcAttribute
-        )
+        attrs = NameMap.from_items([NcAttribute("q", 3)], item_type=NcAttribute)
         dims = NameMap.from_items([NcDimension("x", 3)], item_type=NcDimension)
         data_array = np.array([1, 2, 3])
-        var = NcVariable(
-            name="a", dimensions=("x"), data=data_array, attributes=attrs
-        )
+        var = NcVariable(name="a", dimensions=("x"), data=data_array, attributes=attrs)
         sample = NcData(
             dimensions=dims,
             variables=[var],
@@ -96,16 +99,10 @@ class Test:
         result = ncdata_copy(sample)
         rva = result.variables["a"]
 
-        assert (
-            result.attributes["extra"].value
-            is not sample.attributes["extra"].value
-        ) and np.all(
-            result.attributes["extra"].value
-            == sample.attributes["extra"].value
+        assert result.attributes["extra"].value is not sample.attributes["extra"].value
+        assert np.all(
+            result.attributes["extra"].value == sample.attributes["extra"].value
         )
 
-        assert (
-            rva.attributes["xx2"].value is not sva.attributes["xx2"].value
-        ) and np.all(
-            rva.attributes["xx2"].value == sva.attributes["xx2"].value
-        )
+        assert rva.attributes["xx2"].value is not sva.attributes["xx2"].value
+        assert np.all(rva.attributes["xx2"].value == sva.attributes["xx2"].value)

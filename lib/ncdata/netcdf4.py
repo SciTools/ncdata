@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 """
 Interface routines for converting data between ncdata and netCDF4.
 
@@ -7,7 +11,6 @@ Converts :class:`ncdata.NcData` to and from :class:`netCDF4.Dataset` objects.
 
 from pathlib import Path
 from threading import Lock
-from typing import Dict, Optional, Union
 
 import dask.array as da
 import netCDF4 as nc
@@ -25,8 +28,8 @@ _Forbidden_Variable_Kwargs = ["data", "dimensions", "datatype", "fill_value"]
 
 def _to_nc4_group(
     ncdata: NcData,
-    nc4object: Union[nc.Dataset, nc.Group],
-    var_kwargs: Optional[Dict[str, Dict]] = None,
+    nc4object: nc.Dataset | nc.Group,
+    var_kwargs: dict[str, dict] | None = None,
 ) -> None:
     """
     Inner routine supporting ``to_nc4``, and recursive calls for sub-groups.
@@ -44,10 +47,7 @@ def _to_nc4_group(
 
     for varname, var in ncdata.variables.items():
         fillattr = "_FillValue"
-        if fillattr in var.avals:
-            fill_value = var.avals[fillattr]
-        else:
-            fill_value = None
+        fill_value = var.avals.get(fillattr, None)
 
         kwargs = var_kwargs.get(varname, {})
         forbidden_keys = set(_Forbidden_Variable_Kwargs) & set(kwargs)
@@ -105,11 +105,10 @@ class _NetCDFDataProxy:
     Copied from Iris, with some simplifications.
     """
 
-    __slots__ = ("shape", "dtype", "path", "variable_name", "group_names_path")
+    # N.B. avoiding sorting this, the order is convenient for understanding.
+    __slots__ = ("shape", "dtype", "path", "variable_name", "group_names_path")  # noqa: RUF023
 
-    def __init__(
-        self, shape, dtype, filepath, variable_name, group_names_path=None
-    ):
+    def __init__(self, shape, dtype, filepath, variable_name, group_names_path=None):
         self.shape = shape
         self.dtype = dtype
         self.path = filepath
@@ -160,8 +159,8 @@ class _NetCDFDataProxy:
 
 def to_nc4(
     ncdata: NcData,
-    nc4_dataset_or_file: Union[nc.Dataset, Path, str],
-    var_kwargs: Dict[str, Dict] = None,
+    nc4_dataset_or_file: nc.Dataset | Path | str,
+    var_kwargs: dict[str, dict] | None = None,
 ) -> None:
     """
     Save NcData to a netCDF file.
@@ -209,17 +208,18 @@ def to_nc4(
             nc4ds.close()
 
 
-def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
+def _from_nc4_group(nc4ds: nc.Dataset | nc.Group, dim_chunks) -> NcData:
     """
     Inner routine for :func:`from_nc4`.
 
     See docstring there.
-    Provided mainly for recursion into groups, also to keep the dataset open/close separate.
+    Provided mainly for recursion into groups, also to keep the dataset
+    open/close separate.
     """
     parent_ds = nc4ds
     group_names_path = []
     while parent_ds.parent is not None:
-        group_names_path = [parent_ds.name] + group_names_path
+        group_names_path = [parent_ds.name, *group_names_path]
         parent_ds = parent_ds.parent
 
     ncdata = NcData(name=nc4ds.name)
@@ -243,13 +243,13 @@ def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
 
         # Work out the shape of the variable.
         # It may refer to dimensions in enclosing groups.
-        group = parent_ds
-        dims_map = group.dimensions.copy()
+        nc4_group = parent_ds
+        dims_map = nc4_group.dimensions.copy()
         for group_name in group_names_path:
             # Inner groups take priority, of course :
             # their dimensions mask any of the same name in outer groups
-            group = group.groups[group_name]
-            dims_map.update(group.dimensions)
+            nc4_group = nc4_group.groups[group_name]
+            dims_map.update(nc4_group.dimensions)
 
         shape = tuple(dims_map[dimname].size for dimname in var.dimensions)
 
@@ -261,9 +261,7 @@ def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
             group_names_path=group_names_path,
         )
         chunks = [dim_chunks.get(name, "auto") for name in var.dimensions]
-        var.data = da.from_array(
-            proxy, chunks=chunks, asarray=True, meta=np.ndarray
-        )
+        var.data = da.from_array(proxy, chunks=chunks, asarray=True, meta=np.ndarray)
 
         for attrname in nc4var.ncattrs():
             var.avals[attrname] = nc4var.getncattr(attrname)
@@ -272,17 +270,15 @@ def _from_nc4_group(nc4ds: Union[nc.Dataset, nc.Group], dim_chunks) -> NcData:
         ncdata.avals[attrname] = nc4ds.getncattr(attrname)
 
     # And finally, groups -- by the magic of recursion ...
-    for group_name, group in nc4ds.groups.items():
-        ncdata.groups[group_name] = _from_nc4_group(
-            nc4ds.groups[group_name], dim_chunks=dim_chunks
-        )
+    for group_name, nc4_group in nc4ds.groups.items():
+        ncdata.groups[group_name] = _from_nc4_group(nc4_group, dim_chunks=dim_chunks)
 
     return ncdata
 
 
 def from_nc4(
-    nc4_dataset_or_file: Union[nc.Dataset, nc.Group, Path, str],
-    dim_chunks: Dict[str, Union[int, str]] = None,
+    nc4_dataset_or_file: nc.Dataset | nc.Group | Path | str,
+    dim_chunks: dict[str, int | str] | None = None,
 ) -> NcData:
     """
     Load NcData from a :class:`netCDF4.Dataset` or netCDF file.

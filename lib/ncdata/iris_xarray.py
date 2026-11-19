@@ -1,3 +1,7 @@
+# Copyright SciTools contributors
+#
+# This file is part of SciTools/ncdata and is released under the BSD license.
+# See LICENSE in the root of the repository for full licensing details.
 r"""
 Interface routines for converting data between Xarray and Iris.
 
@@ -10,8 +14,8 @@ the relevant load/save routines.
 
 """
 
-import xarray
 from iris.cube import CubeList
+import xarray
 
 from .iris import from_iris, to_iris
 from .xarray import from_xarray, to_xarray
