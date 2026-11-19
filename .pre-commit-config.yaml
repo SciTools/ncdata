@@ -16,8 +16,7 @@ files: |
         \.github/\.*|
         pyproject\.toml|
         \.pre-commit-config\.yaml|
-        \./.*\.py|
-        tests/.+\.py
+        .*\.py
     )
 
 exclude: |
