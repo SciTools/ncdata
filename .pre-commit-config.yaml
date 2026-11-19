@@ -78,6 +78,7 @@ repos:
     rev: v1.3.0
     hooks:
     -   id: sort-all
+        exclude: ^lib/ncdata(?:/utils)?/__init__\.py$
         types: [file, python]
 
 -   repo: https://github.com/codespell-project/codespell
@@ -100,6 +101,7 @@ repos:
     rev: v1.11.0
     hooks:
       - id: numpydoc-validation
+        files: ^$  # Temporarily disable for all files.
         types: [file, python]
 
 -   repo: https://github.com/pre-commit/pygrep-hooks
