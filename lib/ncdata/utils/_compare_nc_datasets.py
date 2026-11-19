@@ -34,7 +34,7 @@ def dataset_differences(
     check_var_data: bool = True,
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
-) -> list[str]:  # noqa: PLR0913, PLR0917
+) -> list[str]:
     r"""
     Compare two netcdf datasets.
 
@@ -253,7 +253,7 @@ def _attribute_differences(
     attrs_order=True,
     suppress_warnings=False,
     force_first_attrnames=None,
-) -> list[str]:  # noqa: PLR0913, PLR0917
+) -> list[str]:
     """
     Compare attribute name lists.
 
@@ -332,7 +332,7 @@ def variable_differences(
     show_n_first_different: int = 2,
     suppress_warnings: bool = False,
     _group_id_string: str | None = None,
-) -> list[str]:  # noqa: PLR0912, PLR0913, PLR0915, PLR0917
+) -> list[str]:
     r"""
     Compare variables.
 
@@ -541,7 +541,7 @@ def _group_differences(
     check_names: bool = False,
     check_unlimited: bool = True,
     show_n_diffs: int = 2,
-) -> list[str]:  # noqa: PLR0913, PLR0917
+) -> list[str]:
     """
     Inner routine to compare either whole datasets or subgroups.
 

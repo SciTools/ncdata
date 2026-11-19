@@ -569,7 +569,7 @@ class NcVariable(_AttributeAccessMixin):
     consistent.  This is to be managed by the creator.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         name: str,
         dimensions: Iterable[str] = (),
@@ -577,11 +577,11 @@ class NcVariable(_AttributeAccessMixin):
         # a quoted reference when it's not otherwise needed (and we don't want to
         # import it).
         # TODO: remove the flake8 annotation if this gets fixed.
-        data: Union[np.ndarray, "dask.array.Array"] | None = None,
+        data: Union[np.ndarray, "dask.array.Array"] | None = None,  # noqa: F821
         dtype: np.dtype = None,
         attributes: Mapping | Iterable | None = None,
         group: "NcData" = None,
-    ):  # noqa: PLR0913, PLR0917
+    ):
         """
         Create a variable.
 
@@ -618,7 +618,6 @@ class NcVariable(_AttributeAccessMixin):
     #     return self.data.shape
 
     def _print_content(self):
-        global _STANDARD_INDENT
         dimstr = ", ".join(self.dimensions)
         typestr = str(self.dtype) if self.dtype else "<no-dtype>"
         hdr = f"<NcVariable({typestr}): {self.name}({dimstr})"

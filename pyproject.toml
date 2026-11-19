@@ -226,6 +226,18 @@ notice-rgx = "^[ #]*Copyright SciTools contributors"
 max-complexity = 25  # TODO: reduce, and ignore in specific cases.
 
 [tool.ruff.lint.per-file-ignores]
+# docstring + naming features for NcDatasetLike etc (mirrorinr netCDF4 classes)
+"./lib/ncdata/dataset_like.py" = [
+    "D102",
+    "N802"
+]
+# Specific complexity measures in _compare_nc_datasets (a style thing, I would say)
+"./lib/ncdata/utils/_compare_nc_datasets.py" = [
+    "PLR0912",
+    "PLR0913",
+    "PLR0915",
+    "PLR0917"
+]
 # All test scripts
 "./tests/**/*.py" = [ # e.g "cf_units/tests" or "lib/iris/tests"
     # https://docs.astral.sh/ruff/rules

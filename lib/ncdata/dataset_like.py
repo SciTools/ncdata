@@ -129,10 +129,10 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         }
 
     @property
-    def groups(self):  # noqa: D102
+    def groups(self):
         return None  # not supported
 
-    def createDimension(self, dimname: str, size: int):  # noqa: D102, N802
+    def createDimension(self, dimname: str, size: int):
         if dimname in self.dimensions:
             msg = f'creating duplicate dimension "{dimname}".'
             raise ValueError(msg)
@@ -152,7 +152,7 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         dimensions: list[str] = (),
         fill_value=None,
         **kwargs: dict[str, Any],  # noqa: ARG002
-    ):  # noqa: D102, N802
+    ):
         if varname in self.variables:
             msg = f'creating duplicate variable "{varname}".'
             raise ValueError(msg)
@@ -186,14 +186,14 @@ class Nc4DatasetLike(_Nc4DatalikeWithNcattrs):
         self.variables[varname] = nc4var
         return nc4var
 
-    def sync(self):  # noqa: D102
+    def sync(self):
         pass
 
-    def close(self):  # noqa: D102
+    def close(self):
         self.sync()
 
     @staticmethod
-    def filepath() -> str:  # noqa: D102
+    def filepath() -> str:
         # Note: for now, let's just not care about this.
         # we *might* need this to be an optional defined item on an NcData ??
         # .. or, we might need to store an xarray "encoding" somewhere ?
@@ -392,11 +392,11 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
         data = self._maskandscale_apparent_to_inner(data)
         self._ncdata.data = data
 
-    def group(self):  # noqa: D102
+    def group(self):
         return self._ncdata.group
 
     @property
-    def dimensions(self) -> list[str]:  # noqa: D102
+    def dimensions(self) -> list[str]:
         return self._ncdata.dimensions
 
     #
@@ -432,24 +432,24 @@ class Nc4VariableLike(_Nc4DatalikeWithNcattrs):
     #     self._data_array = data
 
     @property
-    def dtype(self):  # noqa: D102
+    def dtype(self):
         return self.datatype
 
     @property
-    def dims(self):  # noqa: D102
+    def dims(self):
         return self.dimensions
 
     @property
-    def ndim(self):  # noqa: D102
+    def ndim(self):
         return len(self.dimensions)
 
     @property
-    def shape(self):  # noqa: D102
+    def shape(self):
         dims = self.group().dimensions
         return tuple(dims[n].size for n in self.dimensions)
 
     @property
-    def size(self):  # noqa: D102
+    def size(self):
         return np.prod(self.shape)
 
     def chunking(self):
@@ -477,16 +477,16 @@ class Nc4DimensionLike:
         self._ncdata = ncdim
 
     @property
-    def name(self):  # noqa: D102
+    def name(self):
         return self._ncdata.name
 
     @property
-    def size(self):  # noqa: D102
+    def size(self):
         return self._ncdata.size
 
-    def isunlimited(self):  # noqa: D102
+    def isunlimited(self):
         return self._ncdata.unlimited
 
-    def group(self):  # noqa: D102
+    def group(self):
         # Not properly supported ?
         return None
