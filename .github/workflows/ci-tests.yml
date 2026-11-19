@@ -26,6 +26,8 @@ jobs:
   tests:
     name: "Test session=${{ matrix.session }}  Python=${{ matrix.python-version }}"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -58,10 +60,12 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: "Create conda environment"
-        uses: conda-incubator/setup-miniconda@v4
+        uses: conda-incubator/setup-miniconda@be893c923ea9cf1cf7cd510fbdde27c7e18cbdcb
         with:
           miniforge-version: latest
           activate-environment: testenv
